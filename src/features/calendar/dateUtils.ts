@@ -22,3 +22,10 @@ export function getMonthGrid(year: number, month: number): Date[] {
 export function formatMonthTitle(year: number, month: number): string {
   return format(new Date(year, month, 1), 'MMMM yyyy', { locale: ptBR });
 }
+
+export function getWeekday(dateStr: string): number {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  return new Date(y, m - 1, d).getDay();
+}
+
+export const WEEKDAY_LABELS = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];

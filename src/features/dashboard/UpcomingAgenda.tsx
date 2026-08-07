@@ -1,24 +1,42 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { addDays } from 'date-fns';
-import type { Task } from '../../types';
+import type { RecurringTask, Task } from '../../types';
 import { getTasksForRange } from '../tasks/tasksApi';
-import { toISODate } from '../calendar/dateUtils';
+import { getRecurringTasks } from '../tasks/recurringTasksApi';
+import { getWeekday, toISODate } from '../calendar/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
+
+interface AgendaItem {
+  key: string;
+  title: string;
+  time: string | null;
+}
 
 export function UpcomingAgenda() {
   const { showError } = useToast();
-  const [tasksByDate, setTasksByDate] = useState<Record<string, Task[]>>({});
+  const [tasksByDate, setTasksByDate] = useState<Record<string, AgendaItem[]>>({});
 
   useEffect(() => {
-    const start = toISODate(addDays(new Date(), 1));
-    const end = toISODate(addDays(new Date(), 3));
-    getTasksForRange(start, end)
-      .then((tasks) => {
-        const grouped: Record<string, Task[]> = {};
+    const rangeDays = [1, 2, 3].map((n) => toISODate(addDays(new Date(), n)));
+    const start = rangeDays[0];
+    const end = rangeDays[rangeDays.length - 1];
+    Promise.all([getTasksForRange(start, end), getRecurringTasks()])
+      .then(([tasks, recurring]: [Task[], RecurringTask[]]) => {
+        const grouped: Record<string, AgendaItem[]> = {};
         for (const task of tasks) {
           if (!task.date) continue;
-          (grouped[task.date] ??= []).push(task);
+          (grouped[task.date] ??= []).push({ key: `task-${task.id}`, title: task.title, time: task.time });
+        }
+        for (const date of rangeDays) {
+          const weekday = getWeekday(date);
+          for (const rt of recurring) {
+            if (!rt.weekdays.includes(weekday)) continue;
+            (grouped[date] ??= []).push({ key: `recurring-${rt.id}-${date}`, title: `↻ ${rt.title}`, time: rt.time });
+          }
+        }
+        for (const date of Object.keys(grouped)) {
+          grouped[date].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
         }
         setTasksByDate(grouped);
       })
@@ -38,10 +56,10 @@ export function UpcomingAgenda() {
               {date}
             </Link>
             <div className="flex flex-col gap-0.5 mt-1">
-              {tasksByDate[date].map((task) => (
-                <span key={task.id} className="text-sm text-app-text">
-                  {task.time ? `${task.time.slice(0, 5)} — ` : ''}
-                  {task.title}
+              {tasksByDate[date].map((item) => (
+                <span key={item.key} className="text-sm text-app-text">
+                  {item.time ? `${item.time.slice(0, 5)} — ` : ''}
+                  {item.title}
                 </span>
               ))}
             </div>

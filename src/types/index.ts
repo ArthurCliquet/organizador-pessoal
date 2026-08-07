@@ -38,3 +38,19 @@ export interface Task {
   done: boolean;
   created_at: string;
 }
+
+export interface RecurringTask {
+  id: string;
+  user_id: string;
+  title: string;
+  time: string | null;
+  weekdays: number[];
+  created_at: string;
+}
+
+export interface RecurringTaskLog {
+  id: string;
+  recurring_task_id: string;
+  date: string;
+  done: boolean;
+}
