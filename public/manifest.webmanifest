@@ -1,0 +1,11 @@
+{
+  "name": "Organizador Pessoal",
+  "short_name": "Organizador",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#16171d",
+  "theme_color": "#16171d",
+  "icons": [
+    { "src": "/icon.jpg", "sizes": "410x441", "type": "image/jpeg" }
+  ]
+}
