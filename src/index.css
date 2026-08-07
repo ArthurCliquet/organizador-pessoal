@@ -14,6 +14,12 @@ body {
   min-height: 100vh;
 }
 
+@media (max-width: 767px) {
+  html {
+    font-size: 19px;
+  }
+}
+
 .ProseMirror {
   outline: none;
 }
