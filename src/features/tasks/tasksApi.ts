@@ -26,6 +26,23 @@ export async function createTask(date: string, title: string, time: string | nul
   return data;
 }
 
+export async function getPendingTasks(): Promise<Task[]> {
+  const { data, error } = await supabase.from('tasks').select('*').is('date', null).order('created_at', { ascending: true });
+  if (error) throw error;
+  return data;
+}
+
+export async function createPendingTask(title: string): Promise<Task> {
+  const { data: userData } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert({ date: null, time: null, title, user_id: userData.user!.id })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function updateTask(id: string, fields: Partial<Pick<Task, 'title' | 'time' | 'date'>>): Promise<void> {
   const { error } = await supabase.from('tasks').update(fields).eq('id', id);
   if (error) throw error;

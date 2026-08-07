@@ -31,8 +31,9 @@ export interface HabitLog {
 export interface Task {
   id: string;
   user_id: string;
-  date: string;
+  date: string | null;
   time: string | null;
   title: string;
   done: boolean;
+  created_at: string;
 }

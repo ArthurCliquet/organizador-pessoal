@@ -22,6 +22,7 @@ export function CalendarPage() {
       const tasks = await getTasksForRange(start, end);
       const grouped: Record<string, Task[]> = {};
       for (const task of tasks) {
+        if (!task.date) continue;
         (grouped[task.date] ??= []).push(task);
       }
       setTasksByDate(grouped);

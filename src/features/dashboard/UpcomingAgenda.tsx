@@ -16,7 +16,10 @@ export function UpcomingAgenda() {
     getTasksForRange(start, end)
       .then((tasks) => {
         const grouped: Record<string, Task[]> = {};
-        for (const task of tasks) (grouped[task.date] ??= []).push(task);
+        for (const task of tasks) {
+          if (!task.date) continue;
+          (grouped[task.date] ??= []).push(task);
+        }
         setTasksByDate(grouped);
       })
       .catch(() => showError('Não foi possível carregar a agenda.'));
