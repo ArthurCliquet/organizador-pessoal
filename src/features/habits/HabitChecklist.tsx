@@ -68,6 +68,16 @@ export function HabitChecklist({ date }: HabitChecklistProps) {
     }
   }
 
+  async function commitRename(id: string, name: string) {
+    if (!name.trim()) return;
+    try {
+      await renameHabit(id, name.trim());
+      load();
+    } catch {
+      showError('Não foi possível renomear o hábito.');
+    }
+  }
+
   return (
     <div className="flex flex-col gap-1">
       {habits.map((habit) => (
@@ -80,7 +90,7 @@ export function HabitChecklist({ date }: HabitChecklistProps) {
                 value={editingName}
                 onChange={(e) => setEditingName(e.target.value)}
                 onBlur={() => {
-                  if (editingName.trim()) renameHabit(habit.id, editingName.trim()).then(load);
+                  commitRename(habit.id, editingName);
                   setEditingId(null);
                 }}
                 onKeyDown={(e) => {
