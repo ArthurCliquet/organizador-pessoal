@@ -47,9 +47,19 @@ export async function searchNotes(query: string): Promise<Note[]> {
 }
 
 export async function getRecentNotes(limit: number): Promise<Note[]> {
-  const { data, error } = await supabase.from('notes').select('*').order('updated_at', { ascending: false }).limit(limit);
+  const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    .not('viewed_at', 'is', null)
+    .order('viewed_at', { ascending: false })
+    .limit(limit);
   if (error) throw error;
   return data;
+}
+
+export async function touchNoteViewed(id: string): Promise<void> {
+  const { error } = await supabase.from('notes').update({ viewed_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
 }
 
 export async function createNote(folderId: string | null, title: string, content: string): Promise<Note> {

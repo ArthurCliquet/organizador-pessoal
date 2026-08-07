@@ -10,6 +10,7 @@ import {
   updateNote,
   deleteNote,
   searchNotes,
+  touchNoteViewed,
 } from '../features/notes/notesApi';
 import { FolderList } from '../features/notes/FolderList';
 import { NoteList } from '../features/notes/NoteList';
@@ -51,11 +52,16 @@ export function NotesPage() {
 
   const selectedNote = notes.find((n) => n.id === selectedNoteId) ?? null;
 
+  function handleSelectNote(id: string) {
+    setSelectedNoteId(id);
+    touchNoteViewed(id).catch(() => {});
+  }
+
   async function handleCreateNote() {
     try {
       const note = await createNote(selectedFolderId, 'Nova nota', '');
       setNotes((prev) => [note, ...prev]);
-      setSelectedNoteId(note.id);
+      handleSelectNote(note.id);
     } catch {
       showError('Não foi possível criar a nota.');
     }
@@ -129,7 +135,7 @@ export function NotesPage() {
               className="w-full bg-app-bg border border-surface-border rounded-lg px-3 py-1.5 text-sm text-app-text outline-none focus:border-primary"
             />
           </div>
-          <NoteList notes={notes} selectedNoteId={selectedNoteId} onSelect={setSelectedNoteId} onCreate={handleCreateNote} onDelete={handleDeleteNote} />
+          <NoteList notes={notes} selectedNoteId={selectedNoteId} onSelect={handleSelectNote} onCreate={handleCreateNote} onDelete={handleDeleteNote} />
         </div>
       </div>
       <div className={`${selectedNoteId ? 'block' : 'hidden'} md:block flex-1 min-w-0`}>

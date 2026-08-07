@@ -12,6 +12,7 @@ export interface Note {
   title: string;
   content: string;
   updated_at: string;
+  viewed_at: string | null;
 }
 
 export interface Habit {
