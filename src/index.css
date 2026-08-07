@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-app-bg: #16171d;
+  --color-surface: #1e1f28;
+  --color-surface-border: #2f3040;
+  --color-primary: #7c5cff;
+  --color-success: #4ade9a;
+  --color-app-text: #f0f0f5;
+  --color-app-muted: #9a9ab0;
+}
+
+body {
+  min-height: 100vh;
+}
+
+.ProseMirror {
+  outline: none;
+}
+.ProseMirror h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0.75rem 0 0.5rem;
+}
+.ProseMirror ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+.ProseMirror ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+.ProseMirror p {
+  margin: 0.25rem 0;
+}
