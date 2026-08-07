@@ -7,9 +7,10 @@ interface NoteEditorProps {
   initialTitle: string;
   initialContent: string;
   onSave: (fields: { title: string; content: string }) => void;
+  onBack?: () => void;
 }
 
-export function NoteEditor({ noteId, initialTitle, initialContent, onSave }: NoteEditorProps) {
+export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBack }: NoteEditorProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -40,13 +41,24 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave }: Not
 
   return (
     <div className="flex flex-col h-full">
-      <input
-        ref={titleRef}
-        defaultValue={initialTitle}
-        onChange={scheduleSave}
-        placeholder="Título"
-        className="bg-transparent text-xl font-semibold text-app-text px-4 py-3 outline-none border-b border-surface-border"
-      />
+      <div className="flex items-center border-b border-surface-border">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="md:hidden shrink-0 pl-4 pr-2 py-3 text-app-muted hover:text-app-text text-sm"
+          >
+            ← Voltar
+          </button>
+        )}
+        <input
+          ref={titleRef}
+          defaultValue={initialTitle}
+          onChange={scheduleSave}
+          placeholder="Título"
+          className="flex-1 min-w-0 bg-transparent text-xl font-semibold text-app-text px-4 py-3 outline-none"
+        />
+      </div>
       <div className="flex gap-1 px-4 py-2 border-b border-surface-border">
         <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} label="B" />
         <ToolbarButton active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} label="I" />

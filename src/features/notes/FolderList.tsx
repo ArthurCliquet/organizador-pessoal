@@ -16,15 +16,15 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
   const [editingName, setEditingName] = useState('');
 
   return (
-    <div className="w-48 shrink-0 border-r border-surface-border p-3 flex flex-col gap-1 overflow-y-auto">
+    <div className="flex flex-row md:flex-col gap-1 p-3 overflow-x-auto md:overflow-y-auto border-b md:border-b-0 md:border-r border-surface-border md:w-48 md:shrink-0">
       <button
         onClick={() => onSelect(null)}
-        className={`text-left px-3 py-1.5 rounded-lg text-sm ${selectedFolderId === null ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`}
+        className={`shrink-0 text-left px-3 py-1.5 rounded-lg text-sm ${selectedFolderId === null ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`}
       >
         Sem pasta
       </button>
       {folders.map((folder) => (
-        <div key={folder.id} className="group flex items-center gap-1">
+        <div key={folder.id} className="group shrink-0 flex items-center gap-1">
           {editingId === folder.id ? (
             <input
               autoFocus
@@ -37,7 +37,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
               onKeyDown={(e) => {
                 if (e.key === 'Enter') e.currentTarget.blur();
               }}
-              className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
+              className="w-32 md:w-auto md:flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
             />
           ) : (
             <button
@@ -46,7 +46,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
                 setEditingId(folder.id);
                 setEditingName(folder.name);
               }}
-              className={`flex-1 text-left px-3 py-1.5 rounded-lg text-sm truncate ${selectedFolderId === folder.id ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`}
+              className={`w-32 md:w-auto md:flex-1 text-left px-3 py-1.5 rounded-lg text-sm truncate ${selectedFolderId === folder.id ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`}
             >
               {folder.name}
             </button>
@@ -60,7 +60,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
           </button>
         </div>
       ))}
-      <div className="flex gap-1 mt-2">
+      <div className="shrink-0 flex gap-1 md:mt-2">
         <input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
@@ -71,7 +71,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
             }
           }}
           placeholder="Nova pasta"
-          className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          className="w-28 md:w-auto md:flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
         />
       </div>
     </div>
