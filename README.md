@@ -15,3 +15,7 @@ App pessoal de organização: dashboard, notas com pastas e calendário com tare
 ## Schema
 
 O schema do banco está em `supabase/migrations/0001_init.sql`. Todas as tabelas têm Row Level Security restringindo cada usuário aos próprios dados.
+
+## Pendência conhecida
+
+O projeto Supabase está com "Confirm email" ativado (Authentication > Sign In / Providers > Email), então cadastro novo exige clicar num link de confirmação por e-mail antes do primeiro login funcionar. Para uso pessoal sem essa fricção, desative esse toggle no dashboard do Supabase.
