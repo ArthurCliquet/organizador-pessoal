@@ -39,16 +39,17 @@ export function CalendarPage() {
   }, [loadTasks]);
 
   return (
-    <div>
+    <div className="p-4 md:p-6">
       <MonthGrid
         year={year}
         month={month}
         tasksByDate={tasksByDate}
         recurringWeekdays={recurringWeekdays}
-        onSelectDay={setSelectedDate}
+        selectedDate={selectedDate}
+        onSelectDay={(date) => setSelectedDate((prev) => (prev === date ? null : date))}
         onMonthChange={(y, m) => { setYear(y); setMonth(m); }}
       />
-      {selectedDate && <DayPanel date={selectedDate} onClose={() => setSelectedDate(null)} onTasksChanged={loadTasks} />}
+      {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} />}
     </div>
   );
 }

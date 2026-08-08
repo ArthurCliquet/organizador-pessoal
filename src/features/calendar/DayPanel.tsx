@@ -14,7 +14,6 @@ import { useToast } from '../../contexts/ToastContext';
 
 interface DayPanelProps {
   date: string;
-  onClose: () => void;
   onTasksChanged: () => void;
 }
 
@@ -22,7 +21,7 @@ type DayItem =
   | { kind: 'task'; id: string; title: string; time: string | null; done: boolean; task: Task }
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean; recurringTask: RecurringTask };
 
-export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
+export function DayPanel({ date, onTasksChanged }: DayPanelProps) {
   const { showError } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState('');
@@ -163,153 +162,141 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4" onClick={onClose}>
-      <div
-        className="bg-surface border border-surface-border rounded w-full max-w-md p-5 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-3xl text-primary font-semibold leading-none">{date.slice(8, 10)}</span>
-            <div className="flex flex-col">
-              <span className="font-display text-base capitalize">
-                {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'long' })}
-              </span>
-              <span className="font-mono text-[0.65rem] tracking-wider text-app-muted-2">
-                {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()} {date.slice(0, 4)}
-              </span>
-            </div>
+    <div className="mt-8 border border-surface-border rounded bg-surface p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div>
+        <div className="flex items-center gap-3 mb-4">
+          <span className="font-display text-2xl text-primary font-semibold leading-none">{date.slice(8, 10)}</span>
+          <div className="flex flex-col">
+            <span className="font-display text-base capitalize">
+              {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'long' })}
+            </span>
+            <span className="font-mono text-[0.65rem] tracking-wider text-app-muted-2">
+              {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()} {date.slice(0, 4)}
+            </span>
           </div>
-          <button onClick={onClose} className="text-app-muted hover:text-app-text">
-            ✕
-          </button>
         </div>
 
-        <div>
-          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Tarefas do dia</h4>
-          <div className="flex flex-col gap-1 mb-2">
-            {dayItems.map((item) => (
-              <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2">
-                <input type="checkbox" checked={item.done} onChange={() => handleToggle(item)} className="accent-primary w-4 h-4" />
-                {item.kind === 'task' && editingId === item.id ? (
-                  <div
-                    className="flex-1 flex gap-1"
-                    onBlur={(e) => {
-                      if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
+        <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2 font-semibold">Tarefas</h3>
+        <div className="flex flex-col gap-1 mb-2">
+          {dayItems.map((item) => (
+            <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2">
+              <input type="checkbox" checked={item.done} onChange={() => handleToggle(item)} className="accent-primary w-4 h-4" />
+              {item.kind === 'task' && editingId === item.id ? (
+                <div
+                  className="flex-1 flex gap-1"
+                  onBlur={(e) => {
+                    if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
+                  }}
+                >
+                  <input
+                    autoFocus
+                    value={editingTitle}
+                    onChange={(e) => setEditingTitle(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') e.currentTarget.blur();
                     }}
-                  >
-                    <input
-                      autoFocus
-                      value={editingTitle}
-                      onChange={(e) => setEditingTitle(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') e.currentTarget.blur();
-                      }}
-                      className="flex-1 bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
-                    />
-                    <input
-                      type="time"
-                      value={editingTime}
-                      onChange={(e) => setEditingTime(e.target.value)}
-                      className="bg-app-bg border border-primary rounded px-1 text-xs text-app-text outline-none"
-                    />
-                  </div>
-                ) : (
-                  <span
-                    onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
-                    className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
-                  >
-                    {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
-                    {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
-                    {item.title}
-                  </span>
-                )}
-                {item.kind === 'task' && (
-                  <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
-                    ✕
-                  </button>
-                )}
-              </div>
+                    className="flex-1 bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
+                  />
+                  <input
+                    type="time"
+                    value={editingTime}
+                    onChange={(e) => setEditingTime(e.target.value)}
+                    className="bg-app-bg border border-primary rounded px-1 text-xs text-app-text outline-none"
+                  />
+                </div>
+              ) : (
+                <span
+                  onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
+                  className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
+                >
+                  {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
+                  {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
+                  {item.title}
+                </span>
+              )}
+              {item.kind === 'task' && (
+                <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa</p>}
+        </div>
+        <div className="flex gap-1">
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCreate();
+            }}
+            placeholder="Nova tarefa"
+            className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          />
+          <input
+            type="time"
+            value={time}
+            onChange={(e) => setTime(e.target.value)}
+            className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          />
+        </div>
+      </div>
+
+      <div>
+        <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2 font-semibold">Hábitos</h3>
+        <HabitChecklist date={date} />
+
+        <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2 mt-6 font-semibold">Tarefas recorrentes</h3>
+        <div className="flex flex-col gap-1 mb-2">
+          {recurringTasks.map((rt) => (
+            <div key={rt.id} className="group flex items-center gap-2">
+              <span className="flex-1 text-sm text-app-text">
+                {rt.time ? <span className="font-mono text-app-muted-2">{rt.time.slice(0, 5)} — </span> : ''}
+                {rt.title}{' '}
+                <span className="font-mono text-app-muted-2 text-xs">({rt.weekdays.map((d) => WEEKDAY_LABELS[d]).join('')})</span>
+              </span>
+              <button
+                onClick={() => handleDeleteRecurring(rt.id)}
+                className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          {recurringTasks.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa recorrente</p>}
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            {WEEKDAY_LABELS.map((label, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggleRecWeekday(i)}
+                className={`font-mono w-6 h-6 rounded text-xs ${recWeekdays.includes(i) ? 'bg-primary text-app-bg' : 'bg-app-bg text-app-muted'}`}
+              >
+                {label}
+              </button>
             ))}
-            {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa</p>}
           </div>
           <div className="flex gap-1">
             <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={recTitle}
+              onChange={(e) => setRecTitle(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') handleCreate();
+                if (e.key === 'Enter') handleCreateRecurring();
               }}
-              placeholder="Nova tarefa"
+              placeholder="Nova tarefa recorrente"
               className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
             />
             <input
               type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
+              value={recTime}
+              onChange={(e) => setRecTime(e.target.value)}
               className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
             />
-          </div>
-        </div>
-
-        <div>
-          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Hábitos diários</h4>
-          <HabitChecklist date={date} />
-        </div>
-
-        <div>
-          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Tarefas recorrentes</h4>
-          <div className="flex flex-col gap-1 mb-2">
-            {recurringTasks.map((rt) => (
-              <div key={rt.id} className="group flex items-center gap-2">
-                <span className="flex-1 text-sm text-app-text">
-                  {rt.time ? `${rt.time.slice(0, 5)} — ` : ''}
-                  {rt.title}{' '}
-                  <span className="text-app-muted text-xs">({rt.weekdays.map((d) => WEEKDAY_LABELS[d]).join('')})</span>
-                </span>
-                <button
-                  onClick={() => handleDeleteRecurring(rt.id)}
-                  className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
-                >
-                  ✕
-                </button>
-              </div>
-            ))}
-            {recurringTasks.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa recorrente</p>}
-          </div>
-          <div className="flex flex-col gap-1">
-            <div className="flex gap-1">
-              {WEEKDAY_LABELS.map((label, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => toggleRecWeekday(i)}
-                  className={`w-6 h-6 rounded text-xs ${recWeekdays.includes(i) ? 'bg-primary text-app-bg' : 'bg-app-bg text-app-muted'}`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
-            <div className="flex gap-1">
-              <input
-                value={recTitle}
-                onChange={(e) => setRecTitle(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleCreateRecurring();
-                }}
-                placeholder="Nova tarefa recorrente"
-                className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-              />
-              <input
-                type="time"
-                value={recTime}
-                onChange={(e) => setRecTime(e.target.value)}
-                className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-              />
-              <button onClick={handleCreateRecurring} className="bg-primary text-app-bg text-xs rounded px-2 py-1">
-                Adicionar
-              </button>
-            </div>
+            <button onClick={handleCreateRecurring} className="font-mono bg-primary text-app-bg text-xs rounded px-2 py-1 shrink-0">
+              Adicionar
+            </button>
           </div>
         </div>
       </div>

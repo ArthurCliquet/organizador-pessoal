@@ -6,13 +6,14 @@ interface MonthGridProps {
   month: number;
   tasksByDate: Record<string, Task[]>;
   recurringWeekdays: Set<number>;
+  selectedDate: string | null;
   onSelectDay: (date: string) => void;
   onMonthChange: (year: number, month: number) => void;
 }
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export function MonthGrid({ year, month, tasksByDate, recurringWeekdays, onSelectDay, onMonthChange }: MonthGridProps) {
+export function MonthGrid({ year, month, tasksByDate, recurringWeekdays, selectedDate, onSelectDay, onMonthChange }: MonthGridProps) {
   const days = getMonthGrid(year, month);
   const today = toISODate(new Date());
 
@@ -24,7 +25,7 @@ export function MonthGrid({ year, month, tasksByDate, recurringWeekdays, onSelec
   }
 
   return (
-    <div className="p-4 md:p-6">
+    <div>
       <div className="flex items-center justify-between mb-4">
         <button onClick={prevMonth} className="font-mono text-app-muted hover:text-app-text px-2">
           ‹
@@ -45,13 +46,14 @@ export function MonthGrid({ year, month, tasksByDate, recurringWeekdays, onSelec
           const inMonth = day.getMonth() === month;
           const hasTasks = (tasksByDate[iso]?.length ?? 0) > 0 || recurringWeekdays.has(day.getDay());
           const isToday = iso === today;
+          const isSelected = iso === selectedDate;
           return (
             <button
               key={iso}
               onClick={() => onSelectDay(iso)}
               className={`min-h-16 bg-surface hover:bg-surface-2 flex flex-col items-start p-1.5 gap-1 relative ${
                 inMonth ? 'text-app-text' : 'text-app-muted-2 bg-app-bg'
-              } ${isToday ? 'shadow-[inset_0_0_0_1.5px_var(--color-primary)]' : ''}`}
+              } ${isSelected ? 'shadow-[inset_0_0_0_1.5px_var(--color-success)]' : isToday ? 'shadow-[inset_0_0_0_1.5px_var(--color-primary)]' : ''}`}
             >
               <span className={`text-sm ${isToday ? 'text-primary font-bold' : ''}`}>{day.getDate()}</span>
               {hasTasks && (
