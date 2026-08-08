@@ -5,9 +5,10 @@ import { useToast } from '../../contexts/ToastContext';
 
 interface HabitChecklistProps {
   date: string;
+  allowCreate?: boolean;
 }
 
-export function HabitChecklist({ date }: HabitChecklistProps) {
+export function HabitChecklist({ date, allowCreate = false }: HabitChecklistProps) {
   const { showError } = useToast();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
@@ -115,17 +116,19 @@ export function HabitChecklist({ date }: HabitChecklistProps) {
           </button>
         </div>
       ))}
-      <div className="flex gap-1 mt-1">
-        <input
-          value={newHabitName}
-          onChange={(e) => setNewHabitName(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter') handleCreate();
-          }}
-          placeholder="+ Novo hábito"
-          className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-        />
-      </div>
+      {allowCreate && (
+        <div className="flex gap-1 mt-1">
+          <input
+            value={newHabitName}
+            onChange={(e) => setNewHabitName(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') handleCreate();
+            }}
+            placeholder="+ Novo hábito"
+            className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          />
+        </div>
+      )}
     </div>
   );
 }

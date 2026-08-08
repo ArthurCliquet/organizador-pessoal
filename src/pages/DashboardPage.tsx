@@ -26,7 +26,7 @@ export function DashboardPage() {
 
         <div>
           <h2 className="font-display text-base mb-3">Hábitos diários</h2>
-          <HabitChecklist date={today} />
+          <HabitChecklist date={today} allowCreate />
 
           <div className="mt-9">
             <RecentNotes />
