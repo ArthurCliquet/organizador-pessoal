@@ -76,7 +76,9 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
 
       {categoryLimits.length === 0 && <p className="text-sm text-app-muted mb-3">Nenhum limite definido ainda</p>}
 
-      <div className="flex flex-col gap-3 mb-3">
+      <div
+        className={`flex flex-col gap-3 mb-3 ${categoryLimits.length > 2 ? 'max-h-[210px] overflow-y-auto overflow-x-hidden scrollbar-thin pr-1' : ''}`}
+      >
         {categoryLimits.map((limit) => {
           const spent = calculateCategorySpending(limit.category_id, transactions, monthStart, monthEnd);
           const percent = Math.min((spent / Number(limit.monthly_limit)) * 100, 100);

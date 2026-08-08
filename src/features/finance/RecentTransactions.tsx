@@ -29,7 +29,7 @@ export function RecentTransactions({ transactions, categories, accounts }: Recen
     <div className="flex flex-col flex-1">
       <h2 className="font-display text-lg font-semibold mb-4">Últimas movimentações</h2>
       {recent.length === 0 && <p className="text-sm text-app-muted">Nenhuma movimentação ainda</p>}
-      <div className={`flex flex-col ${recent.length > 5 ? 'max-h-[300px] overflow-y-auto' : ''}`}>
+      <div className={`flex flex-col ${recent.length > 5 ? 'max-h-[300px] overflow-y-auto overflow-x-hidden scrollbar-thin pr-1' : ''}`}>
         {recent.map((t) => (
           <div
             key={t.id}
