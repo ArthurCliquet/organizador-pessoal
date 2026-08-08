@@ -17,13 +17,29 @@ import { NoteList } from '../features/notes/NoteList';
 import { NoteEditor } from '../features/notes/NoteEditor';
 import { useToast } from '../contexts/ToastContext';
 
+function readStoredId(key: string): string | null {
+  try {
+    return JSON.parse(sessionStorage.getItem(key) ?? 'null');
+  } catch {
+    return null;
+  }
+}
+
 export function NotesPage() {
   const { showError } = useToast();
   const [folders, setFolders] = useState<Folder[]>([]);
-  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(() => readStoredId('notas:selectedFolderId'));
   const [notes, setNotes] = useState<Note[]>([]);
-  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null);
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(() => readStoredId('notas:selectedNoteId'));
   const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    sessionStorage.setItem('notas:selectedFolderId', JSON.stringify(selectedFolderId));
+  }, [selectedFolderId]);
+
+  useEffect(() => {
+    sessionStorage.setItem('notas:selectedNoteId', JSON.stringify(selectedNoteId));
+  }, [selectedNoteId]);
 
   const loadFolders = useCallback(async () => {
     try {
