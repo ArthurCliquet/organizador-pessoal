@@ -8,11 +8,13 @@ import {
   ensureDefaultCategories,
   getAccountTransactions,
   updateAccountInitialBalance,
+  createTransaction,
 } from '../features/finance/financeApi';
 import { Balance } from '../features/finance/Balance';
 import { MonthSummary } from '../features/finance/MonthSummary';
 import { AvailableToSpend } from '../features/finance/AvailableToSpend';
 import { RecentTransactions } from '../features/finance/RecentTransactions';
+import { AddTransactionModal } from '../features/finance/AddTransactionModal';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -20,6 +22,7 @@ export function FinancePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
 
   const load = useCallback(async () => {
     try {
@@ -48,6 +51,23 @@ export function FinancePage() {
     }
   }
 
+  async function handleCreateTransaction(input: {
+    type: 'income' | 'expense';
+    amount: number;
+    description: string;
+    date: string;
+    categoryId: string | null;
+  }) {
+    if (!account) return;
+    try {
+      await createTransaction({ accountId: account.id, ...input });
+      setTransactions(await getAccountTransactions(account.id));
+      setAddOpen(false);
+    } catch {
+      showError('Não foi possível salvar a movimentação.');
+    }
+  }
+
   if (loading || !account) {
     return (
       <div className="p-4 md:p-6 flex items-center justify-center min-h-[50vh]">
@@ -60,7 +80,10 @@ export function FinancePage() {
     <div className="p-4 md:p-6 max-w-4xl mx-auto flex flex-col gap-5">
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-semibold">Finanças</h1>
-        <button className="font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors">
+        <button
+          onClick={() => setAddOpen(true)}
+          className="font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors"
+        >
           + Adicionar movimentação
         </button>
       </div>
@@ -81,6 +104,10 @@ export function FinancePage() {
       <Card>
         <RecentTransactions transactions={transactions} categories={categories} account={account} />
       </Card>
+
+      {addOpen && (
+        <AddTransactionModal categories={categories} onCancel={() => setAddOpen(false)} onSave={handleCreateTransaction} />
+      )}
     </div>
   );
 }
