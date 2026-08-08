@@ -21,7 +21,7 @@ export function DashboardPage() {
         <DayHeader taskCount={taskCount} habitDone={habitCounts.done} habitTotal={habitCounts.total} />
 
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5 items-stretch">
             <Card delay="80ms">
               <TodayAgenda onCountChange={setTaskCount} />
               <hr className="my-5 border-surface-border" />
@@ -35,7 +35,7 @@ export function DashboardPage() {
             </Card>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
             <Card delay="220ms">
               <PendingTasks />
             </Card>

@@ -52,14 +52,14 @@ export function PendingTasks() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <div className="flex items-baseline justify-between mb-4">
         <h2 className="font-display text-lg font-semibold">Pendências</h2>
         <span className="font-mono text-xs text-app-muted-2">
           {tasks.length} {tasks.length === 1 ? 'tarefa' : 'tarefas'}
         </span>
       </div>
-      <div className="flex flex-col gap-0.5 mb-3">
+      <div className="flex-1 flex flex-col gap-0.5 mb-3">
         {tasks.map((task) => (
           <div
             key={task.id}

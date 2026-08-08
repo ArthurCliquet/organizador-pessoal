@@ -16,7 +16,7 @@ export function RecentNotes() {
   }, [showError]);
 
   return (
-    <div>
+    <div className="flex flex-col flex-1">
       <h2 className="font-display text-lg font-semibold mb-4">Notas recentes</h2>
       {notes.length === 0 && <p className="text-sm text-app-muted">Nenhuma nota ainda</p>}
       <div className="flex flex-col">

@@ -88,45 +88,47 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
   }
 
   return (
-    <div className="flex flex-col gap-0.5">
-      {habits.map((habit) => (
-        <div
-          key={habit.id}
-          className="group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
-        >
-          <label className="flex-1 flex items-center gap-2.5 cursor-pointer">
-            <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
-            {editingId === habit.id ? (
-              <input
-                autoFocus
-                value={editingName}
-                onChange={(e) => setEditingName(e.target.value)}
-                onBlur={() => {
-                  commitRename(habit.id, editingName);
-                  setEditingId(null);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') e.currentTarget.blur();
-                }}
-                className="bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
-              />
-            ) : (
-              <span
-                onDoubleClick={() => {
-                  setEditingId(habit.id);
-                  setEditingName(habit.name);
-                }}
-                className={`text-sm ${isDone(habit.id) ? 'text-app-muted line-through' : 'text-app-text'}`}
-              >
-                {habit.name}
-              </span>
-            )}
-          </label>
-          <button onClick={() => handleDelete(habit.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
-            ✕
-          </button>
-        </div>
-      ))}
+    <div className="flex flex-col flex-1">
+      <div className="flex-1 flex flex-col gap-0.5">
+        {habits.map((habit) => (
+          <div
+            key={habit.id}
+            className="group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
+          >
+            <label className="flex-1 flex items-center gap-2.5 cursor-pointer">
+              <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
+              {editingId === habit.id ? (
+                <input
+                  autoFocus
+                  value={editingName}
+                  onChange={(e) => setEditingName(e.target.value)}
+                  onBlur={() => {
+                    commitRename(habit.id, editingName);
+                    setEditingId(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') e.currentTarget.blur();
+                  }}
+                  className="bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
+                />
+              ) : (
+                <span
+                  onDoubleClick={() => {
+                    setEditingId(habit.id);
+                    setEditingName(habit.name);
+                  }}
+                  className={`text-sm ${isDone(habit.id) ? 'text-app-muted line-through' : 'text-app-text'}`}
+                >
+                  {habit.name}
+                </span>
+              )}
+            </label>
+            <button onClick={() => handleDelete(habit.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
+              ✕
+            </button>
+          </div>
+        ))}
+      </div>
       {allowCreate && (
         <div className="flex items-center gap-2 border border-dashed border-surface-border rounded-[11px] px-3 py-2 mt-2 focus-within:border-primary transition-colors">
           <span className="font-mono text-app-muted-2 text-sm">+</span>
