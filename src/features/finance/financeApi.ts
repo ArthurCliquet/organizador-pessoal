@@ -112,9 +112,42 @@ export async function createTransaction(input: {
   return data;
 }
 
+export async function getAccounts(): Promise<Account[]> {
+  const { data, error } = await supabase.from('accounts').select('*').order('created_at');
+  if (error) throw error;
+  return data;
+}
+
+export async function createAccount(name: string, initialBalance: number): Promise<Account> {
+  const { data: userData } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('accounts')
+    .insert({ name, initial_balance: initialBalance, user_id: userData.user!.id })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function getTransactions(): Promise<Transaction[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 export function calculateBalance(account: Account, transactions: Transaction[]): number {
-  const net = transactions.reduce((sum, t) => sum + (t.type === 'income' ? Number(t.amount) : -Number(t.amount)), 0);
+  const net = transactions
+    .filter((t) => t.account_id === account.id)
+    .reduce((sum, t) => sum + (t.type === 'income' ? Number(t.amount) : -Number(t.amount)), 0);
   return Number(account.initial_balance) + net;
+}
+
+export function calculateTotalBalance(accounts: Account[], transactions: Transaction[]): number {
+  return accounts.reduce((sum, account) => sum + calculateBalance(account, transactions), 0);
 }
 
 export function calculateMonthSummary(
