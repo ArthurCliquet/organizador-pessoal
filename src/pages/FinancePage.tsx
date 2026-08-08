@@ -11,6 +11,7 @@ import {
 } from '../features/finance/financeApi';
 import { Balance } from '../features/finance/Balance';
 import { MonthSummary } from '../features/finance/MonthSummary';
+import { AvailableToSpend } from '../features/finance/AvailableToSpend';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -71,8 +72,7 @@ export function FinancePage() {
           <Balance account={account} transactions={transactions} onUpdateInitialBalance={handleUpdateInitialBalance} />
         </Card>
         <Card>
-          <h2 className="font-display text-lg font-semibold mb-1">Quanto posso gastar</h2>
-          <p className="text-sm text-app-muted">Em breve</p>
+          <AvailableToSpend />
         </Card>
       </div>
 
