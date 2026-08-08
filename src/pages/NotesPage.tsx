@@ -99,6 +99,10 @@ export function NotesPage() {
   const pinnedFolders = folders.filter((f) => f.pinned_at);
   const sortedFolders = pinnedFirst(folders);
   const sortedNotes = pinnedFirst(notes);
+  const trimmedQuery = query.trim();
+  const matchedFolders = trimmedQuery
+    ? pinnedFirst(folders.filter((f) => f.name.toLowerCase().includes(trimmedQuery.toLowerCase())))
+    : [];
 
   async function handleTogglePinFolder(folder: Folder) {
     try {
@@ -192,7 +196,7 @@ export function NotesPage() {
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar notas…"
+          placeholder="Buscar notas e pastas…"
           className="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-sm text-app-text outline-none focus:border-primary"
         />
       </div>
@@ -232,6 +236,9 @@ export function NotesPage() {
               onCreate={handleCreateNote}
               onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
               onTogglePin={handleTogglePinNote}
+              folders={matchedFolders}
+              onSelectFolder={handleSelectFolder}
+              emptyMessage={trimmedQuery ? 'Nenhum resultado encontrado' : 'Nenhuma nota aqui'}
             />
           </div>
         </div>
