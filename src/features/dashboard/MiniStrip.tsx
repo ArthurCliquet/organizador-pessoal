@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { addDays } from 'date-fns';
-import type { RecurringTask, Task } from '../../types';
 import { getTasksForRange } from '../tasks/tasksApi';
-import { getRecurringTasks } from '../tasks/recurringTasksApi';
-import { getWeekday, toISODate } from '../calendar/dateUtils';
+import { toISODate } from '../calendar/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 
 interface MiniDay {
@@ -27,20 +25,12 @@ export function MiniStrip() {
     const rangeDays = rangeDates.map((d) => toISODate(d));
     const start = rangeDays[0];
     const end = rangeDays[rangeDays.length - 1];
-    Promise.all([getTasksForRange(start, end), getRecurringTasks()])
-      .then(([tasks, recurring]: [Task[], RecurringTask[]]) => {
+    getTasksForRange(start, end)
+      .then((tasks) => {
         const hasSomethingByDate: Record<string, boolean> = {};
         for (const task of tasks) {
           if (!task.date) continue;
           hasSomethingByDate[task.date] = true;
-        }
-        for (const date of rangeDays) {
-          const weekday = getWeekday(date);
-          for (const rt of recurring) {
-            if (rt.weekdays.includes(weekday)) {
-              hasSomethingByDate[date] = true;
-            }
-          }
         }
         setDays(
           rangeDates.map((date, i) => ({
