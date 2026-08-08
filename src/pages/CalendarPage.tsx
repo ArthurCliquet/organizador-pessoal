@@ -14,7 +14,7 @@ export function CalendarPage() {
   const [month, setMonth] = useState(today.getMonth());
   const [tasksByDate, setTasksByDate] = useState<Record<string, Task[]>>({});
   const [recurringWeekdays, setRecurringWeekdays] = useState<Set<number>>(new Set());
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(toISODate(today));
 
   const loadTasks = useCallback(async () => {
     const days = getMonthGrid(year, month);
@@ -46,7 +46,7 @@ export function CalendarPage() {
         tasksByDate={tasksByDate}
         recurringWeekdays={recurringWeekdays}
         selectedDate={selectedDate}
-        onSelectDay={(date) => setSelectedDate((prev) => (prev === date ? null : date))}
+        onSelectDay={setSelectedDate}
         onMonthChange={(y, m) => { setYear(y); setMonth(m); }}
       />
       {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} />}
