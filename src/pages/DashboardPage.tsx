@@ -19,6 +19,9 @@ export function DashboardPage() {
           <div className="mt-8">
             <MiniStrip />
           </div>
+          <div className="mt-10">
+            <PendingTasks />
+          </div>
         </div>
 
         <div>
@@ -29,10 +32,6 @@ export function DashboardPage() {
             <RecentNotes />
           </div>
         </div>
-      </div>
-
-      <div className="mt-10">
-        <PendingTasks />
       </div>
     </div>
   );
