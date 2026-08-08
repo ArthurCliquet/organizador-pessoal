@@ -15,7 +15,7 @@ export function BottomNav() {
           to={link.to}
           end={link.to === '/'}
           className={({ isActive }) =>
-            `flex-1 text-center py-3 text-sm font-medium ${isActive ? 'text-primary' : 'text-app-muted'}`
+            `flex-1 text-center py-3 font-mono text-xs ${isActive ? 'text-primary font-bold' : 'text-app-muted'}`
           }
         >
           {link.label}
