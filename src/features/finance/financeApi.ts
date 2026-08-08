@@ -4,14 +4,21 @@ import type { Account, Category, Transaction } from '../../types';
 const DEFAULT_ACCOUNT_NAME = 'Nubank';
 
 const DEFAULT_CATEGORIES: { name: string; type: Category['type'] }[] = [
-  { name: 'Salário', type: 'income' },
-  { name: 'Outras receitas', type: 'income' },
   { name: 'Alimentação', type: 'expense' },
   { name: 'Transporte', type: 'expense' },
-  { name: 'Moradia', type: 'expense' },
   { name: 'Lazer', type: 'expense' },
+  { name: 'Compras', type: 'expense' },
+  { name: 'Educação', type: 'expense' },
   { name: 'Saúde', type: 'expense' },
+  { name: 'Casa', type: 'expense' },
+  { name: 'Assinaturas', type: 'expense' },
+  { name: 'Roupas', type: 'expense' },
   { name: 'Outros', type: 'expense' },
+  { name: 'Salário', type: 'income' },
+  { name: 'Presente', type: 'income' },
+  { name: 'Mesada', type: 'income' },
+  { name: 'Investimentos', type: 'income' },
+  { name: 'Outros', type: 'income' },
 ];
 
 export async function getOrCreateDefaultAccount(): Promise<Account> {
