@@ -88,69 +88,72 @@ export function NotesPage() {
   }
 
   return (
-    <div className="flex flex-col md:flex-row h-full min-h-[calc(100vh-57px)]">
-      <div
-        className={`${selectedNoteId ? 'hidden' : 'flex'} md:flex flex-1 md:flex-none flex-col md:flex-row w-full md:w-auto min-h-0`}
-      >
-        <FolderList
-          folders={folders}
-          selectedFolderId={selectedFolderId}
-          onSelect={(id) => {
-            setSelectedFolderId(id);
-            setSelectedNoteId(null);
-            setQuery('');
-          }}
-          onCreate={async (name) => {
-            try {
-              await createFolder(name);
-              loadFolders();
-            } catch {
-              showError('Não foi possível criar a pasta.');
-            }
-          }}
-          onRename={async (id, name) => {
-            try {
-              await renameFolder(id, name);
-              loadFolders();
-            } catch {
-              showError('Não foi possível renomear a pasta.');
-            }
-          }}
-          onDelete={async (id) => {
-            try {
-              await deleteFolder(id);
-              if (selectedFolderId === id) setSelectedFolderId(null);
-              loadFolders();
-            } catch {
-              showError('Não foi possível excluir a pasta.');
-            }
-          }}
+    <div className="p-4 md:p-6 flex flex-col h-full min-h-[calc(100vh-57px)]">
+      <div className="mb-4 max-w-xs">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Buscar notas…"
+          className="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-sm text-app-text outline-none focus:border-primary"
         />
-        <div className="flex-1 min-h-0 md:flex-none md:w-72 md:shrink-0 md:border-r border-surface-border flex flex-col">
-          <div className="p-3 border-b border-surface-border">
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Buscar notas..."
-              className="w-full bg-app-bg border border-surface-border rounded-lg px-3 py-1.5 text-sm text-app-text outline-none focus:border-primary"
-            />
-          </div>
-          <NoteList notes={notes} selectedNoteId={selectedNoteId} onSelect={handleSelectNote} onCreate={handleCreateNote} onDelete={handleDeleteNote} />
-        </div>
       </div>
-      <div className={`${selectedNoteId ? 'block' : 'hidden'} md:block flex-1 min-w-0`}>
-        {selectedNote ? (
-          <NoteEditor
-            key={selectedNote.id}
-            noteId={selectedNote.id}
-            initialTitle={selectedNote.title}
-            initialContent={selectedNote.content}
-            onSave={handleSaveNote}
-            onBack={() => setSelectedNoteId(null)}
+
+      <div className="flex-1 min-h-0 border border-surface-border rounded overflow-hidden flex flex-col md:flex-row">
+        <div
+          className={`${selectedNoteId ? 'hidden' : 'flex'} md:flex flex-1 md:flex-none flex-col md:flex-row w-full md:w-auto min-h-0`}
+        >
+          <FolderList
+            folders={folders}
+            selectedFolderId={selectedFolderId}
+            onSelect={(id) => {
+              setSelectedFolderId(id);
+              setSelectedNoteId(null);
+              setQuery('');
+            }}
+            onCreate={async (name) => {
+              try {
+                await createFolder(name);
+                loadFolders();
+              } catch {
+                showError('Não foi possível criar a pasta.');
+              }
+            }}
+            onRename={async (id, name) => {
+              try {
+                await renameFolder(id, name);
+                loadFolders();
+              } catch {
+                showError('Não foi possível renomear a pasta.');
+              }
+            }}
+            onDelete={async (id) => {
+              try {
+                await deleteFolder(id);
+                if (selectedFolderId === id) setSelectedFolderId(null);
+                loadFolders();
+              } catch {
+                showError('Não foi possível excluir a pasta.');
+              }
+            }}
           />
-        ) : (
-          <div className="flex items-center justify-center h-full text-app-muted text-sm">Selecione ou crie uma nota</div>
-        )}
+          <div className="flex-1 min-h-0 md:flex-none md:w-56 md:shrink-0 md:border-r border-surface-border flex flex-col">
+            <NoteList notes={notes} selectedNoteId={selectedNoteId} onSelect={handleSelectNote} onCreate={handleCreateNote} onDelete={handleDeleteNote} />
+          </div>
+        </div>
+        <div className={`${selectedNoteId ? 'block' : 'hidden'} md:block flex-1 min-w-0 bg-surface`}>
+          {selectedNote ? (
+            <NoteEditor
+              key={selectedNote.id}
+              noteId={selectedNote.id}
+              initialTitle={selectedNote.title}
+              initialContent={selectedNote.content}
+              onSave={handleSaveNote}
+              onBack={() => setSelectedNoteId(null)}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-app-muted text-sm">Selecione ou crie uma nota</div>
+          )}
+        </div>
       </div>
     </div>
   );

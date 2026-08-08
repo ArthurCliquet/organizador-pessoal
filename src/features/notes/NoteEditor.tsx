@@ -56,7 +56,7 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
           defaultValue={initialTitle}
           onChange={scheduleSave}
           placeholder="Título"
-          className="flex-1 min-w-0 bg-transparent text-xl font-semibold text-app-text px-4 py-3 outline-none"
+          className="font-display flex-1 min-w-0 bg-transparent text-xl font-semibold text-app-text px-4 py-3 outline-none"
         />
       </div>
       <div className="flex gap-1 px-4 py-2 border-b border-surface-border">
@@ -88,7 +88,7 @@ function ToolbarButton({ active, onClick, label }: { active: boolean; onClick: (
     <button
       type="button"
       onClick={onClick}
-      className={`px-2 py-1 rounded text-sm ${active ? 'bg-primary text-app-bg' : 'bg-surface text-app-muted hover:text-app-text'}`}
+      className={`font-mono px-2 py-1 rounded text-xs ${active ? 'bg-primary text-app-bg' : 'bg-surface text-app-muted hover:text-app-text'}`}
     >
       {label}
     </button>
