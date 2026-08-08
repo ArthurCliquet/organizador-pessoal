@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Category } from '../../types';
 import { toISODate } from '../calendar/dateUtils';
+import { parseCurrencyInput } from '../../lib/currency';
 
 interface AddTransactionModalProps {
   categories: Category[];
@@ -20,12 +21,18 @@ export function AddTransactionModal({ categories, onCancel, onSave }: AddTransac
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(toISODate(new Date()));
   const [categoryId, setCategoryId] = useState('');
+  const [amountError, setAmountError] = useState('');
 
   const filteredCategories = categories.filter((c) => c.type === type);
 
   function handleSubmit() {
-    const parsed = Number(amount.replace(',', '.'));
-    if (Number.isNaN(parsed) || parsed <= 0 || !description.trim()) return;
+    const parsed = parseCurrencyInput(amount);
+    if (parsed === null || parsed <= 0) {
+      setAmountError('Valor inválido');
+      return;
+    }
+    if (!description.trim()) return;
+    setAmountError('');
     onSave({ type, amount: parsed, description: description.trim(), date, categoryId: categoryId || null });
   }
 
@@ -40,14 +47,20 @@ export function AddTransactionModal({ categories, onCancel, onSave }: AddTransac
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setType('expense')}
+            onClick={() => {
+              setType('expense');
+              setCategoryId('');
+            }}
             className={`flex-1 font-mono text-xs px-3 py-2 rounded ${type === 'expense' ? 'bg-danger text-app-bg font-semibold' : 'bg-surface-2 text-app-muted'}`}
           >
             Saída
           </button>
           <button
             type="button"
-            onClick={() => setType('income')}
+            onClick={() => {
+              setType('income');
+              setCategoryId('');
+            }}
             className={`flex-1 font-mono text-xs px-3 py-2 rounded ${type === 'income' ? 'bg-success text-app-bg font-semibold' : 'bg-surface-2 text-app-muted'}`}
           >
             Entrada
@@ -69,6 +82,7 @@ export function AddTransactionModal({ categories, onCancel, onSave }: AddTransac
           placeholder="Valor"
           className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
         />
+        {amountError && <p className="text-xs text-danger">{amountError}</p>}
 
         <input
           type="date"

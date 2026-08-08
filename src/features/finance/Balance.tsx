@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Account, Transaction } from '../../types';
 import { calculateBalance } from './financeApi';
-import { formatCurrency } from '../../lib/currency';
+import { formatCurrency, parseCurrencyInput } from '../../lib/currency';
 
 interface BalanceProps {
   account: Account;
@@ -12,17 +12,23 @@ interface BalanceProps {
 export function Balance({ account, transactions, onUpdateInitialBalance }: BalanceProps) {
   const [editing, setEditing] = useState(false);
   const [value, setValue] = useState('');
+  const [saveError, setSaveError] = useState('');
 
   const balance = calculateBalance(account, transactions);
 
   function startEditing() {
     setValue(String(account.initial_balance));
+    setSaveError('');
     setEditing(true);
   }
 
   function handleSave() {
-    const parsed = Number(value.replace(',', '.'));
-    if (Number.isNaN(parsed)) return;
+    const parsed = parseCurrencyInput(value);
+    if (parsed === null) {
+      setSaveError('Valor inválido');
+      return;
+    }
+    setSaveError('');
     onUpdateInitialBalance(parsed);
     setEditing(false);
   }
@@ -32,24 +38,33 @@ export function Balance({ account, transactions, onUpdateInitialBalance }: Balan
       <h2 className="font-display text-lg font-semibold mb-1">Saldo atual</h2>
       <p className="font-mono text-[0.65rem] text-app-muted-2 mb-3">{account.name}</p>
       {editing ? (
-        <div className="flex items-center gap-2">
-          <input
-            autoFocus
-            inputMode="decimal"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleSave();
-              if (e.key === 'Escape') setEditing(false);
-            }}
-            className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-2xl font-display text-app-text outline-none"
-          />
-          <button onClick={handleSave} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
-            Salvar
-          </button>
-          <button onClick={() => setEditing(false)} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
-            Cancelar
-          </button>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <input
+              autoFocus
+              inputMode="decimal"
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') setEditing(false);
+              }}
+              className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-2xl font-display text-app-text outline-none"
+            />
+            <button onClick={handleSave} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
+              Salvar
+            </button>
+            <button
+              onClick={() => {
+                setSaveError('');
+                setEditing(false);
+              }}
+              className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text"
+            >
+              Cancelar
+            </button>
+          </div>
+          {saveError && <p className="text-xs text-danger">{saveError}</p>}
         </div>
       ) : (
         <button onClick={startEditing} className="text-left">

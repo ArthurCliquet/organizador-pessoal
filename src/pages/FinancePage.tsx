@@ -22,9 +22,12 @@ export function FinancePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
 
   const load = useCallback(async () => {
+    setLoading(true);
+    setError(false);
     try {
       const [acc, cats] = await Promise.all([getOrCreateDefaultAccount(), ensureDefaultCategories()]);
       setAccount(acc);
@@ -32,6 +35,7 @@ export function FinancePage() {
       setTransactions(await getAccountTransactions(acc.id));
     } catch {
       showError('Não foi possível carregar seus dados financeiros.');
+      setError(true);
     } finally {
       setLoading(false);
     }
@@ -66,6 +70,20 @@ export function FinancePage() {
     } catch {
       showError('Não foi possível salvar a movimentação.');
     }
+  }
+
+  if (error && !account) {
+    return (
+      <div className="p-4 md:p-6 flex flex-col items-center justify-center gap-3 min-h-[50vh]">
+        <p className="text-sm text-app-muted">Não foi possível carregar seus dados financeiros.</p>
+        <button
+          onClick={() => load()}
+          className="font-mono text-xs px-4 py-2 rounded bg-primary text-app-bg font-semibold"
+        >
+          Tentar de novo
+        </button>
+      </div>
+    );
   }
 
   if (loading || !account) {
