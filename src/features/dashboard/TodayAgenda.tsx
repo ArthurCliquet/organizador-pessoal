@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, toggleTask } from '../tasks/tasksApi';
-import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog } from '../tasks/recurringTasksApi';
+import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
 import { getWeekday, toISODate } from '../calendar/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -36,6 +36,7 @@ export function TodayAgenda() {
     ...tasks.map((t): DayItem => ({ kind: 'task', id: t.id, title: t.title, time: t.time, done: t.done })),
     ...recurringTasks
       .filter((rt) => rt.weekdays.includes(weekday))
+      .filter((rt) => !recurringLogs.find((l) => l.recurring_task_id === rt.id)?.skipped)
       .map((rt): DayItem => ({
         kind: 'recurring',
         id: rt.id,
@@ -59,7 +60,7 @@ export function TodayAgenda() {
       setRecurringLogs((prev) => {
         const existing = prev.find((l) => l.recurring_task_id === item.id);
         if (existing) return prev.map((l) => (l.recurring_task_id === item.id ? { ...l, done } : l));
-        return [...prev, { id: `${item.id}-${today}`, recurring_task_id: item.id, date: today, done }];
+        return [...prev, { id: `${item.id}-${today}`, recurring_task_id: item.id, date: today, done, skipped: false }];
       });
       try {
         await toggleRecurringLog(item.id, today, done);
@@ -67,6 +68,20 @@ export function TodayAgenda() {
         showError('Não foi possível atualizar a tarefa recorrente.');
         load();
       }
+    }
+  }
+
+  async function handleSkipRecurring(recurringTaskId: string) {
+    setRecurringLogs((prev) => {
+      const existing = prev.find((l) => l.recurring_task_id === recurringTaskId);
+      if (existing) return prev.map((l) => (l.recurring_task_id === recurringTaskId ? { ...l, skipped: true } : l));
+      return [...prev, { id: `${recurringTaskId}-${today}`, recurring_task_id: recurringTaskId, date: today, done: false, skipped: true }];
+    });
+    try {
+      await skipRecurringOccurrence(recurringTaskId, today);
+    } catch {
+      showError('Não foi possível pular a tarefa recorrente hoje.');
+      load();
     }
   }
 
@@ -80,7 +95,7 @@ export function TodayAgenda() {
       </div>
       <div className="border-l border-surface-border pl-3 flex flex-col gap-1.5">
         {dayItems.map((item) => (
-          <label key={`${item.kind}-${item.id}`} className="flex items-center gap-2.5 cursor-pointer">
+          <label key={`${item.kind}-${item.id}`} className="group flex items-center gap-2.5 cursor-pointer">
             <input
               type="checkbox"
               checked={item.done}
@@ -90,10 +105,24 @@ export function TodayAgenda() {
             <span className="font-mono text-xs text-app-muted-2 w-16 shrink-0">
               {item.time ? item.time.slice(0, 5) : 'sem hora'}
             </span>
-            <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
+            <span className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
               {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
               {item.title}
             </span>
+            {item.kind === 'recurring' && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleSkipRecurring(item.id);
+                }}
+                title="Pular só hoje, sem mexer nos outros dias"
+                className="opacity-0 group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
+              >
+                pular hoje
+              </button>
+            )}
           </label>
         ))}
         {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa hoje</p>}

@@ -35,3 +35,10 @@ export async function toggleRecurringLog(recurringTaskId: string, date: string, 
     .upsert({ recurring_task_id: recurringTaskId, date, done }, { onConflict: 'recurring_task_id,date' });
   if (error) throw error;
 }
+
+export async function skipRecurringOccurrence(recurringTaskId: string, date: string): Promise<void> {
+  const { error } = await supabase
+    .from('recurring_task_logs')
+    .upsert({ recurring_task_id: recurringTaskId, date, skipped: true }, { onConflict: 'recurring_task_id,date' });
+  if (error) throw error;
+}

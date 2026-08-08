@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, createTask, updateTask, toggleTask, deleteTask } from '../tasks/tasksApi';
-import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog } from '../tasks/recurringTasksApi';
+import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
 import { HabitChecklist } from '../habits/HabitChecklist';
 import { getWeekday } from './dateUtils';
 import { useToast } from '../../contexts/ToastContext';
@@ -48,6 +48,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
     ...tasks.map((t): DayItem => ({ kind: 'task', id: t.id, title: t.title, time: t.time, done: t.done, task: t })),
     ...recurringTasks
       .filter((rt) => rt.weekdays.includes(weekday))
+      .filter((rt) => !recurringLogs.find((l) => l.recurring_task_id === rt.id)?.skipped)
       .map((rt): DayItem => ({
         kind: 'recurring',
         id: rt.id,
@@ -85,7 +86,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
       setRecurringLogs((prev) => {
         const existing = prev.find((l) => l.recurring_task_id === item.id);
         if (existing) return prev.map((l) => (l.recurring_task_id === item.id ? { ...l, done } : l));
-        return [...prev, { id: `${item.id}-${date}`, recurring_task_id: item.id, date, done }];
+        return [...prev, { id: `${item.id}-${date}`, recurring_task_id: item.id, date, done, skipped: false }];
       });
       try {
         await toggleRecurringLog(item.id, date, done);
@@ -122,6 +123,20 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
       onTasksChanged();
     } catch {
       showError('Não foi possível excluir a tarefa.');
+    }
+  }
+
+  async function handleSkipRecurring(recurringTaskId: string) {
+    setRecurringLogs((prev) => {
+      const existing = prev.find((l) => l.recurring_task_id === recurringTaskId);
+      if (existing) return prev.map((l) => (l.recurring_task_id === recurringTaskId ? { ...l, skipped: true } : l));
+      return [...prev, { id: `${recurringTaskId}-${date}`, recurring_task_id: recurringTaskId, date, done: false, skipped: true }];
+    });
+    try {
+      await skipRecurringOccurrence(recurringTaskId, date);
+    } catch {
+      showError('Não foi possível pular a tarefa recorrente hoje.');
+      load();
     }
   }
 
@@ -181,6 +196,15 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
               {item.kind === 'task' && (
                 <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
                   ✕
+                </button>
+              )}
+              {item.kind === 'recurring' && (
+                <button
+                  onClick={() => handleSkipRecurring(item.id)}
+                  title="Pular só hoje, sem mexer nos outros dias"
+                  className="opacity-0 group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
+                >
+                  pular hoje
                 </button>
               )}
             </div>

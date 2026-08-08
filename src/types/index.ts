@@ -53,4 +53,5 @@ export interface RecurringTaskLog {
   recurring_task_id: string;
   date: string;
   done: boolean;
+  skipped: boolean;
 }
