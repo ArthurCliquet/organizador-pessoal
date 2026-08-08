@@ -1,4 +1,6 @@
+import { startOfMonth, endOfMonth } from 'date-fns';
 import type { Account, Category, Transaction } from '../../types';
+import { toISODate } from '../calendar/dateUtils';
 import { formatCurrency } from '../../lib/currency';
 import { formatRelativeDate } from '../../lib/relativeDate';
 
@@ -9,7 +11,10 @@ interface RecentTransactionsProps {
 }
 
 export function RecentTransactions({ transactions, categories, accounts }: RecentTransactionsProps) {
-  const recent = transactions.slice(0, 8);
+  const now = new Date();
+  const monthStart = toISODate(startOfMonth(now));
+  const monthEnd = toISODate(endOfMonth(now));
+  const recent = transactions.filter((t) => t.date >= monthStart && t.date <= monthEnd);
 
   function categoryName(categoryId: string | null) {
     if (!categoryId) return 'Sem categoria';
