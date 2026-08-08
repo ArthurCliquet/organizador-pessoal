@@ -13,7 +13,7 @@ export function DashboardPage() {
     <div className="p-4 md:p-6 max-w-4xl mx-auto">
       <DayHeader />
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-8 items-start">
         <div>
           <TodayAgenda />
           <div className="mt-8">
