@@ -5,7 +5,6 @@ interface MonthGridProps {
   year: number;
   month: number;
   tasksByDate: Record<string, Task[]>;
-  recurringWeekdays: Set<number>;
   selectedDate: string | null;
   onSelectDay: (date: string) => void;
   onMonthChange: (year: number, month: number) => void;
@@ -13,7 +12,7 @@ interface MonthGridProps {
 
 const WEEKDAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export function MonthGrid({ year, month, tasksByDate, recurringWeekdays, selectedDate, onSelectDay, onMonthChange }: MonthGridProps) {
+export function MonthGrid({ year, month, tasksByDate, selectedDate, onSelectDay, onMonthChange }: MonthGridProps) {
   const days = getMonthGrid(year, month);
   const today = toISODate(new Date());
 
@@ -44,7 +43,7 @@ export function MonthGrid({ year, month, tasksByDate, recurringWeekdays, selecte
         {days.map((day) => {
           const iso = toISODate(day);
           const inMonth = day.getMonth() === month;
-          const hasTasks = (tasksByDate[iso]?.length ?? 0) > 0 || recurringWeekdays.has(day.getDay());
+          const hasTasks = (tasksByDate[iso]?.length ?? 0) > 0;
           const isToday = iso === today;
           const isSelected = iso === selectedDate;
           return (

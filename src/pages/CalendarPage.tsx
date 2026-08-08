@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Task } from '../types';
 import { getTasksForRange } from '../features/tasks/tasksApi';
-import { getRecurringTasks } from '../features/tasks/recurringTasksApi';
 import { getMonthGrid, toISODate } from '../features/calendar/dateUtils';
 import { MonthGrid } from '../features/calendar/MonthGrid';
 import { DayPanel } from '../features/calendar/DayPanel';
@@ -14,7 +13,6 @@ export function CalendarPage() {
   const [year, setYear] = useState(today.getFullYear());
   const [month, setMonth] = useState(today.getMonth());
   const [tasksByDate, setTasksByDate] = useState<Record<string, Task[]>>({});
-  const [recurringWeekdays, setRecurringWeekdays] = useState<Set<number>>(new Set());
   const [selectedDate, setSelectedDate] = useState<string | null>(toISODate(today));
   const [recurringVersion, setRecurringVersion] = useState(0);
 
@@ -23,14 +21,13 @@ export function CalendarPage() {
     const start = toISODate(days[0]);
     const end = toISODate(days[days.length - 1]);
     try {
-      const [tasks, recurring] = await Promise.all([getTasksForRange(start, end), getRecurringTasks()]);
+      const tasks = await getTasksForRange(start, end);
       const grouped: Record<string, Task[]> = {};
       for (const task of tasks) {
         if (!task.date) continue;
         (grouped[task.date] ??= []).push(task);
       }
       setTasksByDate(grouped);
-      setRecurringWeekdays(new Set(recurring.flatMap((rt) => rt.weekdays)));
     } catch {
       showError('Não foi possível carregar as tarefas do mês.');
     }
@@ -46,7 +43,6 @@ export function CalendarPage() {
         year={year}
         month={month}
         tasksByDate={tasksByDate}
-        recurringWeekdays={recurringWeekdays}
         selectedDate={selectedDate}
         onSelectDay={setSelectedDate}
         onMonthChange={(y, m) => { setYear(y); setMonth(m); }}
