@@ -4,9 +4,10 @@ import { Spinner } from '../components/common/Spinner';
 import { useToast } from '../contexts/ToastContext';
 import type { Account, Category, Transaction } from '../types';
 import {
-  getOrCreateDefaultAccount,
+  getAccounts,
+  createAccount,
   ensureDefaultCategories,
-  getAccountTransactions,
+  getTransactions,
   updateAccountInitialBalance,
   createTransaction,
 } from '../features/finance/financeApi';
@@ -15,10 +16,11 @@ import { MonthSummary } from '../features/finance/MonthSummary';
 import { AvailableToSpend } from '../features/finance/AvailableToSpend';
 import { RecentTransactions } from '../features/finance/RecentTransactions';
 import { AddTransactionModal } from '../features/finance/AddTransactionModal';
+import { CreateAccountModal } from '../features/finance/CreateAccountModal';
 
 export function FinancePage() {
   const { showError } = useToast();
-  const [account, setAccount] = useState<Account | null>(null);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -29,10 +31,10 @@ export function FinancePage() {
     setLoading(true);
     setError(false);
     try {
-      const [acc, cats] = await Promise.all([getOrCreateDefaultAccount(), ensureDefaultCategories()]);
-      setAccount(acc);
+      const [accs, cats] = await Promise.all([getAccounts(), ensureDefaultCategories()]);
+      setAccounts(accs);
       setCategories(cats);
-      setTransactions(await getAccountTransactions(acc.id));
+      setTransactions(await getTransactions());
     } catch {
       showError('Não foi possível carregar seus dados financeiros.');
       setError(true);
@@ -45,11 +47,19 @@ export function FinancePage() {
     load();
   }, [load]);
 
-  async function handleUpdateInitialBalance(value: number) {
-    if (!account) return;
+  async function handleCreateAccount(input: { name: string; initialBalance: number }) {
     try {
-      await updateAccountInitialBalance(account.id, value);
-      setAccount({ ...account, initial_balance: value });
+      const account = await createAccount(input.name, input.initialBalance);
+      setAccounts((prev) => [...prev, account]);
+    } catch {
+      showError('Não foi possível criar a conta.');
+    }
+  }
+
+  async function handleUpdateInitialBalance(accountId: string, value: number) {
+    try {
+      await updateAccountInitialBalance(accountId, value);
+      setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, initial_balance: value } : a)));
     } catch {
       showError('Não foi possível atualizar o saldo.');
     }
@@ -61,18 +71,26 @@ export function FinancePage() {
     description: string;
     date: string;
     categoryId: string | null;
+    accountId: string;
   }) {
-    if (!account) return;
     try {
-      await createTransaction({ accountId: account.id, ...input });
-      setTransactions(await getAccountTransactions(account.id));
+      await createTransaction(input);
+      setTransactions(await getTransactions());
       setAddOpen(false);
     } catch {
       showError('Não foi possível salvar a movimentação.');
     }
   }
 
-  if (error && !account) {
+  if (loading) {
+    return (
+      <div className="p-4 md:p-6 flex items-center justify-center min-h-[50vh]">
+        <Spinner />
+      </div>
+    );
+  }
+
+  if (error) {
     return (
       <div className="p-4 md:p-6 flex flex-col items-center justify-center gap-3 min-h-[50vh]">
         <p className="text-sm text-app-muted">Não foi possível carregar seus dados financeiros.</p>
@@ -86,12 +104,8 @@ export function FinancePage() {
     );
   }
 
-  if (loading || !account) {
-    return (
-      <div className="p-4 md:p-6 flex items-center justify-center min-h-[50vh]">
-        <Spinner />
-      </div>
-    );
+  if (accounts.length === 0) {
+    return <CreateAccountModal onCreate={handleCreateAccount} />;
   }
 
   return (
@@ -108,7 +122,7 @@ export function FinancePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
         <Card>
-          <Balance account={account} transactions={transactions} onUpdateInitialBalance={handleUpdateInitialBalance} />
+          <Balance accounts={accounts} transactions={transactions} onUpdateInitialBalance={handleUpdateInitialBalance} />
         </Card>
         <Card>
           <AvailableToSpend />
@@ -120,11 +134,16 @@ export function FinancePage() {
       </Card>
 
       <Card>
-        <RecentTransactions transactions={transactions} categories={categories} account={account} />
+        <RecentTransactions transactions={transactions} categories={categories} accounts={accounts} />
       </Card>
 
       {addOpen && (
-        <AddTransactionModal categories={categories} onCancel={() => setAddOpen(false)} onSave={handleCreateTransaction} />
+        <AddTransactionModal
+          categories={categories}
+          accounts={accounts}
+          onCancel={() => setAddOpen(false)}
+          onSave={handleCreateTransaction}
+        />
       )}
     </div>
   );

@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import type { Category } from '../../types';
+import type { Account, Category } from '../../types';
 import { toISODate } from '../calendar/dateUtils';
 import { parseCurrencyInput } from '../../lib/currency';
 
 interface AddTransactionModalProps {
   categories: Category[];
+  accounts: Account[];
   onCancel: () => void;
   onSave: (input: {
     type: 'income' | 'expense';
@@ -12,15 +13,17 @@ interface AddTransactionModalProps {
     description: string;
     date: string;
     categoryId: string | null;
+    accountId: string;
   }) => void;
 }
 
-export function AddTransactionModal({ categories, onCancel, onSave }: AddTransactionModalProps) {
+export function AddTransactionModal({ categories, accounts, onCancel, onSave }: AddTransactionModalProps) {
   const [type, setType] = useState<'income' | 'expense'>('expense');
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(toISODate(new Date()));
   const [categoryId, setCategoryId] = useState('');
+  const [accountId, setAccountId] = useState(accounts[0]?.id ?? '');
   const [amountError, setAmountError] = useState('');
 
   const filteredCategories = categories.filter((c) => c.type === type);
@@ -32,8 +35,9 @@ export function AddTransactionModal({ categories, onCancel, onSave }: AddTransac
       return;
     }
     if (!description.trim()) return;
+    if (!accountId) return;
     setAmountError('');
-    onSave({ type, amount: parsed, description: description.trim(), date, categoryId: categoryId || null });
+    onSave({ type, amount: parsed, description: description.trim(), date, categoryId: categoryId || null, accountId });
   }
 
   return (
@@ -100,6 +104,18 @@ export function AddTransactionModal({ categories, onCancel, onSave }: AddTransac
           {filteredCategories.map((c) => (
             <option key={c.id} value={c.id}>
               {c.name}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={accountId}
+          onChange={(e) => setAccountId(e.target.value)}
+          className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
+        >
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.name}
             </option>
           ))}
         </select>

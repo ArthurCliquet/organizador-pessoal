@@ -1,8 +1,6 @@
 import { supabase } from '../../lib/supabase';
 import type { Account, Category, Transaction } from '../../types';
 
-const DEFAULT_ACCOUNT_NAME = 'Nubank';
-
 const DEFAULT_CATEGORIES: { name: string; type: Category['type'] }[] = [
   { name: 'Alimentação', type: 'expense' },
   { name: 'Transporte', type: 'expense' },
@@ -20,36 +18,6 @@ const DEFAULT_CATEGORIES: { name: string; type: Category['type'] }[] = [
   { name: 'Investimentos', type: 'income' },
   { name: 'Outros', type: 'income' },
 ];
-
-export async function getOrCreateDefaultAccount(): Promise<Account> {
-  const { data: existing, error: fetchError } = await supabase
-    .from('accounts')
-    .select('*')
-    .order('created_at')
-    .limit(1);
-  if (fetchError) throw fetchError;
-  if (existing.length > 0) return existing[0];
-
-  const { data: userData } = await supabase.auth.getUser();
-  const { data, error } = await supabase
-    .from('accounts')
-    .insert({ name: DEFAULT_ACCOUNT_NAME, initial_balance: 0, user_id: userData.user!.id })
-    .select()
-    .single();
-  if (error) {
-    if (error.code === '23505') {
-      const { data: retry, error: retryError } = await supabase
-        .from('accounts')
-        .select('*')
-        .order('created_at')
-        .limit(1);
-      if (retryError) throw retryError;
-      if (retry.length > 0) return retry[0];
-    }
-    throw error;
-  }
-  return data;
-}
 
 export async function updateAccountInitialBalance(id: string, initialBalance: number): Promise<void> {
   const { error } = await supabase.from('accounts').update({ initial_balance: initialBalance }).eq('id', id);
@@ -72,17 +40,6 @@ export async function ensureDefaultCategories(): Promise<Category[]> {
     }
     throw error;
   }
-  return data;
-}
-
-export async function getAccountTransactions(accountId: string): Promise<Transaction[]> {
-  const { data, error } = await supabase
-    .from('transactions')
-    .select('*')
-    .eq('account_id', accountId)
-    .order('date', { ascending: false })
-    .order('created_at', { ascending: false });
-  if (error) throw error;
   return data;
 }
 

@@ -1,79 +1,101 @@
 import { useState } from 'react';
 import type { Account, Transaction } from '../../types';
-import { calculateBalance } from './financeApi';
+import { calculateBalance, calculateTotalBalance } from './financeApi';
 import { formatCurrency, parseCurrencyInput } from '../../lib/currency';
 
 interface BalanceProps {
-  account: Account;
+  accounts: Account[];
   transactions: Transaction[];
-  onUpdateInitialBalance: (value: number) => void;
+  onUpdateInitialBalance: (accountId: string, value: number) => void;
 }
 
-export function Balance({ account, transactions, onUpdateInitialBalance }: BalanceProps) {
-  const [editing, setEditing] = useState(false);
+function accountInitials(name: string): string {
+  return name.slice(0, 2).toUpperCase() || '?';
+}
+
+export function Balance({ accounts, transactions, onUpdateInitialBalance }: BalanceProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [value, setValue] = useState('');
   const [saveError, setSaveError] = useState('');
 
-  const balance = calculateBalance(account, transactions);
+  const total = calculateTotalBalance(accounts, transactions);
 
-  function startEditing() {
+  function startEditing(account: Account) {
+    setEditingId(account.id);
     setValue(String(account.initial_balance));
     setSaveError('');
-    setEditing(true);
   }
 
-  function handleSave() {
+  function handleSave(accountId: string) {
     const parsed = parseCurrencyInput(value);
     if (parsed === null) {
       setSaveError('Valor inválido');
       return;
     }
     setSaveError('');
-    onUpdateInitialBalance(parsed);
-    setEditing(false);
+    onUpdateInitialBalance(accountId, parsed);
+    setEditingId(null);
   }
 
   return (
     <div className="flex flex-col flex-1">
       <h2 className="font-display text-lg font-semibold mb-1">Saldo atual</h2>
-      <p className="font-mono text-[0.65rem] text-app-muted-2 mb-3">{account.name}</p>
-      {editing ? (
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <input
-              autoFocus
-              inputMode="decimal"
-              value={value}
-              onChange={(e) => setValue(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleSave();
-                if (e.key === 'Escape') setEditing(false);
-              }}
-              className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-2xl font-display text-app-text outline-none"
-            />
-            <button onClick={handleSave} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
-              Salvar
-            </button>
-            <button
-              onClick={() => {
-                setSaveError('');
-                setEditing(false);
-              }}
-              className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text"
-            >
-              Cancelar
-            </button>
+      <span className="font-display text-3xl font-semibold text-app-text mb-3">{formatCurrency(total)}</span>
+
+      <div className="flex flex-col gap-0.5">
+        {accounts.map((account) => (
+          <div key={account.id} className="flex flex-col gap-1 py-1.5">
+            {editingId === account.id ? (
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    autoFocus
+                    inputMode="decimal"
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleSave(account.id);
+                      if (e.key === 'Escape') setEditingId(null);
+                    }}
+                    className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
+                  />
+                  <button
+                    onClick={() => handleSave(account.id)}
+                    className="font-mono text-xs px-3 py-1.5 rounded bg-primary text-app-bg font-semibold"
+                  >
+                    Salvar
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSaveError('');
+                      setEditingId(null);
+                    }}
+                    className="font-mono text-xs px-3 py-1.5 rounded text-app-muted hover:text-app-text"
+                  >
+                    Cancelar
+                  </button>
+                </div>
+                {saveError && <p className="text-xs text-danger">{saveError}</p>}
+              </div>
+            ) : (
+              <button
+                onClick={() => startEditing(account)}
+                className="flex items-center justify-between gap-2 text-left hover:text-primary-bright transition-colors"
+              >
+                <span className="flex items-center gap-2 min-w-0">
+                  <span className="w-6 h-6 rounded-full bg-surface-2 text-primary font-mono text-[0.55rem] flex items-center justify-center shrink-0">
+                    {accountInitials(account.name)}
+                  </span>
+                  <span className="text-sm truncate">{account.name}</span>
+                </span>
+                <span className="font-mono text-sm whitespace-nowrap">{formatCurrency(calculateBalance(account, transactions))}</span>
+              </button>
+            )}
           </div>
-          {saveError && <p className="text-xs text-danger">{saveError}</p>}
-        </div>
-      ) : (
-        <button onClick={startEditing} className="text-left">
-          <span className="font-display text-3xl font-semibold text-app-text hover:text-primary-bright transition-colors">
-            {formatCurrency(balance)}
-          </span>
-        </button>
-      )}
-      <p className="font-mono text-[0.6rem] text-app-muted-2 mt-2">Clique no saldo para ajustar o saldo inicial da conta</p>
+        ))}
+      </div>
+
+      <p className="font-mono text-[0.6rem] text-app-muted-2 mt-2">Clique numa conta para ajustar o saldo inicial dela</p>
     </div>
   );
 }

@@ -5,15 +5,19 @@ import { formatRelativeDate } from '../../lib/relativeDate';
 interface RecentTransactionsProps {
   transactions: Transaction[];
   categories: Category[];
-  account: Account;
+  accounts: Account[];
 }
 
-export function RecentTransactions({ transactions, categories, account }: RecentTransactionsProps) {
+export function RecentTransactions({ transactions, categories, accounts }: RecentTransactionsProps) {
   const recent = transactions.slice(0, 8);
 
   function categoryName(categoryId: string | null) {
     if (!categoryId) return 'Sem categoria';
     return categories.find((c) => c.id === categoryId)?.name ?? 'Sem categoria';
+  }
+
+  function accountName(accountId: string) {
+    return accounts.find((a) => a.id === accountId)?.name ?? 'Conta removida';
   }
 
   return (
@@ -29,7 +33,7 @@ export function RecentTransactions({ transactions, categories, account }: Recent
             <div className="min-w-0">
               <p className="text-sm text-app-text truncate">{t.description || 'Sem descrição'}</p>
               <p className="font-mono text-[0.65rem] text-app-muted-2">
-                {categoryName(t.category_id)} · {account.name} · {formatRelativeDate(t.date)}
+                {categoryName(t.category_id)} · {accountName(t.account_id)} · {formatRelativeDate(t.date)}
               </p>
             </div>
             <span className={`font-mono text-sm whitespace-nowrap ${t.type === 'income' ? 'text-success' : 'text-danger'}`}>
