@@ -3,7 +3,13 @@ import { Card } from '../components/common/Card';
 import { Spinner } from '../components/common/Spinner';
 import { useToast } from '../contexts/ToastContext';
 import type { Account, Category, Transaction } from '../types';
-import { getOrCreateDefaultAccount, ensureDefaultCategories, getAccountTransactions } from '../features/finance/financeApi';
+import {
+  getOrCreateDefaultAccount,
+  ensureDefaultCategories,
+  getAccountTransactions,
+  updateAccountInitialBalance,
+} from '../features/finance/financeApi';
+import { Balance } from '../features/finance/Balance';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -32,6 +38,16 @@ export function FinancePage() {
     load();
   }, [load]);
 
+  async function handleUpdateInitialBalance(value: number) {
+    if (!account) return;
+    try {
+      await updateAccountInitialBalance(account.id, value);
+      setAccount({ ...account, initial_balance: value });
+    } catch {
+      showError('Não foi possível atualizar o saldo.');
+    }
+  }
+
   if (loading || !account) {
     return (
       <div className="p-4 md:p-6 flex items-center justify-center min-h-[50vh]">
@@ -51,8 +67,7 @@ export function FinancePage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
         <Card>
-          <h2 className="font-display text-lg font-semibold mb-1">Saldo atual</h2>
-          <p className="text-sm text-app-muted">Em breve</p>
+          <Balance account={account} transactions={transactions} onUpdateInitialBalance={handleUpdateInitialBalance} />
         </Card>
         <Card>
           <h2 className="font-display text-lg font-semibold mb-1">Quanto posso gastar</h2>
