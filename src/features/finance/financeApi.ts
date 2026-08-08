@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import type { Account, Category, Transaction } from '../../types';
+import type { Account, Category, CategoryLimit, Transaction } from '../../types';
 
 const DEFAULT_CATEGORIES: { name: string; type: Category['type'] }[] = [
   { name: 'Alimentação', type: 'expense' },
@@ -121,4 +121,42 @@ export function calculateMonthSummary(
     },
     { income: 0, expense: 0 },
   );
+}
+
+export async function getCategoryLimits(): Promise<CategoryLimit[]> {
+  const { data, error } = await supabase.from('category_limits').select('*').order('created_at');
+  if (error) throw error;
+  return data;
+}
+
+export async function createCategoryLimit(categoryId: string, monthlyLimit: number): Promise<CategoryLimit> {
+  const { data: userData } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('category_limits')
+    .insert({ category_id: categoryId, monthly_limit: monthlyLimit, user_id: userData.user!.id })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function updateCategoryLimit(id: string, monthlyLimit: number): Promise<void> {
+  const { error } = await supabase.from('category_limits').update({ monthly_limit: monthlyLimit }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteCategoryLimit(id: string): Promise<void> {
+  const { error } = await supabase.from('category_limits').delete().eq('id', id);
+  if (error) throw error;
+}
+
+export function calculateCategorySpending(
+  categoryId: string,
+  transactions: Transaction[],
+  monthStart: string,
+  monthEnd: string,
+): number {
+  return transactions
+    .filter((t) => t.category_id === categoryId && t.type === 'expense' && t.date >= monthStart && t.date <= monthEnd)
+    .reduce((sum, t) => sum + Number(t.amount), 0);
 }

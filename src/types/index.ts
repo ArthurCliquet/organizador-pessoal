@@ -85,3 +85,11 @@ export interface Transaction {
   date: string;
   created_at: string;
 }
+
+export interface CategoryLimit {
+  id: string;
+  user_id: string;
+  category_id: string;
+  monthly_limit: number;
+  created_at: string;
+}
