@@ -57,3 +57,31 @@ export interface RecurringTaskLog {
   done: boolean;
   skipped: boolean;
 }
+
+export interface Account {
+  id: string;
+  user_id: string;
+  name: string;
+  initial_balance: number;
+  created_at: string;
+}
+
+export interface Category {
+  id: string;
+  user_id: string;
+  name: string;
+  type: 'income' | 'expense';
+  created_at: string;
+}
+
+export interface Transaction {
+  id: string;
+  user_id: string;
+  account_id: string;
+  category_id: string | null;
+  type: 'income' | 'expense';
+  amount: number;
+  description: string;
+  date: string;
+  created_at: string;
+}

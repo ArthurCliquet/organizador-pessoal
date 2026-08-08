@@ -6,6 +6,7 @@ const links = [
   { to: '/', label: 'Hoje' },
   { to: '/notas', label: 'Notas' },
   { to: '/calendario', label: 'Calendário' },
+  { to: '/financas', label: 'Finanças' },
 ];
 
 export function Sidebar() {

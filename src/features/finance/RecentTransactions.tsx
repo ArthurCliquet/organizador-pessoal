@@ -1,0 +1,44 @@
+import type { Account, Category, Transaction } from '../../types';
+import { formatCurrency } from '../../lib/currency';
+import { formatRelativeDate } from '../../lib/relativeDate';
+
+interface RecentTransactionsProps {
+  transactions: Transaction[];
+  categories: Category[];
+  account: Account;
+}
+
+export function RecentTransactions({ transactions, categories, account }: RecentTransactionsProps) {
+  const recent = transactions.slice(0, 8);
+
+  function categoryName(categoryId: string | null) {
+    if (!categoryId) return 'Sem categoria';
+    return categories.find((c) => c.id === categoryId)?.name ?? 'Sem categoria';
+  }
+
+  return (
+    <div className="flex flex-col flex-1">
+      <h2 className="font-display text-lg font-semibold mb-4">Últimas movimentações</h2>
+      {recent.length === 0 && <p className="text-sm text-app-muted">Nenhuma movimentação ainda</p>}
+      <div className="flex flex-col">
+        {recent.map((t) => (
+          <div
+            key={t.id}
+            className="flex items-center justify-between gap-3 py-2.5 px-1.5 -mx-1.5 border-b border-surface-2 last:border-none"
+          >
+            <div className="min-w-0">
+              <p className="text-sm text-app-text truncate">{t.description || 'Sem descrição'}</p>
+              <p className="font-mono text-[0.65rem] text-app-muted-2">
+                {categoryName(t.category_id)} · {account.name} · {formatRelativeDate(t.date)}
+              </p>
+            </div>
+            <span className={`font-mono text-sm whitespace-nowrap ${t.type === 'income' ? 'text-success' : 'text-danger'}`}>
+              {t.type === 'income' ? '+' : '-'}
+              {formatCurrency(t.amount)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
