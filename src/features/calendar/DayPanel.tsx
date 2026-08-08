@@ -9,13 +9,14 @@ import { useToast } from '../../contexts/ToastContext';
 interface DayPanelProps {
   date: string;
   onTasksChanged: () => void;
+  refreshToken?: number;
 }
 
 type DayItem =
   | { kind: 'task'; id: string; title: string; time: string | null; done: boolean; task: Task }
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean; recurringTask: RecurringTask };
 
-export function DayPanel({ date, onTasksChanged }: DayPanelProps) {
+export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) {
   const { showError } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState('');
@@ -40,7 +41,7 @@ export function DayPanel({ date, onTasksChanged }: DayPanelProps) {
 
   useEffect(() => {
     load();
-  }, [load]);
+  }, [load, refreshToken]);
 
   const weekday = getWeekday(date);
   const dayItems: DayItem[] = [
