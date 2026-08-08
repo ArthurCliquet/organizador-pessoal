@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Account, Transaction } from '../../types';
 import { calculateBalance, calculateTotalBalance } from './financeApi';
-import { formatCurrency, parseCurrencyInput } from '../../lib/currency';
+import { formatCurrency, parseCurrencyInput, formatAmountForInput } from '../../lib/currency';
 
 interface BalanceProps {
   accounts: Account[];
@@ -22,7 +22,7 @@ export function Balance({ accounts, transactions, onUpdateInitialBalance }: Bala
 
   function startEditing(account: Account) {
     setEditingId(account.id);
-    setValue(String(account.initial_balance));
+    setValue(formatAmountForInput(account.initial_balance));
     setSaveError('');
   }
 

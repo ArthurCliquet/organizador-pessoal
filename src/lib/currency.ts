@@ -10,3 +10,7 @@ export function parseCurrencyInput(raw: string): number | null {
   const parsed = Number(cleaned);
   return Number.isNaN(parsed) ? null : parsed;
 }
+
+export function formatAmountForInput(value: number): string {
+  return value.toFixed(2).replace('.', ',');
+}

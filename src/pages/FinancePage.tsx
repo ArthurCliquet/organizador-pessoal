@@ -26,6 +26,7 @@ export function FinancePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [creatingAccount, setCreatingAccount] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -48,11 +49,18 @@ export function FinancePage() {
   }, [load]);
 
   async function handleCreateAccount(input: { name: string; initialBalance: number }) {
+    setCreatingAccount(true);
     try {
       const account = await createAccount(input.name, input.initialBalance);
       setAccounts((prev) => [...prev, account]);
-    } catch {
-      showError('Não foi possível criar a conta.');
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
+        showError('Você já tem uma conta com esse nome.');
+      } else {
+        showError('Não foi possível criar a conta.');
+      }
+    } finally {
+      setCreatingAccount(false);
     }
   }
 
@@ -105,7 +113,7 @@ export function FinancePage() {
   }
 
   if (accounts.length === 0) {
-    return <CreateAccountModal onCreate={handleCreateAccount} />;
+    return <CreateAccountModal onCreate={handleCreateAccount} creating={creatingAccount} />;
   }
 
   return (

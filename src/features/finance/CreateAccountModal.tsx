@@ -3,15 +3,17 @@ import { parseCurrencyInput } from '../../lib/currency';
 
 interface CreateAccountModalProps {
   onCreate: (input: { name: string; initialBalance: number }) => void;
+  creating: boolean;
 }
 
-export function CreateAccountModal({ onCreate }: CreateAccountModalProps) {
+export function CreateAccountModal({ onCreate, creating }: CreateAccountModalProps) {
   const [name, setName] = useState('');
   const [initialBalance, setInitialBalance] = useState('');
   const [nameError, setNameError] = useState('');
   const [balanceError, setBalanceError] = useState('');
 
   function handleSubmit() {
+    if (creating) return;
     const trimmedName = name.trim();
     if (!trimmedName) {
       setNameError('Informe um nome para a conta');
@@ -30,7 +32,7 @@ export function CreateAccountModal({ onCreate }: CreateAccountModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+    <div className="p-4 md:p-6 flex items-center justify-center min-h-[50vh]">
       <div className="bg-surface border border-surface-border rounded p-6 max-w-sm w-full flex flex-col gap-4">
         <h3 className="font-display text-lg">Nomeie sua conta</h3>
         <p className="text-sm text-app-muted">Como se chama a conta ou carteira onde você guarda seu dinheiro?</p>
@@ -57,9 +59,10 @@ export function CreateAccountModal({ onCreate }: CreateAccountModalProps) {
           <button
             type="button"
             onClick={handleSubmit}
-            className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold"
+            disabled={creating}
+            className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold disabled:opacity-50"
           >
-            Criar conta
+            {creating ? 'Criando...' : 'Criar conta'}
           </button>
         </div>
       </div>
