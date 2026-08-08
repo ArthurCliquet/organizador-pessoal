@@ -51,16 +51,19 @@ export function PendingTasks() {
   }
 
   return (
-    <div className="bg-surface border border-surface-border rounded p-5">
-      <h3 className="font-display text-base mb-3">Pendências</h3>
-      <div className="flex flex-col gap-1 mb-2">
+    <div>
+      <div className="flex items-baseline justify-between mb-3">
+        <h2 className="font-display text-base">Pendências</h2>
+        <span className="font-mono text-xs text-app-muted-2">
+          {tasks.length} {tasks.length === 1 ? 'tarefa' : 'tarefas'}
+        </span>
+      </div>
+      <div className="border-l border-surface-border pl-3 flex flex-col gap-1.5 mb-3">
         {tasks.map((task) => (
-          <div key={task.id} className="group flex items-center gap-2">
-            <input type="checkbox" checked={task.done} onChange={() => handleToggle(task)} className="accent-primary w-4 h-4" />
-            <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
-              <span className="font-mono text-app-muted-2">— </span>
-              {task.title}
-            </span>
+          <div key={task.id} className="group flex items-center gap-2.5">
+            <input type="checkbox" checked={task.done} onChange={() => handleToggle(task)} className="accent-primary w-4 h-4 shrink-0" />
+            <span className="font-mono text-xs text-app-muted-2 w-4 shrink-0">—</span>
+            <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>{task.title}</span>
             <button
               onClick={() => handleDelete(task.id)}
               className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
@@ -71,7 +74,7 @@ export function PendingTasks() {
         ))}
         {tasks.length === 0 && <p className="text-sm text-app-muted">Nenhuma pendência</p>}
       </div>
-      <div className="flex gap-1">
+      <div className="flex gap-1 max-w-xs">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
@@ -79,7 +82,7 @@ export function PendingTasks() {
             if (e.key === 'Enter') handleCreate();
           }}
           placeholder="+ Nova pendência"
-          className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          className="flex-1 bg-surface border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
         />
       </div>
     </div>

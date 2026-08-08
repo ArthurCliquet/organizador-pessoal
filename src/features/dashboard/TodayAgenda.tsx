@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, toggleTask } from '../tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog } from '../tasks/recurringTasksApi';
-import { HabitChecklist } from '../habits/HabitChecklist';
 import { getWeekday, toISODate } from '../calendar/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
 
@@ -10,7 +9,7 @@ type DayItem =
   | { kind: 'task'; id: string; title: string; time: string | null; done: boolean }
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean };
 
-export function TodayCard() {
+export function TodayAgenda() {
   const { showError } = useToast();
   const today = toISODate(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -71,40 +70,33 @@ export function TodayCard() {
     }
   }
 
-  const now = new Date();
-  const weekdayLabel = now.toLocaleDateString('pt-BR', { weekday: 'long' });
-  const monthLabel = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
-
   return (
-    <div className="border border-surface-border bg-surface rounded-xl overflow-hidden">
-      <div className="flex items-center gap-4 px-5 py-4 border-b border-surface-border">
-        <span className="font-display text-5xl text-primary font-semibold leading-none">{now.getDate()}</span>
-        <div className="flex flex-col gap-0.5">
-          <span className="font-display text-lg capitalize">{weekdayLabel}</span>
-          <span className="font-mono text-[0.65rem] tracking-widest text-app-muted-2 uppercase">{monthLabel} {now.getFullYear()} — Hoje</span>
-        </div>
+    <div>
+      <div className="flex items-baseline justify-between mb-3">
+        <h2 className="font-display text-base">Agenda de hoje</h2>
+        <span className="font-mono text-xs text-app-muted-2">
+          {dayItems.length} {dayItems.length === 1 ? 'tarefa' : 'tarefas'}
+        </span>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
-        <div>
-          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Tarefas</h4>
-          <div className="flex flex-col gap-1">
-            {dayItems.map((item) => (
-              <label key={`${item.kind}-${item.id}`} className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={item.done} onChange={() => handleToggle(item)} className="accent-primary w-4 h-4" />
-                <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
-                  {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
-                  {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
-                  {item.title}
-                </span>
-              </label>
-            ))}
-            {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa hoje</p>}
-          </div>
-        </div>
-        <div>
-          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Hábitos</h4>
-          <HabitChecklist date={today} />
-        </div>
+      <div className="border-l border-surface-border pl-3 flex flex-col gap-1.5">
+        {dayItems.map((item) => (
+          <label key={`${item.kind}-${item.id}`} className="flex items-center gap-2.5 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={item.done}
+              onChange={() => handleToggle(item)}
+              className="accent-primary w-4 h-4 shrink-0"
+            />
+            <span className="font-mono text-xs text-app-muted-2 w-16 shrink-0">
+              {item.time ? item.time.slice(0, 5) : 'sem hora'}
+            </span>
+            <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
+              {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
+              {item.title}
+            </span>
+          </label>
+        ))}
+        {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa hoje</p>}
       </div>
     </div>
   );
