@@ -15,6 +15,7 @@ import {
 import { FolderList } from '../features/notes/FolderList';
 import { NoteList } from '../features/notes/NoteList';
 import { NoteEditor } from '../features/notes/NoteEditor';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { useToast } from '../contexts/ToastContext';
 
 function readStoredId(key: string): string | null {
@@ -32,6 +33,8 @@ export function NotesPage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [selectedNoteId, setSelectedNoteId] = useState<string | null>(() => readStoredId('notas:selectedNoteId'));
   const [query, setQuery] = useState('');
+  const [confirmDeleteNote, setConfirmDeleteNote] = useState<Note | null>(null);
+  const [confirmDeleteFolder, setConfirmDeleteFolder] = useState<Folder | null>(null);
 
   useEffect(() => {
     sessionStorage.setItem('notas:selectedFolderId', JSON.stringify(selectedFolderId));
@@ -93,6 +96,16 @@ export function NotesPage() {
     }
   }
 
+  async function handleDeleteFolder(id: string) {
+    try {
+      await deleteFolder(id);
+      if (selectedFolderId === id) setSelectedFolderId(null);
+      loadFolders();
+    } catch {
+      showError('Não foi possível excluir a pasta.');
+    }
+  }
+
   async function handleSaveNote(fields: { title: string; content: string }) {
     if (!selectedNoteId) return;
     try {
@@ -142,18 +155,16 @@ export function NotesPage() {
                 showError('Não foi possível renomear a pasta.');
               }
             }}
-            onDelete={async (id) => {
-              try {
-                await deleteFolder(id);
-                if (selectedFolderId === id) setSelectedFolderId(null);
-                loadFolders();
-              } catch {
-                showError('Não foi possível excluir a pasta.');
-              }
-            }}
+            onDelete={(id) => setConfirmDeleteFolder(folders.find((f) => f.id === id) ?? null)}
           />
           <div className="flex-1 min-h-0 md:flex-none md:w-56 md:shrink-0 md:border-r border-surface-border flex flex-col">
-            <NoteList notes={notes} selectedNoteId={selectedNoteId} onSelect={handleSelectNote} onCreate={handleCreateNote} onDelete={handleDeleteNote} />
+            <NoteList
+              notes={notes}
+              selectedNoteId={selectedNoteId}
+              onSelect={handleSelectNote}
+              onCreate={handleCreateNote}
+              onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
+            />
           </div>
         </div>
         <div className={`${selectedNoteId ? 'block' : 'hidden'} md:block flex-1 min-w-0 bg-surface`}>
@@ -171,6 +182,30 @@ export function NotesPage() {
           )}
         </div>
       </div>
+
+      {confirmDeleteNote && (
+        <ConfirmDialog
+          title="Excluir nota"
+          message={`Excluir "${confirmDeleteNote.title || 'Sem título'}"? Essa ação não pode ser desfeita.`}
+          onCancel={() => setConfirmDeleteNote(null)}
+          onConfirm={() => {
+            handleDeleteNote(confirmDeleteNote.id);
+            setConfirmDeleteNote(null);
+          }}
+        />
+      )}
+
+      {confirmDeleteFolder && (
+        <ConfirmDialog
+          title="Excluir pasta"
+          message={`Excluir a pasta "${confirmDeleteFolder.name}"? As notas dela não serão apagadas, só ficarão sem pasta.`}
+          onCancel={() => setConfirmDeleteFolder(null)}
+          onConfirm={() => {
+            handleDeleteFolder(confirmDeleteFolder.id);
+            setConfirmDeleteFolder(null);
+          }}
+        />
+      )}
     </div>
   );
 }
