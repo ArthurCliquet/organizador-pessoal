@@ -33,7 +33,13 @@ function readStoredId(key: string): string | null {
 
 const PIN_LIMIT = 5;
 
-type PinnedItem = { kind: 'folder'; data: Folder } | { kind: 'note'; data: Note };
+function pinnedFirst<T extends { pinned_at: string | null }>(items: T[]): T[] {
+  return [...items].sort((a, b) => {
+    if (!!a.pinned_at !== !!b.pinned_at) return a.pinned_at ? -1 : 1;
+    if (a.pinned_at && b.pinned_at) return b.pinned_at.localeCompare(a.pinned_at);
+    return 0;
+  });
+}
 
 export function NotesPage() {
   const { showError } = useToast();
@@ -91,10 +97,8 @@ export function NotesPage() {
   const selectedNote = notes.find((n) => n.id === selectedNoteId) ?? null;
 
   const pinnedFolders = folders.filter((f) => f.pinned_at);
-  const pinnedItems: PinnedItem[] = [
-    ...pinnedFolders.map((data): PinnedItem => ({ kind: 'folder', data })),
-    ...pinnedNotes.map((data): PinnedItem => ({ kind: 'note', data })),
-  ].sort((a, b) => (b.data.pinned_at ?? '').localeCompare(a.data.pinned_at ?? ''));
+  const sortedFolders = pinnedFirst(folders);
+  const sortedNotes = pinnedFirst(notes);
 
   async function handleTogglePinFolder(folder: Folder) {
     try {
@@ -129,13 +133,6 @@ export function NotesPage() {
     } catch {
       showError('Não foi possível atualizar a nota fixada.');
     }
-  }
-
-  function handleSelectPinnedNote(note: Note) {
-    setSelectedFolderId(note.folder_id);
-    setQuery('');
-    setSelectedNoteId(note.id);
-    touchNoteViewed(note.id).catch(() => {});
   }
 
   function handleSelectNote(id: string) {
@@ -200,45 +197,12 @@ export function NotesPage() {
         />
       </div>
 
-      {pinnedItems.length > 0 && (
-        <div className="mb-4 border border-surface-border rounded p-4">
-          <h2 className="font-display text-base mb-2">Fixados</h2>
-          <div className="flex flex-col gap-0.5">
-            {pinnedItems.map((item) => (
-              <div
-                key={`${item.kind}-${item.data.id}`}
-                onClick={() =>
-                  item.kind === 'folder' ? handleSelectFolder(item.data.id) : handleSelectPinnedNote(item.data)
-                }
-                className="group flex items-center gap-3 px-2 py-1.5 rounded hover:bg-surface-2 cursor-pointer"
-              >
-                <span className="font-mono text-[0.6rem] uppercase tracking-wider text-app-muted-2 w-10 shrink-0">
-                  {item.kind === 'folder' ? 'pasta' : 'nota'}
-                </span>
-                <span className="flex-1 text-sm text-app-text truncate">
-                  {item.kind === 'folder' ? item.data.name : item.data.title || 'Sem título'}
-                </span>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    item.kind === 'folder' ? handleTogglePinFolder(item.data) : handleTogglePinNote(item.data);
-                  }}
-                  className="opacity-0 group-hover:opacity-100 font-mono text-[0.65rem] text-app-muted hover:text-danger shrink-0"
-                >
-                  desafixar
-                </button>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
       <div className="flex-1 min-h-0 border border-surface-border rounded overflow-hidden flex flex-col md:flex-row">
         <div
           className={`${selectedNoteId ? 'hidden' : 'flex'} md:flex flex-1 md:flex-none flex-col md:flex-row w-full md:w-auto min-h-0`}
         >
           <FolderList
-            folders={folders}
+            folders={sortedFolders}
             selectedFolderId={selectedFolderId}
             onSelect={handleSelectFolder}
             onTogglePin={handleTogglePinFolder}
@@ -262,7 +226,7 @@ export function NotesPage() {
           />
           <div className="flex-1 min-h-0 md:flex-none md:w-56 md:shrink-0 md:border-r border-surface-border flex flex-col">
             <NoteList
-              notes={notes}
+              notes={sortedNotes}
               selectedNoteId={selectedNoteId}
               onSelect={handleSelectNote}
               onCreate={handleCreateNote}
