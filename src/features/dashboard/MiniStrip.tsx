@@ -44,22 +44,24 @@ export function MiniStrip() {
   }, [showError]);
 
   return (
-    <div className="flex gap-3">
+    <div className="flex gap-2.5">
       {days.map((day) => (
         <Link
           key={day.iso}
           to="/calendario"
-          className="flex-1 border border-surface-border rounded p-2.5 text-center hover:border-primary transition-colors block"
+          className="flex-1 bg-white/[0.015] border border-surface-border rounded-[11px] py-2.5 px-1.5 text-center transition-[transform,border-color] duration-150 hover:border-glow-border hover:-translate-y-0.5 block"
         >
           <div className="font-mono text-[0.6rem] uppercase tracking-wider text-app-muted-2">
             {formatWeekdayAbbrev(day.date)}
           </div>
-          <div className="font-display text-xl mt-0.5">{day.date.getDate()}</div>
-          {day.hasSomething ? (
-            <span className="w-1 h-1 rounded-full bg-primary inline-block mt-1" />
-          ) : (
-            <div className="text-[0.6rem] text-app-muted mt-1">livre</div>
-          )}
+          <div className="font-display text-xl font-semibold mt-0.5">{day.date.getDate()}</div>
+          <div className="h-1.5 flex items-center justify-center mt-1.5">
+            {day.hasSomething ? (
+              <span className="w-[5px] h-[5px] rounded-full bg-primary inline-block" />
+            ) : (
+              <span className="font-mono text-[0.55rem] text-app-muted-2">livre</span>
+            )}
+          </div>
         </Link>
       ))}
     </div>

@@ -4,12 +4,17 @@ import { getTasksForDate, toggleTask } from '../tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
 import { getWeekday, toISODate } from '../calendar/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
+import { TaskCheck } from '../../components/common/TaskCheck';
 
 type DayItem =
   | { kind: 'task'; id: string; title: string; time: string | null; done: boolean }
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean };
 
-export function TodayAgenda() {
+interface TodayAgendaProps {
+  onCountChange?: (count: number) => void;
+}
+
+export function TodayAgenda({ onCountChange }: TodayAgendaProps) {
   const { showError } = useToast();
   const today = toISODate(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -45,6 +50,10 @@ export function TodayAgenda() {
         done: recurringLogs.find((l) => l.recurring_task_id === rt.id)?.done ?? false,
       })),
   ].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
+
+  useEffect(() => {
+    onCountChange?.(dayItems.length);
+  }, [dayItems.length, onCountChange]);
 
   async function handleToggle(item: DayItem) {
     if (item.kind === 'task') {
@@ -87,29 +96,25 @@ export function TodayAgenda() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-3">
-        <h2 className="font-display text-base">Agenda de hoje</h2>
+      <div className="flex items-baseline justify-between mb-4">
+        <h2 className="font-display text-lg font-semibold">Agenda de hoje</h2>
         <span className="font-mono text-xs text-app-muted-2">
           {dayItems.length} {dayItems.length === 1 ? 'tarefa' : 'tarefas'}
         </span>
       </div>
-      <div className="border-l border-surface-border pl-3 flex flex-col gap-1.5">
+      <div className="flex flex-col gap-0.5">
         {dayItems.map((item) => (
-          <label key={`${item.kind}-${item.id}`} className="group flex items-center gap-2.5 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={item.done}
-              onChange={() => handleToggle(item)}
-              className="accent-primary w-4 h-4 shrink-0"
-            />
-            <span className="font-mono text-xs text-app-muted-2 w-16 shrink-0">
-              {item.time ? item.time.slice(0, 5) : 'sem hora'}
-            </span>
-            <span className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
-              {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
+          <label
+            key={`${item.kind}-${item.id}`}
+            className="group grid grid-cols-[18px_52px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
+          >
+            <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
+            <span className="font-mono text-xs text-app-muted-2">{item.time ? item.time.slice(0, 5) : 'sem hora'}</span>
+            <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
+              {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
               {item.title}
             </span>
-            {item.kind === 'recurring' && (
+            {item.kind === 'recurring' ? (
               <button
                 type="button"
                 onClick={(e) => {
@@ -122,6 +127,8 @@ export function TodayAgenda() {
               >
                 pular hoje
               </button>
+            ) : (
+              <span />
             )}
           </label>
         ))}

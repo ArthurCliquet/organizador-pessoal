@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Task } from '../../types';
 import { getPendingTasks, createPendingTask, toggleTask, deleteTask } from '../tasks/tasksApi';
 import { useToast } from '../../contexts/ToastContext';
+import { TaskCheck } from '../../components/common/TaskCheck';
 
 export function PendingTasks() {
   const { showError } = useToast();
@@ -52,17 +53,19 @@ export function PendingTasks() {
 
   return (
     <div>
-      <div className="flex items-baseline justify-between mb-3">
-        <h2 className="font-display text-base">Pendências</h2>
+      <div className="flex items-baseline justify-between mb-4">
+        <h2 className="font-display text-lg font-semibold">Pendências</h2>
         <span className="font-mono text-xs text-app-muted-2">
           {tasks.length} {tasks.length === 1 ? 'tarefa' : 'tarefas'}
         </span>
       </div>
-      <div className="border-l border-surface-border pl-3 flex flex-col gap-1.5 mb-3">
+      <div className="flex flex-col gap-0.5 mb-3">
         {tasks.map((task) => (
-          <div key={task.id} className="group flex items-center gap-2.5">
-            <input type="checkbox" checked={task.done} onChange={() => handleToggle(task)} className="accent-primary w-4 h-4 shrink-0" />
-            <span className="font-mono text-xs text-app-muted-2 w-4 shrink-0">—</span>
+          <div
+            key={task.id}
+            className="group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
+          >
+            <TaskCheck checked={task.done} onChange={() => handleToggle(task)} />
             <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>{task.title}</span>
             <button
               onClick={() => handleDelete(task.id)}
@@ -74,15 +77,16 @@ export function PendingTasks() {
         ))}
         {tasks.length === 0 && <p className="text-sm text-app-muted">Nenhuma pendência</p>}
       </div>
-      <div className="flex gap-1 max-w-xs">
+      <div className="flex items-center gap-2 border border-dashed border-surface-border rounded-[11px] px-3 py-2 focus-within:border-primary transition-colors">
+        <span className="font-mono text-app-muted-2 text-sm">+</span>
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') handleCreate();
           }}
-          placeholder="+ Nova pendência"
-          className="flex-1 bg-surface border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          placeholder="Nova pendência"
+          className="flex-1 bg-transparent text-xs text-app-text outline-none placeholder:text-app-muted-2"
         />
       </div>
     </div>

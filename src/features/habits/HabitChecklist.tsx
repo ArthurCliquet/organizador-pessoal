@@ -2,13 +2,15 @@ import { useEffect, useState, useCallback } from 'react';
 import type { Habit, HabitLog } from '../../types';
 import { getHabits, createHabit, renameHabit, deleteHabit, getHabitLogsForDate, toggleHabitLog } from './habitsApi';
 import { useToast } from '../../contexts/ToastContext';
+import { HabitRing } from '../../components/common/HabitRing';
 
 interface HabitChecklistProps {
   date: string;
   allowCreate?: boolean;
+  onCountsChange?: (done: number, total: number) => void;
 }
 
-export function HabitChecklist({ date, allowCreate = false }: HabitChecklistProps) {
+export function HabitChecklist({ date, allowCreate = false, onCountsChange }: HabitChecklistProps) {
   const { showError } = useToast();
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
@@ -33,6 +35,12 @@ export function HabitChecklist({ date, allowCreate = false }: HabitChecklistProp
   function isDone(habitId: string) {
     return logs.find((l) => l.habit_id === habitId)?.done ?? false;
   }
+
+  useEffect(() => {
+    const done = habits.filter((h) => isDone(h.id)).length;
+    onCountsChange?.(done, habits.length);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [habits, logs, onCountsChange]);
 
   async function handleToggle(habitId: string) {
     const done = !isDone(habitId);
@@ -80,11 +88,14 @@ export function HabitChecklist({ date, allowCreate = false }: HabitChecklistProp
   }
 
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-0.5">
       {habits.map((habit) => (
-        <div key={habit.id} className="group flex items-center gap-2">
-          <label className="flex-1 flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} className="accent-primary w-4 h-4" />
+        <div
+          key={habit.id}
+          className="group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
+        >
+          <label className="flex-1 flex items-center gap-2.5 cursor-pointer">
+            <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
             {editingId === habit.id ? (
               <input
                 autoFocus
@@ -117,15 +128,16 @@ export function HabitChecklist({ date, allowCreate = false }: HabitChecklistProp
         </div>
       ))}
       {allowCreate && (
-        <div className="flex gap-1 mt-1">
+        <div className="flex items-center gap-2 border border-dashed border-surface-border rounded-[11px] px-3 py-2 mt-2 focus-within:border-primary transition-colors">
+          <span className="font-mono text-app-muted-2 text-sm">+</span>
           <input
             value={newHabitName}
             onChange={(e) => setNewHabitName(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleCreate();
             }}
-            placeholder="+ Novo hábito"
-            className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+            placeholder="Novo hábito"
+            className="flex-1 bg-transparent text-xs text-app-text outline-none placeholder:text-app-muted-2"
           />
         </div>
       )}
