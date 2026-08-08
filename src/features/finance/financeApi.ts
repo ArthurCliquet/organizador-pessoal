@@ -29,7 +29,18 @@ export async function getOrCreateDefaultAccount(): Promise<Account> {
     .insert({ name: DEFAULT_ACCOUNT_NAME, initial_balance: 0, user_id: userData.user!.id })
     .select()
     .single();
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') {
+      const { data: retry, error: retryError } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('created_at')
+        .limit(1);
+      if (retryError) throw retryError;
+      if (retry.length > 0) return retry[0];
+    }
+    throw error;
+  }
   return data;
 }
 
@@ -46,7 +57,14 @@ export async function ensureDefaultCategories(): Promise<Category[]> {
   const { data: userData } = await supabase.auth.getUser();
   const rows = DEFAULT_CATEGORIES.map((c) => ({ ...c, user_id: userData.user!.id }));
   const { data, error } = await supabase.from('categories').insert(rows).select();
-  if (error) throw error;
+  if (error) {
+    if (error.code === '23505') {
+      const { data: retry, error: retryError } = await supabase.from('categories').select('*').order('created_at');
+      if (retryError) throw retryError;
+      return retry;
+    }
+    throw error;
+  }
   return data;
 }
 
