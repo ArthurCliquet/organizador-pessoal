@@ -10,6 +10,7 @@ import {
   updateAccountInitialBalance,
 } from '../features/finance/financeApi';
 import { Balance } from '../features/finance/Balance';
+import { MonthSummary } from '../features/finance/MonthSummary';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -76,8 +77,7 @@ export function FinancePage() {
       </div>
 
       <Card>
-        <h2 className="font-display text-lg font-semibold mb-1">Resumo do mês</h2>
-        <p className="text-sm text-app-muted">Em breve</p>
+        <MonthSummary transactions={transactions} />
       </Card>
 
       <Card>
