@@ -3,6 +3,7 @@ export interface Folder {
   user_id: string;
   name: string;
   created_at: string;
+  pinned_at: string | null;
 }
 
 export interface Note {
@@ -13,6 +14,7 @@ export interface Note {
   content: string;
   updated_at: string;
   viewed_at: string | null;
+  pinned_at: string | null;
 }
 
 export interface Habit {

@@ -28,6 +28,16 @@ export async function deleteFolder(id: string): Promise<void> {
   if (error) throw error;
 }
 
+export async function pinFolder(id: string): Promise<void> {
+  const { error } = await supabase.from('folders').update({ pinned_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function unpinFolder(id: string): Promise<void> {
+  const { error } = await supabase.from('folders').update({ pinned_at: null }).eq('id', id);
+  if (error) throw error;
+}
+
 export async function getNotes(folderId: string | null): Promise<Note[]> {
   const base = supabase.from('notes').select('*').order('updated_at', { ascending: false });
   const { data, error } = folderId === null ? await base.is('folder_id', null) : await base.eq('folder_id', folderId);
@@ -84,4 +94,20 @@ export async function updateNote(id: string, fields: Partial<Pick<Note, 'title' 
 export async function deleteNote(id: string): Promise<void> {
   const { error } = await supabase.from('notes').delete().eq('id', id);
   if (error) throw error;
+}
+
+export async function pinNote(id: string): Promise<void> {
+  const { error } = await supabase.from('notes').update({ pinned_at: new Date().toISOString() }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function unpinNote(id: string): Promise<void> {
+  const { error } = await supabase.from('notes').update({ pinned_at: null }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function getPinnedNotes(): Promise<Note[]> {
+  const { data, error } = await supabase.from('notes').select('*').not('pinned_at', 'is', null).order('pinned_at', { ascending: false });
+  if (error) throw error;
+  return data;
 }

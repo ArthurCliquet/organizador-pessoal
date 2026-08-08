@@ -6,6 +6,7 @@ interface NoteListProps {
   onSelect: (id: string) => void;
   onCreate: () => void;
   onDelete: (id: string) => void;
+  onTogglePin: (note: Note) => void;
 }
 
 function previewText(html: string): string {
@@ -13,7 +14,7 @@ function previewText(html: string): string {
   return text.length > 64 ? `${text.slice(0, 64)}…` : text;
 }
 
-export function NoteList({ notes, selectedNoteId, onSelect, onCreate, onDelete }: NoteListProps) {
+export function NoteList({ notes, selectedNoteId, onSelect, onCreate, onDelete, onTogglePin }: NoteListProps) {
   return (
     <div className="flex-1 overflow-y-auto flex flex-col">
       <button onClick={onCreate} className="m-3 bg-primary text-app-bg text-sm rounded py-1.5 font-semibold">
@@ -31,6 +32,18 @@ export function NoteList({ notes, selectedNoteId, onSelect, onCreate, onDelete }
               <div className="truncate text-sm text-app-text">{note.title || 'Sem título'}</div>
               {preview && <div className="truncate text-xs text-app-muted-2 mt-0.5">{preview}</div>}
             </div>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onTogglePin(note);
+              }}
+              className={`font-mono text-[0.65rem] shrink-0 ${
+                note.pinned_at ? 'text-primary' : 'opacity-0 group-hover:opacity-100 text-app-muted hover:text-primary'
+              }`}
+              title={note.pinned_at ? 'Desafixar' : 'Fixar'}
+            >
+              {note.pinned_at ? 'fixada' : 'fixar'}
+            </button>
             <button
               onClick={(e) => {
                 e.stopPropagation();

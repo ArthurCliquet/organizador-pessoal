@@ -8,9 +8,10 @@ interface FolderListProps {
   onCreate: (name: string) => void;
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
+  onTogglePin: (folder: Folder) => void;
 }
 
-export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRename, onDelete }: FolderListProps) {
+export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRename, onDelete, onTogglePin }: FolderListProps) {
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -55,6 +56,15 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
               {folder.name}
             </button>
           )}
+          <button
+            onClick={() => onTogglePin(folder)}
+            className={`shrink-0 px-1.5 flex items-center justify-center ${
+              folder.pinned_at ? '' : 'opacity-0 group-hover:opacity-100'
+            }`}
+            title={folder.pinned_at ? 'Desafixar' : 'Fixar'}
+          >
+            <span className={`w-1.5 h-1.5 rounded-full block ${folder.pinned_at ? 'bg-primary' : 'border border-app-muted'}`} />
+          </button>
           <button
             onClick={() => onDelete(folder.id)}
             className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger px-2 text-xs"

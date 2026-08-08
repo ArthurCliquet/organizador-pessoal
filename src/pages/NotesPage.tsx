@@ -11,6 +11,11 @@ import {
   deleteNote,
   searchNotes,
   touchNoteViewed,
+  pinFolder,
+  unpinFolder,
+  pinNote,
+  unpinNote,
+  getPinnedNotes,
 } from '../features/notes/notesApi';
 import { FolderList } from '../features/notes/FolderList';
 import { NoteList } from '../features/notes/NoteList';
@@ -26,6 +31,10 @@ function readStoredId(key: string): string | null {
   }
 }
 
+const PIN_LIMIT = 5;
+
+type PinnedItem = { kind: 'folder'; data: Folder } | { kind: 'note'; data: Note };
+
 export function NotesPage() {
   const { showError } = useToast();
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -35,6 +44,7 @@ export function NotesPage() {
   const [query, setQuery] = useState('');
   const [confirmDeleteNote, setConfirmDeleteNote] = useState<Note | null>(null);
   const [confirmDeleteFolder, setConfirmDeleteFolder] = useState<Folder | null>(null);
+  const [pinnedNotes, setPinnedNotes] = useState<Note[]>([]);
 
   useEffect(() => {
     sessionStorage.setItem('notas:selectedFolderId', JSON.stringify(selectedFolderId));
@@ -61,9 +71,18 @@ export function NotesPage() {
     }
   }, [selectedFolderId, query, showError]);
 
+  const loadPinnedNotes = useCallback(async () => {
+    try {
+      setPinnedNotes(await getPinnedNotes());
+    } catch {
+      showError('Não foi possível carregar as notas fixadas.');
+    }
+  }, [showError]);
+
   useEffect(() => {
     loadFolders();
-  }, [loadFolders]);
+    loadPinnedNotes();
+  }, [loadFolders, loadPinnedNotes]);
 
   useEffect(() => {
     loadNotes();
@@ -71,9 +90,63 @@ export function NotesPage() {
 
   const selectedNote = notes.find((n) => n.id === selectedNoteId) ?? null;
 
+  const pinnedFolders = folders.filter((f) => f.pinned_at);
+  const pinnedItems: PinnedItem[] = [
+    ...pinnedFolders.map((data): PinnedItem => ({ kind: 'folder', data })),
+    ...pinnedNotes.map((data): PinnedItem => ({ kind: 'note', data })),
+  ].sort((a, b) => (b.data.pinned_at ?? '').localeCompare(a.data.pinned_at ?? ''));
+
+  async function handleTogglePinFolder(folder: Folder) {
+    try {
+      if (folder.pinned_at) {
+        await unpinFolder(folder.id);
+      } else {
+        if (pinnedFolders.length >= PIN_LIMIT) {
+          showError(`Você já tem ${PIN_LIMIT} pastas fixadas. Desafixe uma antes de fixar outra.`);
+          return;
+        }
+        await pinFolder(folder.id);
+      }
+      loadFolders();
+    } catch {
+      showError('Não foi possível atualizar a pasta fixada.');
+    }
+  }
+
+  async function handleTogglePinNote(note: Note) {
+    try {
+      if (note.pinned_at) {
+        await unpinNote(note.id);
+      } else {
+        if (pinnedNotes.length >= PIN_LIMIT) {
+          showError(`Você já tem ${PIN_LIMIT} notas fixadas. Desafixe uma antes de fixar outra.`);
+          return;
+        }
+        await pinNote(note.id);
+      }
+      loadNotes();
+      loadPinnedNotes();
+    } catch {
+      showError('Não foi possível atualizar a nota fixada.');
+    }
+  }
+
+  function handleSelectPinnedNote(note: Note) {
+    setSelectedFolderId(note.folder_id);
+    setQuery('');
+    setSelectedNoteId(note.id);
+    touchNoteViewed(note.id).catch(() => {});
+  }
+
   function handleSelectNote(id: string) {
     setSelectedNoteId(id);
     touchNoteViewed(id).catch(() => {});
+  }
+
+  function handleSelectFolder(id: string | null) {
+    setSelectedFolderId(id);
+    setSelectedNoteId(null);
+    setQuery('');
   }
 
   async function handleCreateNote() {
@@ -127,6 +200,39 @@ export function NotesPage() {
         />
       </div>
 
+      {pinnedItems.length > 0 && (
+        <div className="mb-4 border border-surface-border rounded p-4">
+          <h2 className="font-display text-base mb-2">Fixados</h2>
+          <div className="flex flex-col gap-0.5">
+            {pinnedItems.map((item) => (
+              <div
+                key={`${item.kind}-${item.data.id}`}
+                onClick={() =>
+                  item.kind === 'folder' ? handleSelectFolder(item.data.id) : handleSelectPinnedNote(item.data)
+                }
+                className="group flex items-center gap-3 px-2 py-1.5 rounded hover:bg-surface-2 cursor-pointer"
+              >
+                <span className="font-mono text-[0.6rem] uppercase tracking-wider text-app-muted-2 w-10 shrink-0">
+                  {item.kind === 'folder' ? 'pasta' : 'nota'}
+                </span>
+                <span className="flex-1 text-sm text-app-text truncate">
+                  {item.kind === 'folder' ? item.data.name : item.data.title || 'Sem título'}
+                </span>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    item.kind === 'folder' ? handleTogglePinFolder(item.data) : handleTogglePinNote(item.data);
+                  }}
+                  className="opacity-0 group-hover:opacity-100 font-mono text-[0.65rem] text-app-muted hover:text-danger shrink-0"
+                >
+                  desafixar
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 min-h-0 border border-surface-border rounded overflow-hidden flex flex-col md:flex-row">
         <div
           className={`${selectedNoteId ? 'hidden' : 'flex'} md:flex flex-1 md:flex-none flex-col md:flex-row w-full md:w-auto min-h-0`}
@@ -134,11 +240,8 @@ export function NotesPage() {
           <FolderList
             folders={folders}
             selectedFolderId={selectedFolderId}
-            onSelect={(id) => {
-              setSelectedFolderId(id);
-              setSelectedNoteId(null);
-              setQuery('');
-            }}
+            onSelect={handleSelectFolder}
+            onTogglePin={handleTogglePinFolder}
             onCreate={async (name) => {
               try {
                 await createFolder(name);
@@ -164,6 +267,7 @@ export function NotesPage() {
               onSelect={handleSelectNote}
               onCreate={handleCreateNote}
               onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
+              onTogglePin={handleTogglePinNote}
             />
           </div>
         </div>
