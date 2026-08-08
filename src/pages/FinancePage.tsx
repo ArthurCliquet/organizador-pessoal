@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Spinner } from '../components/common/Spinner';
 import { useToast } from '../contexts/ToastContext';
-import type { Account, Category, Transaction } from '../types';
+import type { Account, Category, CategoryLimit, Transaction } from '../types';
 import {
   getAccounts,
   createAccount,
@@ -10,10 +10,14 @@ import {
   getTransactions,
   updateAccountInitialBalance,
   createTransaction,
+  getCategoryLimits,
+  createCategoryLimit,
+  updateCategoryLimit,
+  deleteCategoryLimit,
 } from '../features/finance/financeApi';
 import { Balance } from '../features/finance/Balance';
 import { MonthSummary } from '../features/finance/MonthSummary';
-import { AvailableToSpend } from '../features/finance/AvailableToSpend';
+import { MonthlyLimits } from '../features/finance/MonthlyLimits';
 import { RecentTransactions } from '../features/finance/RecentTransactions';
 import { AddTransactionModal } from '../features/finance/AddTransactionModal';
 import { CreateAccountModal } from '../features/finance/CreateAccountModal';
@@ -23,6 +27,7 @@ export function FinancePage() {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [categoryLimits, setCategoryLimits] = useState<CategoryLimit[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
@@ -32,9 +37,10 @@ export function FinancePage() {
     setLoading(true);
     setError(false);
     try {
-      const [accs, cats] = await Promise.all([getAccounts(), ensureDefaultCategories()]);
+      const [accs, cats, limits] = await Promise.all([getAccounts(), ensureDefaultCategories(), getCategoryLimits()]);
       setAccounts(accs);
       setCategories(cats);
+      setCategoryLimits(limits);
       setTransactions(await getTransactions());
     } catch {
       showError('Não foi possível carregar seus dados financeiros.');
@@ -70,6 +76,33 @@ export function FinancePage() {
       setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, initial_balance: value } : a)));
     } catch {
       showError('Não foi possível atualizar o saldo.');
+    }
+  }
+
+  async function handleCreateCategoryLimit(categoryId: string, monthlyLimit: number) {
+    try {
+      const limit = await createCategoryLimit(categoryId, monthlyLimit);
+      setCategoryLimits((prev) => [...prev, limit]);
+    } catch {
+      showError('Não foi possível criar o limite.');
+    }
+  }
+
+  async function handleUpdateCategoryLimit(id: string, monthlyLimit: number) {
+    try {
+      await updateCategoryLimit(id, monthlyLimit);
+      setCategoryLimits((prev) => prev.map((l) => (l.id === id ? { ...l, monthly_limit: monthlyLimit } : l)));
+    } catch {
+      showError('Não foi possível atualizar o limite.');
+    }
+  }
+
+  async function handleDeleteCategoryLimit(id: string) {
+    try {
+      await deleteCategoryLimit(id);
+      setCategoryLimits((prev) => prev.filter((l) => l.id !== id));
+    } catch {
+      showError('Não foi possível remover o limite.');
     }
   }
 
@@ -133,7 +166,14 @@ export function FinancePage() {
           <Balance accounts={accounts} transactions={transactions} onUpdateInitialBalance={handleUpdateInitialBalance} />
         </Card>
         <Card>
-          <AvailableToSpend />
+          <MonthlyLimits
+            categoryLimits={categoryLimits}
+            categories={categories}
+            transactions={transactions}
+            onCreate={handleCreateCategoryLimit}
+            onUpdate={handleUpdateCategoryLimit}
+            onDelete={handleDeleteCategoryLimit}
+          />
         </Card>
       </div>
 
