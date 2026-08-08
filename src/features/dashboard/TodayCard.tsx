@@ -71,19 +71,29 @@ export function TodayCard() {
     }
   }
 
+  const now = new Date();
+  const weekdayLabel = now.toLocaleDateString('pt-BR', { weekday: 'long' });
+  const monthLabel = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
+
   return (
-    <div className="bg-surface border border-surface-border rounded-xl p-5">
-      <h3 className="text-app-text font-semibold mb-3">Hoje</h3>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <div className="border border-surface-border bg-surface rounded-xl overflow-hidden">
+      <div className="flex items-center gap-4 px-5 py-4 border-b border-surface-border">
+        <span className="font-display text-5xl text-primary font-semibold leading-none">{now.getDate()}</span>
+        <div className="flex flex-col gap-0.5">
+          <span className="font-display text-lg capitalize">{weekdayLabel}</span>
+          <span className="font-mono text-[0.65rem] tracking-widest text-app-muted-2 uppercase">{monthLabel} {now.getFullYear()} — Hoje</span>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-5">
         <div>
-          <h4 className="text-xs uppercase text-app-muted mb-2">Tarefas</h4>
+          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Tarefas</h4>
           <div className="flex flex-col gap-1">
             {dayItems.map((item) => (
               <label key={`${item.kind}-${item.id}`} className="flex items-center gap-2 cursor-pointer">
                 <input type="checkbox" checked={item.done} onChange={() => handleToggle(item)} className="accent-primary w-4 h-4" />
                 <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
                   {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
-                  {item.time ? `${item.time.slice(0, 5)} — ` : ''}
+                  {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
                   {item.title}
                 </span>
               </label>
@@ -92,7 +102,7 @@ export function TodayCard() {
           </div>
         </div>
         <div>
-          <h4 className="text-xs uppercase text-app-muted mb-2">Hábitos</h4>
+          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Hábitos</h4>
           <HabitChecklist date={today} />
         </div>
       </div>

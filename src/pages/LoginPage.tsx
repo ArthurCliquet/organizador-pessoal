@@ -49,7 +49,7 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-primary text-white rounded-lg py-2 font-medium disabled:opacity-50"
+          className="bg-primary text-app-bg rounded-lg py-2 font-medium disabled:opacity-50"
         >
           {mode === 'signin' ? 'Entrar' : 'Criar conta'}
         </button>

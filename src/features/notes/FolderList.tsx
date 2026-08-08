@@ -19,7 +19,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
     <div className="flex flex-row md:flex-col gap-1 p-3 overflow-x-auto md:overflow-y-auto border-b md:border-b-0 md:border-r border-surface-border md:w-48 md:shrink-0">
       <button
         onClick={() => onSelect(null)}
-        className={`shrink-0 text-left px-3 py-1.5 rounded-lg text-sm ${selectedFolderId === null ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`}
+        className={`shrink-0 text-left px-3 py-1.5 rounded-lg text-sm ${selectedFolderId === null ? 'bg-primary text-app-bg' : 'text-app-muted hover:text-app-text'}`}
       >
         Sem pasta
       </button>
@@ -46,7 +46,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
                 setEditingId(folder.id);
                 setEditingName(folder.name);
               }}
-              className={`w-32 md:w-auto md:flex-1 text-left px-3 py-1.5 rounded-lg text-sm truncate ${selectedFolderId === folder.id ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`}
+              className={`w-32 md:w-auto md:flex-1 text-left px-3 py-1.5 rounded-lg text-sm truncate ${selectedFolderId === folder.id ? 'bg-primary text-app-bg' : 'text-app-muted hover:text-app-text'}`}
             >
               {folder.name}
             </button>

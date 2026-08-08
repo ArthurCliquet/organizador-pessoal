@@ -15,7 +15,7 @@ export function Sidebar() {
           to={link.to}
           end={link.to === '/'}
           className={({ isActive }) =>
-            `px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-primary text-white' : 'text-app-muted hover:text-app-text'}`
+            `px-3 py-2 rounded-lg text-sm font-medium ${isActive ? 'bg-primary text-app-bg' : 'text-app-muted hover:text-app-text'}`
           }
         >
           {link.label}

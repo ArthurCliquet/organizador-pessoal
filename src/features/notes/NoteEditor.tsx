@@ -88,7 +88,7 @@ function ToolbarButton({ active, onClick, label }: { active: boolean; onClick: (
     <button
       type="button"
       onClick={onClick}
-      className={`px-2 py-1 rounded text-sm ${active ? 'bg-primary text-white' : 'bg-surface text-app-muted hover:text-app-text'}`}
+      className={`px-2 py-1 rounded text-sm ${active ? 'bg-primary text-app-bg' : 'bg-surface text-app-muted hover:text-app-text'}`}
     >
       {label}
     </button>

@@ -169,14 +169,24 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
-          <h3 className="text-app-text font-semibold">{date}</h3>
+          <div className="flex items-center gap-3">
+            <span className="font-display text-3xl text-primary font-semibold leading-none">{date.slice(8, 10)}</span>
+            <div className="flex flex-col">
+              <span className="font-display text-base capitalize">
+                {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'long' })}
+              </span>
+              <span className="font-mono text-[0.65rem] tracking-wider text-app-muted-2">
+                {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()} {date.slice(0, 4)}
+              </span>
+            </div>
+          </div>
           <button onClick={onClose} className="text-app-muted hover:text-app-text">
             ✕
           </button>
         </div>
 
         <div>
-          <h4 className="text-xs uppercase text-app-muted mb-2">Tarefas do dia</h4>
+          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Tarefas do dia</h4>
           <div className="flex flex-col gap-1 mb-2">
             {dayItems.map((item) => (
               <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2">
@@ -274,7 +284,7 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
                   key={i}
                   type="button"
                   onClick={() => toggleRecWeekday(i)}
-                  className={`w-6 h-6 rounded text-xs ${recWeekdays.includes(i) ? 'bg-primary text-white' : 'bg-app-bg text-app-muted'}`}
+                  className={`w-6 h-6 rounded text-xs ${recWeekdays.includes(i) ? 'bg-primary text-app-bg' : 'bg-app-bg text-app-muted'}`}
                 >
                   {label}
                 </button>
@@ -296,7 +306,7 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
                 onChange={(e) => setRecTime(e.target.value)}
                 className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
               />
-              <button onClick={handleCreateRecurring} className="bg-primary text-white text-xs rounded px-2 py-1">
+              <button onClick={handleCreateRecurring} className="bg-primary text-app-bg text-xs rounded px-2 py-1">
                 Adicionar
               </button>
             </div>

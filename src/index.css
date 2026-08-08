@@ -1,13 +1,21 @@
 @import "tailwindcss";
+@import "@fontsource-variable/fraunces";
+@import "@fontsource/ibm-plex-mono";
 
 @theme {
-  --color-app-bg: #16171d;
-  --color-surface: #1e1f28;
-  --color-surface-border: #2f3040;
-  --color-primary: #7c5cff;
-  --color-success: #4ade9a;
-  --color-app-text: #f0f0f5;
-  --color-app-muted: #9a9ab0;
+  --color-app-bg: #131826;
+  --color-surface: #1b2233;
+  --color-surface-2: #222a3f;
+  --color-surface-border: #2f3a54;
+  --color-primary: #a9d3f2;
+  --color-primary-bright: #c9e4f8;
+  --color-success: #7fbfae;
+  --color-danger: #d98a86;
+  --color-app-text: #eef2f9;
+  --color-app-muted: #8f9cba;
+  --color-app-muted-2: #66738f;
+  --font-display: 'Fraunces Variable', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 }
 
 body {

@@ -11,7 +11,7 @@ interface NoteListProps {
 export function NoteList({ notes, selectedNoteId, onSelect, onCreate, onDelete }: NoteListProps) {
   return (
     <div className="flex-1 overflow-y-auto flex flex-col">
-      <button onClick={onCreate} className="m-3 bg-primary text-white text-sm rounded-lg py-1.5 font-medium">
+      <button onClick={onCreate} className="m-3 bg-primary text-app-bg text-sm rounded-lg py-1.5 font-medium">
         + Nova nota
       </button>
       {notes.map((note) => (
