@@ -12,6 +12,7 @@ import {
 import { Balance } from '../features/finance/Balance';
 import { MonthSummary } from '../features/finance/MonthSummary';
 import { AvailableToSpend } from '../features/finance/AvailableToSpend';
+import { RecentTransactions } from '../features/finance/RecentTransactions';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -19,9 +20,6 @@ export function FinancePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
-  // `categories` is loaded here for Tasks 6-10, which will pass it as props to the real card
-  // components (this placeholder shell doesn't render it yet).
-  void categories;
 
   const load = useCallback(async () => {
     try {
@@ -81,10 +79,7 @@ export function FinancePage() {
       </Card>
 
       <Card>
-        <h2 className="font-display text-lg font-semibold mb-1">Últimas movimentações</h2>
-        <p className="text-sm text-app-muted">
-          {transactions.length === 0 ? 'Nenhuma movimentação ainda' : `${transactions.length} movimentações`}
-        </p>
+        <RecentTransactions transactions={transactions} categories={categories} account={account} />
       </Card>
     </div>
   );
