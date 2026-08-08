@@ -53,7 +53,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
           )}
           <button
             onClick={() => onDelete(folder.id)}
-            className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-red-400 px-1 text-xs"
+            className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger px-1 text-xs"
             title="Excluir pasta"
           >
             ✕

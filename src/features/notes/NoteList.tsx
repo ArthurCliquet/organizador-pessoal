@@ -26,7 +26,7 @@ export function NoteList({ notes, selectedNoteId, onSelect, onCreate, onDelete }
               e.stopPropagation();
               onDelete(note.id);
             }}
-            className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-red-400 text-xs"
+            className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
           >
             ✕
           </button>

@@ -51,16 +51,19 @@ export function PendingTasks() {
   }
 
   return (
-    <div className="bg-surface border border-surface-border rounded-xl p-5">
-      <h3 className="text-app-text font-semibold mb-3">Pendências</h3>
+    <div className="bg-surface border border-surface-border rounded p-5">
+      <h3 className="font-display text-base mb-3">Pendências</h3>
       <div className="flex flex-col gap-1 mb-2">
         {tasks.map((task) => (
           <div key={task.id} className="group flex items-center gap-2">
             <input type="checkbox" checked={task.done} onChange={() => handleToggle(task)} className="accent-primary w-4 h-4" />
-            <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>{task.title}</span>
+            <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
+              <span className="font-mono text-app-muted-2">— </span>
+              {task.title}
+            </span>
             <button
               onClick={() => handleDelete(task.id)}
-              className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-red-400 text-xs"
+              className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
             >
               ✕
             </button>

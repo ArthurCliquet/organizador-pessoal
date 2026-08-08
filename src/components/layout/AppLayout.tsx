@@ -11,7 +11,7 @@ export function AppLayout() {
       <Sidebar />
       <div className="flex-1 flex flex-col min-w-0">
         <header className="flex items-center justify-between px-4 md:px-6 py-3 border-b border-surface-border">
-          <span className="text-sm text-app-muted truncate">{user?.email}</span>
+          <span className="font-mono text-sm text-app-muted truncate">{user?.email}</span>
           <button onClick={signOut} className="text-sm text-app-muted hover:text-app-text">
             Sair
           </button>

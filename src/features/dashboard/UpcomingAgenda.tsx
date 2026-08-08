@@ -46,19 +46,19 @@ export function UpcomingAgenda() {
   const dates = Object.keys(tasksByDate).sort();
 
   return (
-    <div className="bg-surface border border-surface-border rounded-xl p-5">
-      <h3 className="text-app-text font-semibold mb-3">Próximos dias</h3>
+    <div className="bg-surface border border-surface-border rounded p-5">
+      <h3 className="font-display text-base mb-3">Próximos dias</h3>
       {dates.length === 0 && <p className="text-sm text-app-muted">Nada agendado nos próximos dias</p>}
       <div className="flex flex-col gap-3">
         {dates.map((date) => (
           <div key={date}>
-            <Link to="/calendario" className="text-xs uppercase text-app-muted hover:text-primary">
+            <Link to="/calendario" className="font-mono text-[0.65rem] uppercase tracking-wider text-app-muted-2 hover:text-primary">
               {date}
             </Link>
             <div className="flex flex-col gap-0.5 mt-1">
               {tasksByDate[date].map((item) => (
                 <span key={item.key} className="text-sm text-app-text">
-                  {item.time ? `${item.time.slice(0, 5)} — ` : ''}
+                  {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
                   {item.title}
                 </span>
               ))}

@@ -15,8 +15,8 @@ export function RecentNotes() {
   }, [showError]);
 
   return (
-    <div className="bg-surface border border-surface-border rounded-xl p-5">
-      <h3 className="text-app-text font-semibold mb-3">Notas recentes</h3>
+    <div className="bg-surface border border-surface-border rounded p-5">
+      <h3 className="font-display text-base mb-3">Notas recentes</h3>
       {notes.length === 0 && <p className="text-sm text-app-muted">Nenhuma nota ainda</p>}
       <div className="flex flex-col gap-1">
         {notes.map((note) => (

@@ -165,7 +165,7 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-40 p-4" onClick={onClose}>
       <div
-        className="bg-surface border border-surface-border rounded-xl w-full max-w-md p-5 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
+        className="bg-surface border border-surface-border rounded w-full max-w-md p-5 flex flex-col gap-5 max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between">
@@ -220,12 +220,12 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
                     className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
                   >
                     {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
-                    {item.time ? `${item.time.slice(0, 5)} — ` : ''}
+                    {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
                     {item.title}
                   </span>
                 )}
                 {item.kind === 'task' && (
-                  <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-red-400 text-xs">
+                  <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
                     ✕
                   </button>
                 )}
@@ -253,12 +253,12 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
         </div>
 
         <div>
-          <h4 className="text-xs uppercase text-app-muted mb-2">Hábitos diários</h4>
+          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Hábitos diários</h4>
           <HabitChecklist date={date} />
         </div>
 
         <div>
-          <h4 className="text-xs uppercase text-app-muted mb-2">Tarefas recorrentes</h4>
+          <h4 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2">Tarefas recorrentes</h4>
           <div className="flex flex-col gap-1 mb-2">
             {recurringTasks.map((rt) => (
               <div key={rt.id} className="group flex items-center gap-2">
@@ -269,7 +269,7 @@ export function DayPanel({ date, onClose, onTasksChanged }: DayPanelProps) {
                 </span>
                 <button
                   onClick={() => handleDeleteRecurring(rt.id)}
-                  className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-red-400 text-xs"
+                  className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
                 >
                   ✕
                 </button>

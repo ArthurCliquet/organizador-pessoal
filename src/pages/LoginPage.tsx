@@ -24,17 +24,26 @@ export function LoginPage() {
     navigate('/', { replace: true });
   }
 
+  const today = new Date();
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-app-bg px-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-surface border border-surface-border rounded-xl p-6 flex flex-col gap-4">
-        <h1 className="text-xl font-semibold text-app-text">{mode === 'signin' ? 'Entrar' : 'Criar conta'}</h1>
+      <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
+        <div className="w-11 h-11 border border-surface-border rounded bg-surface flex flex-col items-center justify-center mb-1">
+          <span className="font-display text-primary text-lg leading-none font-semibold">{today.getDate()}</span>
+          <span className="font-mono text-app-muted-2 text-[0.5rem] tracking-widest">
+            {today.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
+          </span>
+        </div>
+        <h1 className="font-display text-2xl font-semibold text-app-text">{mode === 'signin' ? 'Entrar' : 'Criar conta'}</h1>
+        <p className="text-sm text-app-muted -mt-2">Suas notas, tarefas e hábitos, num só lugar.</p>
         <input
           type="email"
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="E-mail"
-          className="bg-app-bg border border-surface-border rounded-lg px-3 py-2 text-app-text outline-none focus:border-primary"
+          className="bg-surface border border-surface-border rounded px-3 py-2 text-app-text outline-none focus:border-primary"
         />
         <input
           type="password"
@@ -43,13 +52,13 @@ export function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Senha"
-          className="bg-app-bg border border-surface-border rounded-lg px-3 py-2 text-app-text outline-none focus:border-primary"
+          className="bg-surface border border-surface-border rounded px-3 py-2 text-app-text outline-none focus:border-primary"
         />
-        {error && <p className="text-sm text-red-400">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
         <button
           type="submit"
           disabled={submitting}
-          className="bg-primary text-app-bg rounded-lg py-2 font-medium disabled:opacity-50"
+          className="bg-primary text-app-bg rounded py-2 font-semibold disabled:opacity-50"
         >
           {mode === 'signin' ? 'Entrar' : 'Criar conta'}
         </button>
