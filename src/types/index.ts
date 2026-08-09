@@ -63,6 +63,8 @@ export interface Account {
   user_id: string;
   name: string;
   initial_balance: number;
+  is_investment: boolean;
+  value_adjustment: number;
   created_at: string;
 }
 
@@ -78,8 +80,9 @@ export interface Transaction {
   id: string;
   user_id: string;
   account_id: string;
+  to_account_id: string | null;
   category_id: string | null;
-  type: 'income' | 'expense';
+  type: 'income' | 'expense' | 'transfer';
   amount: number;
   description: string;
   date: string;
