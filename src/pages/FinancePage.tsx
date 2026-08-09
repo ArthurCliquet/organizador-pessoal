@@ -10,6 +10,9 @@ import {
   getTransactions,
   updateAccountInitialBalance,
   createTransaction,
+  createTransfer,
+  updateInvestmentValue,
+  calculateContributedTotal,
   getCategoryLimits,
   createCategoryLimit,
   updateCategoryLimit,
@@ -21,6 +24,7 @@ import { MonthlyLimits } from '../features/finance/MonthlyLimits';
 import { RecentTransactions } from '../features/finance/RecentTransactions';
 import { AddTransactionModal } from '../features/finance/AddTransactionModal';
 import { CreateAccountModal } from '../features/finance/CreateAccountModal';
+import { TransferModal } from '../features/finance/TransferModal';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -31,6 +35,8 @@ export function FinancePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [newAccountOpen, setNewAccountOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
 
   const load = useCallback(async () => {
@@ -54,11 +60,12 @@ export function FinancePage() {
     load();
   }, [load]);
 
-  async function handleCreateAccount(input: { name: string; initialBalance: number }) {
+  async function handleCreateAccount(input: { name: string; initialBalance: number; isInvestment: boolean }) {
     setCreatingAccount(true);
     try {
-      const account = await createAccount(input.name, input.initialBalance);
+      const account = await createAccount(input.name, input.initialBalance, input.isInvestment);
       setAccounts((prev) => [...prev, account]);
+      setNewAccountOpen(false);
     } catch (err) {
       if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
         showError('Você já tem uma conta com esse nome.');
@@ -76,6 +83,34 @@ export function FinancePage() {
       setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, initial_balance: value } : a)));
     } catch {
       showError('Não foi possível atualizar o saldo.');
+    }
+  }
+
+  async function handleUpdateInvestmentValue(accountId: string, currentValue: number) {
+    const account = accounts.find((a) => a.id === accountId);
+    if (!account) return;
+    const contributed = calculateContributedTotal(account, transactions);
+    try {
+      await updateInvestmentValue(accountId, currentValue, contributed);
+      setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, value_adjustment: currentValue - contributed } : a)));
+    } catch {
+      showError('Não foi possível atualizar o valor da conta.');
+    }
+  }
+
+  async function handleCreateTransfer(input: {
+    fromAccountId: string;
+    toAccountId: string;
+    amount: number;
+    description: string;
+    date: string;
+  }) {
+    try {
+      await createTransfer(input);
+      setTransactions(await getTransactions());
+      setTransferOpen(false);
+    } catch {
+      showError('Não foi possível salvar a transferência.');
     }
   }
 
@@ -151,19 +186,42 @@ export function FinancePage() {
 
   return (
     <div className="p-4 md:p-6 max-w-4xl mx-auto flex flex-col gap-5">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <h1 className="font-display text-2xl font-semibold">Finanças</h1>
-        <button
-          onClick={() => setAddOpen(true)}
-          className="font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors"
-        >
-          + Adicionar movimentação
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setNewAccountOpen(true)}
+            className="font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text font-semibold hover:text-primary-bright transition-colors"
+          >
+            + Nova conta
+          </button>
+          {accounts.length >= 2 && (
+            <button
+              onClick={() => setTransferOpen(true)}
+              className="font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text font-semibold hover:text-primary-bright transition-colors"
+            >
+              Transferir
+            </button>
+          )}
+          {accounts.some((a) => !a.is_investment) && (
+            <button
+              onClick={() => setAddOpen(true)}
+              className="font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors"
+            >
+              + Adicionar movimentação
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
         <Card>
-          <Balance accounts={accounts} transactions={transactions} onUpdateInitialBalance={handleUpdateInitialBalance} />
+          <Balance
+            accounts={accounts}
+            transactions={transactions}
+            onUpdateInitialBalance={handleUpdateInitialBalance}
+            onUpdateInvestmentValue={handleUpdateInvestmentValue}
+          />
         </Card>
         <Card>
           <MonthlyLimits
@@ -178,7 +236,7 @@ export function FinancePage() {
       </div>
 
       <Card>
-        <MonthSummary transactions={transactions} />
+        <MonthSummary transactions={transactions} accounts={accounts} />
       </Card>
 
       <Card>
@@ -193,6 +251,12 @@ export function FinancePage() {
           onSave={handleCreateTransaction}
         />
       )}
+
+      {newAccountOpen && (
+        <CreateAccountModal onCreate={handleCreateAccount} creating={creatingAccount} onCancel={() => setNewAccountOpen(false)} />
+      )}
+
+      {transferOpen && <TransferModal accounts={accounts} onCancel={() => setTransferOpen(false)} onSave={handleCreateTransfer} />}
     </div>
   );
 }

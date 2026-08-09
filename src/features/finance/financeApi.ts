@@ -24,6 +24,14 @@ export async function updateAccountInitialBalance(id: string, initialBalance: nu
   if (error) throw error;
 }
 
+export async function updateInvestmentValue(accountId: string, currentValue: number, contributedTotal: number): Promise<void> {
+  const { error } = await supabase
+    .from('accounts')
+    .update({ value_adjustment: currentValue - contributedTotal })
+    .eq('id', accountId);
+  if (error) throw error;
+}
+
 export async function ensureDefaultCategories(): Promise<Category[]> {
   const { data: existing, error: fetchError } = await supabase.from('categories').select('*').order('created_at');
   if (fetchError) throw fetchError;
@@ -69,17 +77,48 @@ export async function createTransaction(input: {
   return data;
 }
 
+export async function createTransfer(input: {
+  fromAccountId: string;
+  toAccountId: string;
+  amount: number;
+  description: string;
+  date: string;
+}): Promise<Transaction> {
+  const { data: userData } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({
+      account_id: input.fromAccountId,
+      to_account_id: input.toAccountId,
+      category_id: null,
+      type: 'transfer',
+      amount: input.amount,
+      description: input.description,
+      date: input.date,
+      user_id: userData.user!.id,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function getAccounts(): Promise<Account[]> {
   const { data, error } = await supabase.from('accounts').select('*').order('created_at');
   if (error) throw error;
   return data;
 }
 
-export async function createAccount(name: string, initialBalance: number): Promise<Account> {
+export async function createAccount(name: string, initialBalance: number, isInvestment = false): Promise<Account> {
   const { data: userData } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from('accounts')
-    .insert({ name, initial_balance: initialBalance, user_id: userData.user!.id })
+    .insert({
+      name,
+      initial_balance: isInvestment ? 0 : initialBalance,
+      is_investment: isInvestment,
+      user_id: userData.user!.id,
+    })
     .select()
     .single();
   if (error) throw error;
@@ -96,30 +135,55 @@ export async function getTransactions(): Promise<Transaction[]> {
   return data;
 }
 
+function accountNetFlow(account: Account, transactions: Transaction[]): number {
+  return transactions.reduce((sum, t) => {
+    if (t.type === 'transfer') {
+      if (t.account_id === account.id) return sum - Number(t.amount);
+      if (t.to_account_id === account.id) return sum + Number(t.amount);
+      return sum;
+    }
+    if (t.account_id !== account.id) return sum;
+    return sum + (t.type === 'income' ? Number(t.amount) : -Number(t.amount));
+  }, 0);
+}
+
+export function calculateContributedTotal(account: Account, transactions: Transaction[]): number {
+  return Number(account.initial_balance) + accountNetFlow(account, transactions);
+}
+
 export function calculateBalance(account: Account, transactions: Transaction[]): number {
-  const net = transactions
-    .filter((t) => t.account_id === account.id)
-    .reduce((sum, t) => sum + (t.type === 'income' ? Number(t.amount) : -Number(t.amount)), 0);
-  return Number(account.initial_balance) + net;
+  const adjustment = account.is_investment ? Number(account.value_adjustment) : 0;
+  return calculateContributedTotal(account, transactions) + adjustment;
 }
 
 export function calculateTotalBalance(accounts: Account[], transactions: Transaction[]): number {
-  return accounts.reduce((sum, account) => sum + calculateBalance(account, transactions), 0);
+  return accounts
+    .filter((a) => !a.is_investment)
+    .reduce((sum, account) => sum + calculateBalance(account, transactions), 0);
+}
+
+export function calculateTotalInvested(accounts: Account[], transactions: Transaction[]): number {
+  return accounts
+    .filter((a) => a.is_investment)
+    .reduce((sum, account) => sum + calculateBalance(account, transactions), 0);
 }
 
 export function calculateMonthSummary(
   transactions: Transaction[],
   monthStart: string,
   monthEnd: string,
-): { income: number; expense: number } {
+  accounts: Account[] = [],
+): { income: number; expense: number; invested: number } {
+  const investmentAccountIds = new Set(accounts.filter((a) => a.is_investment).map((a) => a.id));
   return transactions.reduce(
     (acc, t) => {
       if (t.date < monthStart || t.date > monthEnd) return acc;
       if (t.type === 'income') acc.income += Number(t.amount);
-      else acc.expense += Number(t.amount);
+      else if (t.type === 'expense') acc.expense += Number(t.amount);
+      else if (t.type === 'transfer' && t.to_account_id && investmentAccountIds.has(t.to_account_id)) acc.invested += Number(t.amount);
       return acc;
     },
-    { income: 0, expense: 0 },
+    { income: 0, expense: 0, invested: 0 },
   );
 }
 
