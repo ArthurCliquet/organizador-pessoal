@@ -32,6 +32,16 @@ export async function updateInvestmentValue(accountId: string, currentValue: num
   if (error) throw error;
 }
 
+export async function updateAccountName(id: string, name: string): Promise<void> {
+  const { error } = await supabase.from('accounts').update({ name }).eq('id', id);
+  if (error) throw error;
+}
+
+export async function deleteAccount(id: string): Promise<void> {
+  const { error } = await supabase.from('accounts').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function ensureDefaultCategories(): Promise<Category[]> {
   const { data: existing, error: fetchError } = await supabase.from('categories').select('*').order('created_at');
   if (fetchError) throw fetchError;
@@ -154,6 +164,11 @@ export function calculateContributedTotal(account: Account, transactions: Transa
 export function calculateBalance(account: Account, transactions: Transaction[]): number {
   const adjustment = account.is_investment ? Number(account.value_adjustment) : 0;
   return calculateContributedTotal(account, transactions) + adjustment;
+}
+
+export function isAccountEmpty(account: Account, transactions: Transaction[]): boolean {
+  const hasTransaction = transactions.some((t) => t.account_id === account.id || t.to_account_id === account.id);
+  return !hasTransaction && calculateBalance(account, transactions) === 0;
 }
 
 export function calculateTotalBalance(accounts: Account[], transactions: Transaction[]): number {
