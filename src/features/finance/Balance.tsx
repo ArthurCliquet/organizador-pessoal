@@ -136,7 +136,7 @@ export function Balance({ accounts, transactions, onUpdateInitialBalance, onUpda
                       </span>
                       <span className="flex flex-col items-end shrink-0">
                         <span className="font-mono text-sm whitespace-nowrap">{formatCurrency(current)}</span>
-                        {contributed !== 0 && (
+                        {(current !== 0 || contributed !== 0) && (
                           <span className={`font-mono text-[0.65rem] whitespace-nowrap ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
                             {gain >= 0 ? '+' : ''}
                             {formatCurrency(gain)} ({gain >= 0 ? '+' : ''}
