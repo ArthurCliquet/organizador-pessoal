@@ -23,7 +23,7 @@ export function AddTransactionModal({ categories, accounts, onCancel, onSave }: 
   const [amount, setAmount] = useState('');
   const [date, setDate] = useState(toISODate(new Date()));
   const [categoryId, setCategoryId] = useState('');
-  const [accountId, setAccountId] = useState(accounts[0]?.id ?? '');
+  const [accountId, setAccountId] = useState(accounts.find((a) => !a.is_investment)?.id ?? '');
   const [amountError, setAmountError] = useState('');
 
   const filteredCategories = categories.filter((c) => c.type === type);
@@ -113,11 +113,13 @@ export function AddTransactionModal({ categories, accounts, onCancel, onSave }: 
           onChange={(e) => setAccountId(e.target.value)}
           className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
         >
-          {accounts.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.name}
-            </option>
-          ))}
+          {accounts
+            .filter((a) => !a.is_investment)
+            .map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.name}
+              </option>
+            ))}
         </select>
 
         <div className="flex justify-end gap-2 mt-1">

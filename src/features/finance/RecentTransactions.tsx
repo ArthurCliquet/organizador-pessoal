@@ -36,13 +36,21 @@ export function RecentTransactions({ transactions, categories, accounts }: Recen
             className="flex items-center justify-between gap-3 py-2.5 px-1.5 -mx-1.5 border-b border-surface-2 last:border-none"
           >
             <div className="min-w-0">
-              <p className="text-sm text-app-text truncate">{t.description || 'Sem descrição'}</p>
+              <p className="text-sm text-app-text truncate">
+                {t.description || (t.type === 'transfer' ? 'Transferência' : 'Sem descrição')}
+              </p>
               <p className="font-mono text-[0.65rem] text-app-muted-2">
-                {categoryName(t.category_id)} · {accountName(t.account_id)} · {formatRelativeDate(t.date)}
+                {t.type === 'transfer'
+                  ? `${accountName(t.account_id)} → ${accountName(t.to_account_id ?? '')} · ${formatRelativeDate(t.date)}`
+                  : `${categoryName(t.category_id)} · ${accountName(t.account_id)} · ${formatRelativeDate(t.date)}`}
               </p>
             </div>
-            <span className={`font-mono text-sm whitespace-nowrap ${t.type === 'income' ? 'text-success' : 'text-danger'}`}>
-              {t.type === 'income' ? '+' : '-'}
+            <span
+              className={`font-mono text-sm whitespace-nowrap ${
+                t.type === 'income' ? 'text-success' : t.type === 'expense' ? 'text-danger' : 'text-primary'
+              }`}
+            >
+              {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}
               {formatCurrency(t.amount)}
             </span>
           </div>
