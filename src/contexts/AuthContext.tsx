@@ -7,7 +7,7 @@ interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
-  signUp: (email: string, password: string) => Promise<{ error: string | null }>;
+  signUp: (email: string, password: string) => Promise<{ error: string | null; needsConfirmation: boolean }>;
   signOut: () => Promise<void>;
 }
 
@@ -17,6 +17,8 @@ function translateError(message: string): string {
   if (message.includes('Invalid login credentials')) return 'E-mail ou senha incorretos.';
   if (message.includes('already registered')) return 'Este e-mail já está cadastrado.';
   if (message.includes('Password should be at least')) return 'A senha precisa ter pelo menos 6 caracteres.';
+  if (message.includes('Email not confirmed')) return 'Confirme seu e-mail antes de entrar. Verifique sua caixa de entrada (e o spam).';
+  if (message.includes('email rate limit exceeded')) return 'Muitos e-mails de confirmação enviados em pouco tempo. Aguarde um pouco e tente de novo.';
   return message;
 }
 
@@ -41,8 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   async function signUp(email: string, password: string) {
-    const { error } = await supabase.auth.signUp({ email, password });
-    return { error: error ? translateError(error.message) : null };
+    const { data, error } = await supabase.auth.signUp({ email, password });
+    if (error) return { error: translateError(error.message), needsConfirmation: false };
+    return { error: null, needsConfirmation: data.session === null };
   }
 
   async function signOut() {

@@ -9,16 +9,33 @@ export function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfo(null);
     setSubmitting(true);
-    const result = mode === 'signin' ? await signIn(email, password) : await signUp(email, password);
+    if (mode === 'signin') {
+      const result = await signIn(email, password);
+      setSubmitting(false);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
+      navigate('/', { replace: true });
+      return;
+    }
+    const result = await signUp(email, password);
     setSubmitting(false);
     if (result.error) {
       setError(result.error);
+      return;
+    }
+    if (result.needsConfirmation) {
+      setInfo('Cadastro criado! Confira seu e-mail e clique no link de confirmação antes de entrar.');
+      setMode('signin');
       return;
     }
     navigate('/', { replace: true });
@@ -55,6 +72,7 @@ export function LoginPage() {
           className="bg-surface border border-surface-border rounded px-3 py-2 text-app-text outline-none focus:border-primary"
         />
         {error && <p className="text-sm text-danger">{error}</p>}
+        {info && <p className="text-sm text-primary">{info}</p>}
         <button
           type="submit"
           disabled={submitting}
@@ -64,7 +82,11 @@ export function LoginPage() {
         </button>
         <button
           type="button"
-          onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')}
+          onClick={() => {
+            setMode(mode === 'signin' ? 'signup' : 'signin');
+            setError(null);
+            setInfo(null);
+          }}
           className="text-sm text-app-muted hover:text-app-text"
         >
           {mode === 'signin' ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
