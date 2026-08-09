@@ -180,7 +180,7 @@ export function calculateMonthSummary(
       if (t.date < monthStart || t.date > monthEnd) return acc;
       if (t.type === 'income') acc.income += Number(t.amount);
       else if (t.type === 'expense') acc.expense += Number(t.amount);
-      else if (t.to_account_id && investmentAccountIds.has(t.to_account_id)) acc.invested += Number(t.amount);
+      else if (t.type === 'transfer' && t.to_account_id && investmentAccountIds.has(t.to_account_id)) acc.invested += Number(t.amount);
       return acc;
     },
     { income: 0, expense: 0, invested: 0 },

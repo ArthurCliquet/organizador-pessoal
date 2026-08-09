@@ -203,12 +203,14 @@ export function FinancePage() {
               Transferir
             </button>
           )}
-          <button
-            onClick={() => setAddOpen(true)}
-            className="font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors"
-          >
-            + Adicionar movimentação
-          </button>
+          {accounts.some((a) => !a.is_investment) && (
+            <button
+              onClick={() => setAddOpen(true)}
+              className="font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors"
+            >
+              + Adicionar movimentação
+            </button>
+          )}
         </div>
       </div>
 

@@ -40,7 +40,14 @@ export function CreateAccountModal({ onCreate, creating, onCancel }: CreateAccou
   }
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onCancel}>
+    <div
+      className={
+        onCancel
+          ? 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4'
+          : 'p-4 md:p-6 flex items-center justify-center min-h-[50vh]'
+      }
+      onClick={onCancel}
+    >
       <div
         className="bg-surface border border-surface-border rounded p-6 max-w-sm w-full flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}

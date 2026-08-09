@@ -106,7 +106,9 @@ export function Balance({ accounts, transactions, onUpdateInitialBalance, onUpda
         ))}
       </div>
 
-      <p className="font-mono text-[0.6rem] text-app-muted-2 mt-2">Clique numa conta para ajustar o saldo inicial dela</p>
+      {normalAccounts.length > 0 && (
+        <p className="font-mono text-[0.6rem] text-app-muted-2 mt-2">Clique numa conta para ajustar o saldo inicial dela</p>
+      )}
 
       {investmentAccounts.length > 0 && (
         <>
@@ -118,7 +120,7 @@ export function Balance({ accounts, transactions, onUpdateInitialBalance, onUpda
               const current = calculateBalance(account, transactions);
               const contributed = calculateContributedTotal(account, transactions);
               const gain = current - contributed;
-              const gainPercent = contributed !== 0 ? (gain / contributed) * 100 : 0;
+              const gainPercent = contributed > 0 ? (gain / contributed) * 100 : null;
               return (
                 <div key={account.id} className="flex flex-col gap-1 py-1.5">
                   {editingId === account.id ? (
@@ -139,8 +141,12 @@ export function Balance({ accounts, transactions, onUpdateInitialBalance, onUpda
                         {(current !== 0 || contributed !== 0) && (
                           <span className={`font-mono text-[0.65rem] whitespace-nowrap ${gain >= 0 ? 'text-success' : 'text-danger'}`}>
                             {gain >= 0 ? '+' : ''}
-                            {formatCurrency(gain)} ({gain >= 0 ? '+' : ''}
-                            {gainPercent.toFixed(1)}%)
+                            {formatCurrency(gain)}
+                            {gainPercent !== null &&
+                              ` (${gainPercent >= 0 ? '+' : ''}${gainPercent.toLocaleString('pt-BR', {
+                                minimumFractionDigits: 1,
+                                maximumFractionDigits: 1,
+                              })}%)`}
                           </span>
                         )}
                       </span>
