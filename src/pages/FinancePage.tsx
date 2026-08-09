@@ -9,6 +9,8 @@ import {
   ensureDefaultCategories,
   getTransactions,
   updateAccountInitialBalance,
+  updateAccountName,
+  deleteAccount,
   createTransaction,
   createTransfer,
   updateInvestmentValue,
@@ -25,6 +27,7 @@ import { RecentTransactions } from '../features/finance/RecentTransactions';
 import { AddTransactionModal } from '../features/finance/AddTransactionModal';
 import { CreateAccountModal } from '../features/finance/CreateAccountModal';
 import { TransferModal } from '../features/finance/TransferModal';
+import { ManageAccountsModal } from '../features/finance/ManageAccountsModal';
 
 export function FinancePage() {
   const { showError } = useToast();
@@ -37,6 +40,7 @@ export function FinancePage() {
   const [addOpen, setAddOpen] = useState(false);
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
+  const [manageAccountsOpen, setManageAccountsOpen] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
 
   const load = useCallback(async () => {
@@ -83,6 +87,28 @@ export function FinancePage() {
       setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, initial_balance: value } : a)));
     } catch {
       showError('Não foi possível atualizar o saldo.');
+    }
+  }
+
+  async function handleRenameAccount(accountId: string, name: string) {
+    try {
+      await updateAccountName(accountId, name);
+      setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, name } : a)));
+    } catch (err) {
+      if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
+        showError('Você já tem uma conta com esse nome.');
+      } else {
+        showError('Não foi possível renomear a conta.');
+      }
+    }
+  }
+
+  async function handleDeleteAccount(accountId: string) {
+    try {
+      await deleteAccount(accountId);
+      setAccounts((prev) => prev.filter((a) => a.id !== accountId));
+    } catch {
+      showError('Não foi possível excluir a conta.');
     }
   }
 
@@ -195,6 +221,12 @@ export function FinancePage() {
           >
             + Nova conta
           </button>
+          <button
+            onClick={() => setManageAccountsOpen(true)}
+            className="font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text font-semibold hover:text-primary-bright transition-colors"
+          >
+            Editar contas
+          </button>
           {accounts.length >= 2 && (
             <button
               onClick={() => setTransferOpen(true)}
@@ -257,6 +289,16 @@ export function FinancePage() {
       )}
 
       {transferOpen && <TransferModal accounts={accounts} onCancel={() => setTransferOpen(false)} onSave={handleCreateTransfer} />}
+
+      {manageAccountsOpen && (
+        <ManageAccountsModal
+          accounts={accounts}
+          transactions={transactions}
+          onRename={handleRenameAccount}
+          onDelete={handleDeleteAccount}
+          onCancel={() => setManageAccountsOpen(false)}
+        />
+      )}
     </div>
   );
 }
