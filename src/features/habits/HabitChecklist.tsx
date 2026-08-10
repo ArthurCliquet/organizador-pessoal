@@ -123,7 +123,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
                 </span>
               )}
             </label>
-            <button onClick={() => handleDelete(habit.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
+            <button onClick={() => handleDelete(habit.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">
               ✕
             </button>
           </div>

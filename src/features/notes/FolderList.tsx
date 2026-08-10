@@ -17,7 +17,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
   const [editingName, setEditingName] = useState('');
 
   return (
-    <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto bg-surface border-b md:border-b-0 md:border-r border-surface-border md:w-[150px] md:shrink-0">
+    <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto scrollbar-hide bg-surface border-b md:border-b-0 md:border-r border-surface-border md:w-[150px] md:shrink-0">
       <button
         onClick={() => onSelect(null)}
         className={`shrink-0 md:shrink text-left px-4 py-3 text-sm border-b border-surface-2 border-l-2 whitespace-nowrap md:whitespace-normal ${
@@ -59,7 +59,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
           <button
             onClick={() => onTogglePin(folder)}
             className={`shrink-0 px-1.5 flex items-center justify-center ${
-              folder.pinned_at ? '' : 'opacity-0 group-hover:opacity-100'
+              folder.pinned_at ? '' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'
             }`}
             title={folder.pinned_at ? 'Desafixar' : 'Fixar'}
           >
@@ -67,7 +67,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
           </button>
           <button
             onClick={() => onDelete(folder.id)}
-            className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger px-2 text-xs"
+            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger px-2.5 py-1 text-xs"
             title="Excluir pasta"
           >
             ✕

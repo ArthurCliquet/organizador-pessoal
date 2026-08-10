@@ -61,7 +61,7 @@ export function NoteList({
                 onTogglePin(note);
               }}
               className={`font-mono text-[0.65rem] shrink-0 ${
-                note.pinned_at ? 'text-primary' : 'opacity-0 group-hover:opacity-100 text-app-muted hover:text-primary'
+                note.pinned_at ? 'text-primary' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-primary'
               }`}
               title={note.pinned_at ? 'Desafixar' : 'Fixar'}
             >
@@ -72,7 +72,7 @@ export function NoteList({
                 e.stopPropagation();
                 onDelete(note.id);
               }}
-              className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs shrink-0"
+              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs shrink-0"
             >
               ✕
             </button>
