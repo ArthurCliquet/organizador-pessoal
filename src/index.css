@@ -51,6 +51,16 @@ body {
   background-color: var(--color-app-muted-2);
 }
 
+/* ---- Hidden scrollbar for horizontal touch-scroll strips ---- */
+
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* ---- Dashboard: ambient glow, hero "Cartão do Dia", staggered entrance ---- */
 
 .dash-glow {

@@ -68,7 +68,7 @@ export function RecurringTasksManager({ onChanged }: RecurringTasksManagerProps)
             </span>
             <button
               onClick={() => handleDelete(rt.id)}
-              className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
+              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1"
             >
               ✕
             </button>

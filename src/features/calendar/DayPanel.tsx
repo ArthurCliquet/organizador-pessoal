@@ -194,7 +194,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                 </span>
               )}
               {item.kind === 'task' && (
-                <button onClick={() => handleDelete(item.id)} className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs">
+                <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">
                   ✕
                 </button>
               )}
@@ -202,7 +202,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                 <button
                   onClick={() => handleSkipRecurring(item.id)}
                   title="Pular só hoje, sem mexer nos outros dias"
-                  className="opacity-0 group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
+                  className="opacity-100 md:opacity-0 md:group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
                 >
                   pular hoje
                 </button>

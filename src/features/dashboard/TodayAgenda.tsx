@@ -123,7 +123,7 @@ export function TodayAgenda({ onCountChange }: TodayAgendaProps) {
                   handleSkipRecurring(item.id);
                 }}
                 title="Pular só hoje, sem mexer nos outros dias"
-                className="opacity-0 group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
+                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
               >
                 pular hoje
               </button>

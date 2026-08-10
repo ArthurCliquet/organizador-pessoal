@@ -69,7 +69,7 @@ export function PendingTasks() {
             <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>{task.title}</span>
             <button
               onClick={() => handleDelete(task.id)}
-              className="opacity-0 group-hover:opacity-100 text-app-muted hover:text-danger text-xs"
+              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1"
             >
               ✕
             </button>
