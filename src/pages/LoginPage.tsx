@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { NockMark } from '../components/common/NockMark';
+import { NockWordmark } from '../components/common/NockWordmark';
 
 export function LoginPage() {
   const { signIn, signUp } = useAuth();
@@ -46,6 +48,10 @@ export function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-app-bg px-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
+        <div className="flex items-center gap-2.5 mb-1">
+          <NockMark size={34} />
+          <NockWordmark size={22} />
+        </div>
         <div className="w-11 h-11 border border-surface-border rounded bg-surface flex flex-col items-center justify-center mb-1">
           <span className="font-display text-primary text-lg leading-none font-semibold">{today.getDate()}</span>
           <span className="font-mono text-app-muted-2 text-[0.5rem] tracking-widest">

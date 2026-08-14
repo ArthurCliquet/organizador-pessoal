@@ -1,11 +1,12 @@
 {
-  "name": "Organizador Pessoal",
-  "short_name": "Organizador",
+  "name": "Nock",
+  "short_name": "Nock",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#16171d",
-  "theme_color": "#16171d",
+  "background_color": "#131826",
+  "theme_color": "#131826",
   "icons": [
-    { "src": "/icon.jpg", "sizes": "410x441", "type": "image/jpeg" }
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
