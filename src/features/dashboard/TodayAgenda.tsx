@@ -7,7 +7,7 @@ import { useToast } from '../../contexts/ToastContext';
 import { TaskCheck } from '../../components/common/TaskCheck';
 
 type DayItem =
-  | { kind: 'task'; id: string; title: string; time: string | null; done: boolean }
+  | { kind: 'task'; id: string; title: string; time: string | null; done: boolean; isSpecialEvent: boolean }
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean };
 
 interface TodayAgendaProps {
@@ -38,7 +38,7 @@ export function TodayAgenda({ onCountChange }: TodayAgendaProps) {
 
   const weekday = getWeekday(today);
   const dayItems: DayItem[] = [
-    ...tasks.map((t): DayItem => ({ kind: 'task', id: t.id, title: t.title, time: t.time, done: t.done })),
+    ...tasks.map((t): DayItem => ({ kind: 'task', id: t.id, title: t.title, time: t.time, done: t.done, isSpecialEvent: t.is_special_event })),
     ...recurringTasks
       .filter((rt) => rt.weekdays.includes(weekday))
       .filter((rt) => !recurringLogs.find((l) => l.recurring_task_id === rt.id)?.skipped)
@@ -112,6 +112,11 @@ export function TodayAgenda({ onCountChange }: TodayAgendaProps) {
             <span className="font-mono text-xs text-app-muted-2">{item.time ? item.time.slice(0, 5) : 'sem hora'}</span>
             <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
               {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
+              {item.kind === 'task' && item.isSpecialEvent && (
+                <span className="text-special mr-0.5" title="Evento especial">
+                  ●
+                </span>
+              )}
               {item.title}
             </span>
             {item.kind === 'recurring' ? (

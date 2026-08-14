@@ -43,7 +43,9 @@ export function MonthGrid({ year, month, tasksByDate, selectedDate, onSelectDay,
         {days.map((day) => {
           const iso = toISODate(day);
           const inMonth = day.getMonth() === month;
-          const hasTasks = (tasksByDate[iso]?.length ?? 0) > 0;
+          const dayTasks = tasksByDate[iso] ?? [];
+          const hasRegularTask = dayTasks.some((t) => !t.is_special_event);
+          const hasSpecialEvent = dayTasks.some((t) => t.is_special_event);
           const isToday = iso === today;
           const isSelected = iso === selectedDate;
           return (
@@ -55,8 +57,11 @@ export function MonthGrid({ year, month, tasksByDate, selectedDate, onSelectDay,
               } ${isSelected ? 'shadow-[inset_0_0_0_1.5px_var(--color-success)]' : isToday ? 'shadow-[inset_0_0_0_1.5px_var(--color-primary)]' : ''}`}
             >
               <span className={`text-sm ${isToday ? 'text-primary font-bold' : ''}`}>{day.getDate()}</span>
-              {hasTasks && (
-                <span className="w-1 h-1 rounded-full bg-primary absolute bottom-1.5 left-1.5" />
+              {(hasRegularTask || hasSpecialEvent) && (
+                <span className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5">
+                  {hasRegularTask && <span className="w-1 h-1 rounded-full bg-primary inline-block" />}
+                  {hasSpecialEvent && <span className="w-1 h-1 rounded-full bg-special inline-block" />}
+                </span>
               )}
             </button>
           );

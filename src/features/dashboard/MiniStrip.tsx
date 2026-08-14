@@ -8,7 +8,8 @@ import { useToast } from '../../contexts/ToastContext';
 interface MiniDay {
   date: Date;
   iso: string;
-  hasSomething: boolean;
+  hasRegular: boolean;
+  hasSpecial: boolean;
 }
 
 function formatWeekdayAbbrev(date: Date): string {
@@ -27,16 +28,19 @@ export function MiniStrip() {
     const end = rangeDays[rangeDays.length - 1];
     getTasksForRange(start, end)
       .then((tasks) => {
-        const hasSomethingByDate: Record<string, boolean> = {};
+        const hasRegularByDate: Record<string, boolean> = {};
+        const hasSpecialByDate: Record<string, boolean> = {};
         for (const task of tasks) {
           if (!task.date) continue;
-          hasSomethingByDate[task.date] = true;
+          if (task.is_special_event) hasSpecialByDate[task.date] = true;
+          else hasRegularByDate[task.date] = true;
         }
         setDays(
           rangeDates.map((date, i) => ({
             date,
             iso: rangeDays[i],
-            hasSomething: !!hasSomethingByDate[rangeDays[i]],
+            hasRegular: !!hasRegularByDate[rangeDays[i]],
+            hasSpecial: !!hasSpecialByDate[rangeDays[i]],
           }))
         );
       })
@@ -55,12 +59,10 @@ export function MiniStrip() {
             {formatWeekdayAbbrev(day.date)}
           </div>
           <div className="font-display text-xl font-semibold mt-0.5">{day.date.getDate()}</div>
-          <div className="h-1.5 flex items-center justify-center mt-1.5">
-            {day.hasSomething ? (
-              <span className="w-[5px] h-[5px] rounded-full bg-primary inline-block" />
-            ) : (
-              <span className="font-mono text-[0.55rem] text-app-muted-2">livre</span>
-            )}
+          <div className="h-1.5 flex items-center justify-center gap-1 mt-1.5">
+            {day.hasRegular && <span className="w-[5px] h-[5px] rounded-full bg-primary inline-block" />}
+            {day.hasSpecial && <span className="w-[5px] h-[5px] rounded-full bg-special inline-block" />}
+            {!day.hasRegular && !day.hasSpecial && <span className="font-mono text-[0.55rem] text-app-muted-2">livre</span>}
           </div>
         </Link>
       ))}

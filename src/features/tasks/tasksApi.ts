@@ -19,9 +19,13 @@ export async function getTasksForRange(startDate: string, endDate: string): Prom
   return data;
 }
 
-export async function createTask(date: string, title: string, time: string | null): Promise<Task> {
+export async function createTask(date: string, title: string, time: string | null, isSpecialEvent = false): Promise<Task> {
   const { data: userData } = await supabase.auth.getUser();
-  const { data, error } = await supabase.from('tasks').insert({ date, title, time, user_id: userData.user!.id }).select().single();
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert({ date, title, time, is_special_event: isSpecialEvent, user_id: userData.user!.id })
+    .select()
+    .single();
   if (error) throw error;
   return data;
 }
@@ -43,7 +47,7 @@ export async function createPendingTask(title: string): Promise<Task> {
   return data;
 }
 
-export async function updateTask(id: string, fields: Partial<Pick<Task, 'title' | 'time' | 'date'>>): Promise<void> {
+export async function updateTask(id: string, fields: Partial<Pick<Task, 'title' | 'time' | 'date' | 'is_special_event'>>): Promise<void> {
   const { error } = await supabase.from('tasks').update(fields).eq('id', id);
   if (error) throw error;
 }
