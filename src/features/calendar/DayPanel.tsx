@@ -115,6 +115,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
     try {
       await updateTask(id, { title: editingTitle.trim(), time: editingTime || null, is_special_event: editingSpecialEvent });
       load();
+      onTasksChanged();
     } catch {
       showError('Não foi possível editar a tarefa.');
     }
@@ -191,6 +192,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                     checked={editingSpecialEvent}
                     onChange={(e) => setEditingSpecialEvent(e.target.checked)}
                     title="Evento especial"
+                    aria-label="Evento especial"
                     className="accent-special w-3.5 h-3.5 shrink-0"
                   />
                 </div>
