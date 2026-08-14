@@ -21,9 +21,11 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   const [tasks, setTasks] = useState<Task[]>([]);
   const [title, setTitle] = useState('');
   const [time, setTime] = useState('');
+  const [isSpecialEvent, setIsSpecialEvent] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
   const [editingTime, setEditingTime] = useState('');
+  const [editingSpecialEvent, setEditingSpecialEvent] = useState(false);
 
   const [recurringTasks, setRecurringTasks] = useState<RecurringTask[]>([]);
   const [recurringLogs, setRecurringLogs] = useState<RecurringTaskLog[]>([]);
@@ -62,9 +64,10 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   async function handleCreate() {
     if (!title.trim()) return;
     try {
-      await createTask(date, title.trim(), time || null);
+      await createTask(date, title.trim(), time || null, isSpecialEvent);
       setTitle('');
       setTime('');
+      setIsSpecialEvent(false);
       load();
       onTasksChanged();
     } catch {
@@ -101,6 +104,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
     setEditingId(task.id);
     setEditingTitle(task.title);
     setEditingTime(task.time ? task.time.slice(0, 5) : '');
+    setEditingSpecialEvent(task.is_special_event);
   }
 
   async function commitEdit() {
@@ -109,7 +113,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
     setEditingId(null);
     if (!editingTitle.trim()) return;
     try {
-      await updateTask(id, { title: editingTitle.trim(), time: editingTime || null });
+      await updateTask(id, { title: editingTitle.trim(), time: editingTime || null, is_special_event: editingSpecialEvent });
       load();
     } catch {
       showError('Não foi possível editar a tarefa.');
@@ -162,7 +166,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
               <input type="checkbox" checked={item.done} onChange={() => handleToggle(item)} className="accent-primary w-4 h-4" />
               {item.kind === 'task' && editingId === item.id ? (
                 <div
-                  className="flex-1 flex gap-1"
+                  className="flex-1 flex items-center gap-1"
                   onBlur={(e) => {
                     if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
                   }}
@@ -182,6 +186,13 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                     onChange={(e) => setEditingTime(e.target.value)}
                     className="bg-app-bg border border-primary rounded px-1 text-xs text-app-text outline-none"
                   />
+                  <input
+                    type="checkbox"
+                    checked={editingSpecialEvent}
+                    onChange={(e) => setEditingSpecialEvent(e.target.checked)}
+                    title="Evento especial"
+                    className="accent-special w-3.5 h-3.5 shrink-0"
+                  />
                 </div>
               ) : (
                 <span
@@ -189,6 +200,11 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                   className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
                 >
                   {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
+                  {item.kind === 'task' && item.task.is_special_event && (
+                    <span className="text-special" title="Evento especial">
+                      ●{' '}
+                    </span>
+                  )}
                   {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
                   {item.title}
                 </span>
@@ -211,22 +227,33 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
           ))}
           {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa</p>}
         </div>
-        <div className="flex gap-1">
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleCreate();
-            }}
-            placeholder="Nova tarefa"
-            className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-          />
-          <input
-            type="time"
-            value={time}
-            onChange={(e) => setTime(e.target.value)}
-            className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-          />
+        <div className="flex flex-col gap-1">
+          <div className="flex gap-1">
+            <input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleCreate();
+              }}
+              placeholder="Nova tarefa"
+              className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+            />
+            <input
+              type="time"
+              value={time}
+              onChange={(e) => setTime(e.target.value)}
+              className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+            />
+          </div>
+          <label className="flex items-center gap-1.5 text-xs text-app-muted cursor-pointer">
+            <input
+              type="checkbox"
+              checked={isSpecialEvent}
+              onChange={(e) => setIsSpecialEvent(e.target.checked)}
+              className="accent-special w-3.5 h-3.5"
+            />
+            Evento especial
+          </label>
         </div>
       </div>
 
