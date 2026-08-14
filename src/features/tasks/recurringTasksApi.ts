@@ -29,6 +29,16 @@ export async function getRecurringLogsForDate(date: string): Promise<RecurringTa
   return data;
 }
 
+export async function getRecurringLogsForRange(startDate: string, endDate: string): Promise<RecurringTaskLog[]> {
+  const { data, error } = await supabase
+    .from('recurring_task_logs')
+    .select('*')
+    .gte('date', startDate)
+    .lte('date', endDate);
+  if (error) throw error;
+  return data;
+}
+
 export async function toggleRecurringLog(recurringTaskId: string, date: string, done: boolean): Promise<void> {
   const { error } = await supabase
     .from('recurring_task_logs')

@@ -145,6 +145,18 @@ export async function getTransactions(): Promise<Transaction[]> {
   return data;
 }
 
+export async function getTransactionsForRange(startDate: string, endDate: string): Promise<Transaction[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select('*')
+    .gte('date', startDate)
+    .lte('date', endDate)
+    .order('date', { ascending: false })
+    .order('created_at', { ascending: false });
+  if (error) throw error;
+  return data;
+}
+
 function accountNetFlow(account: Account, transactions: Transaction[]): number {
   return transactions.reduce((sum, t) => {
     if (t.type === 'transfer') {

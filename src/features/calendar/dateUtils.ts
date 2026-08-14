@@ -19,6 +19,17 @@ export function getMonthGrid(year: number, month: number): Date[] {
   return days;
 }
 
+export function getWeekRange(date: Date): { start: Date; end: Date } {
+  return {
+    start: startOfWeek(date, { weekStartsOn: 0 }),
+    end: endOfWeek(date, { weekStartsOn: 0 }),
+  };
+}
+
+export function getWeekDates(start: Date): string[] {
+  return Array.from({ length: 7 }, (_, i) => toISODate(addDays(start, i)));
+}
+
 export function formatMonthTitle(year: number, month: number): string {
   return format(new Date(year, month, 1), 'MMMM yyyy', { locale: ptBR });
 }

@@ -30,6 +30,16 @@ export async function getHabitLogsForDate(date: string): Promise<HabitLog[]> {
   return data;
 }
 
+export async function getHabitLogsForRange(startDate: string, endDate: string): Promise<HabitLog[]> {
+  const { data, error } = await supabase
+    .from('habit_logs')
+    .select('*')
+    .gte('date', startDate)
+    .lte('date', endDate);
+  if (error) throw error;
+  return data;
+}
+
 export async function toggleHabitLog(habitId: string, date: string, done: boolean): Promise<void> {
   const { error } = await supabase.from('habit_logs').upsert({ habit_id: habitId, date, done }, { onConflict: 'habit_id,date' });
   if (error) throw error;
