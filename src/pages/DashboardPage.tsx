@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { DayHeader } from '../features/dashboard/DayHeader';
 import { TodayAgenda } from '../features/dashboard/TodayAgenda';
 import { MiniStrip } from '../features/dashboard/MiniStrip';
@@ -19,6 +20,13 @@ export function DashboardPage() {
       <div className="dash-glow" />
       <div className="relative p-4 md:p-6 max-w-4xl mx-auto">
         <DayHeader taskCount={taskCount} habitDone={habitCounts.done} habitTotal={habitCounts.total} />
+
+        <Link
+          to="/revisao-semanal"
+          className="font-mono text-xs text-app-muted hover:text-primary-bright transition-colors mb-5 inline-block"
+        >
+          Ver revisão da semana →
+        </Link>
 
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5 items-stretch">
