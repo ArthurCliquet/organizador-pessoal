@@ -38,6 +38,7 @@ export interface Task {
   time: string | null;
   title: string;
   done: boolean;
+  is_special_event: boolean;
   created_at: string;
 }
 
