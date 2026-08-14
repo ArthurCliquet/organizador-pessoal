@@ -3,6 +3,8 @@ import { CalendarDays, LogOut, NotebookPen, Sun, Wallet } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { emailInitials } from '../../lib/emailInitials';
+import { NockMark } from '../common/NockMark';
+import { NockWordmark } from '../common/NockWordmark';
 
 const links: { to: string; label: string; icon: LucideIcon }[] = [
   { to: '/', label: 'Hoje', icon: Sun },
@@ -17,10 +19,8 @@ export function Sidebar() {
   return (
     <nav className="hidden md:flex flex-col md:w-20 lg:w-56 shrink-0 h-full bg-surface border-r border-surface-border shadow-card z-10">
       <div className="flex flex-col items-center gap-1 justify-center lg:flex-row lg:items-center lg:justify-start lg:gap-2.5 h-16 shrink-0 px-3 lg:px-5 border-b border-surface-border">
-        <span className="font-display text-xl leading-none text-primary-bright select-none">Op</span>
-        <span className="hidden lg:inline font-mono text-[0.63rem] tracking-[0.08em] text-app-muted-2 uppercase">
-          Organizador
-        </span>
+        <NockMark size={30} />
+        <NockWordmark size={19} className="hidden lg:inline" />
       </div>
 
       <div className="flex-1 flex flex-col gap-1 px-2 lg:px-3 py-4 overflow-y-auto scrollbar-thin">

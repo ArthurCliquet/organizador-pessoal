@@ -1,4 +1,4 @@
-# Organizador Pessoal
+# Nock
 
 App pessoal de organização: dashboard, notas com pastas e calendário com tarefas e hábitos diários.
 

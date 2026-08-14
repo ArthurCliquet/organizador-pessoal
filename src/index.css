@@ -1,5 +1,6 @@
 @import "tailwindcss";
-@import "@fontsource-variable/fraunces";
+@import "@fontsource-variable/fraunces/full.css";
+@import "@fontsource-variable/fraunces/full-italic.css";
 @import "@fontsource/ibm-plex-mono";
 
 @theme {
