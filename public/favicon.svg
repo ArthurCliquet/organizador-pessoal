@@ -8,7 +8,7 @@
       }
       text {
         font-family: 'Fraunces', serif;
-        font-weight: 640;
+        font-weight: 900;
         font-optical-sizing: none;
         font-variation-settings: 'opsz' 144;
         text-anchor: middle;
