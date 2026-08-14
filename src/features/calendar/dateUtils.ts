@@ -26,7 +26,7 @@ export function getWeekRange(date: Date): { start: Date; end: Date } {
   };
 }
 
-export function getWeekDates(start: Date): string[] {
+export function getSevenDaysFrom(start: Date): string[] {
   return Array.from({ length: 7 }, (_, i) => toISODate(addDays(start, i)));
 }
 
