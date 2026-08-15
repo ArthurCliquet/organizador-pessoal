@@ -171,7 +171,7 @@ export function WeeklyReviewPage() {
                 <p className="font-display text-xl font-semibold text-danger">{formatCurrency(expense)}</p>
               </div>
               <div>
-                <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Saldo</p>
+                <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Lucro/Perda</p>
                 <p className="font-display text-xl font-semibold text-app-text">{formatCurrency(income - expense)}</p>
               </div>
               <div>
