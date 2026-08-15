@@ -28,11 +28,15 @@ export function calculateHabitStats(
   habits: Habit[],
   habitLogs: HabitLog[],
   weekDates: string[],
-): { habitId: string; name: string; done: number; total: number }[] {
-  return habits.map((habit) => ({
-    habitId: habit.id,
-    name: habit.name,
-    done: habitLogs.filter((l) => l.habit_id === habit.id && l.done && weekDates.includes(l.date)).length,
-    total: weekDates.length,
-  }));
+): { habitId: string; name: string; done: number; total: number; days: boolean[] }[] {
+  return habits.map((habit) => {
+    const days = weekDates.map((date) => habitLogs.some((l) => l.habit_id === habit.id && l.date === date && l.done));
+    return {
+      habitId: habit.id,
+      name: habit.name,
+      done: days.filter(Boolean).length,
+      total: weekDates.length,
+      days,
+    };
+  });
 }
