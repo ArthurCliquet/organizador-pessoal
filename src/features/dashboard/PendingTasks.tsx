@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, type CSSProperties } from 'react';
 import type { Task } from '../../types';
 import { getPendingTasks, createPendingTask, toggleTask, deleteTask } from '../tasks/tasksApi';
 import { useToast } from '../../contexts/ToastContext';
@@ -60,13 +60,14 @@ export function PendingTasks() {
         </span>
       </div>
       <div className="flex-1 flex flex-col gap-0.5 mb-3">
-        {tasks.map((task) => (
+        {tasks.map((task, i) => (
           <div
             key={task.id}
-            className="group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
+            style={{ '--stagger': i * 40 } as CSSProperties}
+            className="list-row-in group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
           >
             <TaskCheck checked={task.done} onChange={() => handleToggle(task)} />
-            <span className={`flex-1 text-sm ${task.done ? 'text-app-muted line-through' : 'text-app-text'}`}>{task.title}</span>
+            <span className={`flex-1 text-sm strike ${task.done ? 'text-app-muted is-done' : 'text-app-text'}`}>{task.title}</span>
             <button
               onClick={() => handleDelete(task.id)}
               className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1"

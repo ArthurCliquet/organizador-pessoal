@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, type CSSProperties } from 'react';
 import type { Habit, HabitLog } from '../../types';
 import { getHabits, createHabit, renameHabit, deleteHabit, getHabitLogsForDate, toggleHabitLog } from './habitsApi';
 import { useToast } from '../../contexts/ToastContext';
@@ -90,10 +90,11 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
   return (
     <div className="flex flex-col flex-1">
       <div className="flex-1 flex flex-col gap-0.5">
-        {habits.map((habit) => (
+        {habits.map((habit, i) => (
           <div
             key={habit.id}
-            className="group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
+            style={{ '--stagger': i * 40 } as CSSProperties}
+            className="list-row-in group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
           >
             <label className="flex-1 flex items-center gap-2.5 cursor-pointer">
               <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
@@ -117,7 +118,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
                     setEditingId(habit.id);
                     setEditingName(habit.name);
                   }}
-                  className={`text-sm ${isDone(habit.id) ? 'text-app-muted line-through' : 'text-app-text'}`}
+                  className={`text-sm strike ${isDone(habit.id) ? 'text-app-muted is-done' : 'text-app-text'}`}
                 >
                   {habit.name}
                 </span>

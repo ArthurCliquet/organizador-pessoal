@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, type CSSProperties } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, toggleTask } from '../tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
@@ -106,14 +106,15 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
         </span>
       </div>
       <div className="flex flex-col gap-0.5">
-        {dayItems.map((item) => (
+        {dayItems.map((item, i) => (
           <label
             key={`${item.kind}-${item.id}`}
-            className="group grid grid-cols-[18px_52px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
+            style={{ '--stagger': i * 40 } as CSSProperties}
+            className="list-row-in group grid grid-cols-[18px_44px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
           >
             <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
-            <span className="font-mono text-xs text-app-muted-2">{item.time ? item.time.slice(0, 5) : 'sem hora'}</span>
-            <span className={`text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}>
+            <span className="font-mono text-xs text-app-muted-2">{item.time ? item.time.slice(0, 5) : ''}</span>
+            <span className={`text-sm strike ${item.done ? 'text-app-muted is-done' : 'text-app-text'}`}>
               {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
               {item.kind === 'task' && item.isSpecialEvent && (
                 <span className="text-special mr-0.5" title="Evento especial">

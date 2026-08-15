@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { addDays } from 'date-fns';
 import { getTasksForRange } from '../tasks/tasksApi';
@@ -48,24 +48,25 @@ export function MiniStrip() {
   }, [showError]);
 
   return (
-    <div className="flex gap-2.5">
-      {days.map((day) => (
-        <Link
-          key={day.iso}
-          to="/calendario"
-          className="flex-1 bg-white/[0.015] border border-surface-border rounded-[11px] py-2.5 px-1.5 text-center transition-[transform,border-color] duration-150 hover:border-glow-border hover:-translate-y-0.5 block"
-        >
-          <div className="font-mono text-[0.6rem] uppercase tracking-wider text-app-muted-2">
-            {formatWeekdayAbbrev(day.date)}
-          </div>
-          <div className="font-display text-xl font-semibold mt-0.5">{day.date.getDate()}</div>
-          <div className="h-1.5 flex items-center justify-center gap-1 mt-1.5">
-            {day.hasRegular && <span className="w-[5px] h-[5px] rounded-full bg-primary inline-block" />}
-            {day.hasSpecial && <span className="w-[5px] h-[5px] rounded-full bg-special inline-block" />}
-            {!day.hasRegular && !day.hasSpecial && <span className="font-mono text-[0.55rem] text-app-muted-2">livre</span>}
-          </div>
-        </Link>
-      ))}
+    <div>
+      <div className="font-mono text-[0.6rem] uppercase tracking-widest text-app-muted-2 mb-1.5">Próximos dias</div>
+      <div className="day-ribbon">
+        {days.map((day, i) => (
+          <Fragment key={day.iso}>
+            {i > 0 && <div className="day-ribbon-rule" />}
+            <Link to="/calendario" className="day-ribbon-item">
+              <span className="font-mono text-[0.62rem] uppercase tracking-wider text-app-muted-2">
+                {formatWeekdayAbbrev(day.date)}
+              </span>
+              <span className="font-display text-lg font-semibold leading-none">{day.date.getDate()}</span>
+              <span className="h-[5px] flex items-center gap-1">
+                {day.hasRegular && <span className="day-ribbon-dot bg-primary" />}
+                {day.hasSpecial && <span className="day-ribbon-dot bg-special" />}
+              </span>
+            </Link>
+          </Fragment>
+        ))}
+      </div>
     </div>
   );
 }

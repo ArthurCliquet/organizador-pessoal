@@ -477,3 +477,122 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 @media (prefers-reduced-motion: reduce) {
   .tally-mark { animation: none; opacity: 1; transform: none; }
 }
+
+/* ---- Dashboard lists: ink-stamp on check, drawn strike-through, staggered
+   page-fill entrance, and a slim day-ahead ribbon ---- */
+
+.check-control .stamp-ring,
+.ring-control .stamp-ring {
+  position: absolute;
+  inset: -6px;
+  border-radius: 9999px;
+  pointer-events: none;
+  opacity: 0;
+}
+.check-control input:checked ~ .stamp-ring {
+  border: 1.5px solid var(--color-primary);
+  animation: stamp-pulse 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+.ring-control input:checked ~ .stamp-ring {
+  border: 1.5px solid var(--color-success);
+  animation: stamp-pulse 0.5s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes stamp-pulse {
+  from { opacity: 0.65; transform: scale(0.55); }
+  to { opacity: 0; transform: scale(1.35); }
+}
+.check-control input:checked ~ .check-box,
+.ring-control input:checked ~ .ring-circle {
+  animation: stamp-bounce 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes stamp-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(0.82); }
+  100% { transform: scale(1); }
+}
+
+.strike {
+  position: relative;
+  display: inline-block;
+}
+.strike::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 51%;
+  height: 1.5px;
+  width: 0%;
+  background: currentColor;
+  opacity: 0.7;
+  transition: width 0.3s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.strike.is-done::after {
+  width: 100%;
+}
+
+.list-row-in {
+  opacity: 0;
+  animation: list-row-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--stagger, 0) * 1ms);
+}
+@keyframes list-row-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.day-ribbon {
+  display: flex;
+  align-items: stretch;
+}
+.day-ribbon-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.25rem 0.55rem;
+  border-radius: 10px;
+  transition: background-color 0.15s ease;
+}
+.day-ribbon-item:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+.day-ribbon-rule {
+  flex: 1;
+  align-self: center;
+  height: 1px;
+  margin-top: -0.55rem;
+  background: repeating-linear-gradient(90deg, var(--color-surface-border) 0 4px, transparent 4px 8px);
+}
+.day-ribbon-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.ring-complete circle:last-child {
+  animation: ring-glow 1.1s ease-in-out 1;
+}
+@keyframes ring-glow {
+  0%, 100% { filter: drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 0 5px color-mix(in srgb, var(--color-success) 70%, transparent)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .check-control .stamp-ring,
+  .ring-control .stamp-ring,
+  .check-control input:checked ~ .check-box,
+  .ring-control input:checked ~ .ring-circle,
+  .ring-complete circle:last-child {
+    animation: none;
+  }
+  .list-row-in {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+  .strike::after {
+    transition: none;
+  }
+}
