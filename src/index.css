@@ -239,6 +239,24 @@ body {
   outline-offset: 2px;
 }
 
+/* ---- Native time input: match dark theme ---- */
+
+input[type='time'] {
+  color-scheme: dark;
+}
+input[type='time']::-webkit-calendar-picker-indicator {
+  opacity: 0.55;
+  padding: 3px;
+  margin-left: 0.3rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+input[type='time']::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background: var(--color-surface-hi);
+}
+
 @media (max-width: 767px) {
   html {
     font-size: 19px;
