@@ -144,11 +144,11 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
       </div>
 
       {availableCategories.length > 0 && (
-        <div className="flex flex-col gap-2 border border-dashed border-surface-border rounded-[11px] p-3">
+        <div className="flex flex-col gap-2 mt-1 pt-3 border-t border-dashed border-surface-border">
           <select
             value={newCategoryId}
             onChange={(e) => setNewCategoryId(e.target.value)}
-            className="bg-app-bg border border-surface-border rounded px-2 py-1.5 text-xs text-app-text outline-none focus:border-primary"
+            className="bg-app-bg border border-surface-border rounded-lg px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
           >
             <option value="">Escolha uma categoria</option>
             {availableCategories.map((c) => (
@@ -163,9 +163,12 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
               value={newLimit}
               onChange={(e) => setNewLimit(e.target.value)}
               placeholder="Limite mensal"
-              className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1.5 text-xs text-app-text outline-none focus:border-primary"
+              className="flex-1 min-w-0 bg-app-bg border border-surface-border rounded-lg px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
             />
-            <button onClick={handleCreate} className="font-mono text-xs px-3 py-1.5 rounded bg-primary text-app-bg font-semibold">
+            <button
+              onClick={handleCreate}
+              className="font-mono text-xs px-4 py-2 rounded-lg bg-primary text-app-bg shrink-0 transition-colors hover:bg-primary-bright"
+            >
               Definir limite
             </button>
           </div>
