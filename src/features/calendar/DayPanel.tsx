@@ -5,6 +5,8 @@ import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRec
 import { HabitChecklist } from '../habits/HabitChecklist';
 import { getWeekday } from './dateUtils';
 import { useToast } from '../../contexts/ToastContext';
+import { Card } from '../../components/common/Card';
+import { TaskCheck } from '../../components/common/TaskCheck';
 
 interface DayPanelProps {
   date: string;
@@ -29,6 +31,9 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
 
   const [recurringTasks, setRecurringTasks] = useState<RecurringTask[]>([]);
   const [recurringLogs, setRecurringLogs] = useState<RecurringTaskLog[]>([]);
+
+  const [habitDone, setHabitDone] = useState(0);
+  const [habitTotal, setHabitTotal] = useState(0);
 
   const load = useCallback(async () => {
     try {
@@ -60,6 +65,11 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
         recurringTask: rt,
       })),
   ].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
+
+  const doneCount = dayItems.filter((item) => item.done).length;
+
+  const weekdayName = new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'long' });
+  const fullDate = new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
 
   async function handleCreate() {
     if (!title.trim()) return;
@@ -146,123 +156,133 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   }
 
   return (
-    <div className="mt-8 border border-surface-border rounded bg-surface p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-      <div>
-        <div className="flex items-center gap-3 mb-4">
-          <span className="font-display text-2xl text-primary font-semibold leading-none">{date.slice(8, 10)}</span>
-          <div className="flex flex-col">
-            <span className="font-display text-base capitalize">
-              {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { weekday: 'long' })}
-            </span>
-            <span className="font-mono text-[0.65rem] tracking-wider text-app-muted-2">
-              {new Date(`${date}T12:00:00`).toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()} {date.slice(0, 4)}
+    <Card className="mt-8">
+      <div className="flex items-baseline justify-between pb-4 mb-5 border-b border-surface-border">
+        <span className="font-mono text-xs uppercase tracking-wider text-app-muted">
+          <span className="capitalize">{weekdayName}</span> — {fullDate}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-[1.3fr_auto_1fr] gap-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 font-semibold">Tarefas</h3>
+            <span className="font-mono text-[0.68rem] font-semibold text-primary bg-primary-dim rounded-full px-2 py-0.5">
+              {doneCount}/{dayItems.length}
             </span>
           </div>
-        </div>
-
-        <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2 font-semibold">Tarefas</h3>
-        <div className="flex flex-col gap-1 mb-2">
-          {dayItems.map((item) => (
-            <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2">
-              <input type="checkbox" checked={item.done} onChange={() => handleToggle(item)} className="accent-primary w-4 h-4" />
-              {item.kind === 'task' && editingId === item.id ? (
-                <div
-                  className="flex-1 flex items-center gap-1"
-                  onBlur={(e) => {
-                    if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
-                  }}
-                >
-                  <input
-                    autoFocus
-                    value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') e.currentTarget.blur();
+          <div className="flex flex-col gap-0.5 mb-2">
+            {dayItems.map((item) => (
+              <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2.5 py-1 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]">
+                <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
+                {item.kind === 'task' && editingId === item.id ? (
+                  <div
+                    className="flex-1 flex items-center gap-1"
+                    onBlur={(e) => {
+                      if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
                     }}
-                    className="flex-1 bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
-                  />
-                  <input
-                    type="time"
-                    value={editingTime}
-                    onChange={(e) => setEditingTime(e.target.value)}
-                    className="bg-app-bg border border-primary rounded px-1 text-xs text-app-text outline-none"
-                  />
-                  <input
-                    type="checkbox"
-                    checked={editingSpecialEvent}
-                    onChange={(e) => setEditingSpecialEvent(e.target.checked)}
-                    title="Evento especial"
-                    aria-label="Evento especial"
-                    className="accent-special w-3.5 h-3.5 shrink-0"
-                  />
-                </div>
-              ) : (
-                <span
-                  onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
-                  className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
-                >
-                  {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
-                  {item.kind === 'task' && item.task.is_special_event && (
-                    <span className="text-special" title="Evento especial">
-                      ●{' '}
-                    </span>
-                  )}
-                  {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
-                  {item.title}
-                </span>
-              )}
-              {item.kind === 'task' && (
-                <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">
-                  ✕
-                </button>
-              )}
-              {item.kind === 'recurring' && (
-                <button
-                  onClick={() => handleSkipRecurring(item.id)}
-                  title="Pular só hoje, sem mexer nos outros dias"
-                  className="opacity-100 md:opacity-0 md:group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
-                >
-                  pular hoje
-                </button>
-              )}
-            </div>
-          ))}
-          {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa</p>}
-        </div>
-        <div className="flex flex-col gap-1">
-          <div className="flex gap-1">
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') handleCreate();
-              }}
-              placeholder="Nova tarefa"
-              className="flex-1 bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-            />
-            <input
-              type="time"
-              value={time}
-              onChange={(e) => setTime(e.target.value)}
-              className="bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
-            />
+                  >
+                    <input
+                      autoFocus
+                      value={editingTitle}
+                      onChange={(e) => setEditingTitle(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') e.currentTarget.blur();
+                      }}
+                      className="flex-1 bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
+                    />
+                    <input
+                      type="time"
+                      value={editingTime}
+                      onChange={(e) => setEditingTime(e.target.value)}
+                      className="bg-app-bg border border-primary rounded px-1 text-xs text-app-text outline-none"
+                    />
+                    <input
+                      type="checkbox"
+                      checked={editingSpecialEvent}
+                      onChange={(e) => setEditingSpecialEvent(e.target.checked)}
+                      title="Evento especial"
+                      aria-label="Evento especial"
+                      className="accent-special w-3.5 h-3.5 shrink-0"
+                    />
+                  </div>
+                ) : (
+                  <span
+                    onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
+                    className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
+                  >
+                    {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
+                    {item.kind === 'task' && item.task.is_special_event && (
+                      <span className="text-special" title="Evento especial">
+                        ●{' '}
+                      </span>
+                    )}
+                    {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
+                    {item.title}
+                  </span>
+                )}
+                {item.kind === 'task' && (
+                  <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">
+                    ✕
+                  </button>
+                )}
+                {item.kind === 'recurring' && (
+                  <button
+                    onClick={() => handleSkipRecurring(item.id)}
+                    title="Pular só hoje, sem mexer nos outros dias"
+                    className="opacity-100 md:opacity-0 md:group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
+                  >
+                    pular hoje
+                  </button>
+                )}
+              </div>
+            ))}
+            {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa</p>}
           </div>
-          <label className="flex items-center gap-1.5 text-xs text-app-muted cursor-pointer">
-            <input
-              type="checkbox"
-              checked={isSpecialEvent}
-              onChange={(e) => setIsSpecialEvent(e.target.checked)}
-              className="accent-special w-3.5 h-3.5"
-            />
-            Evento especial
-          </label>
+          <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-dashed border-surface-border">
+            <div className="flex gap-1.5">
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleCreate();
+                }}
+                placeholder="Nova tarefa"
+                className="flex-1 bg-app-bg border border-surface-border rounded-lg px-2.5 py-1.5 text-xs text-app-text outline-none focus:border-primary"
+              />
+              <input
+                type="time"
+                value={time}
+                onChange={(e) => setTime(e.target.value)}
+                className="bg-app-bg border border-surface-border rounded-lg px-2.5 py-1.5 text-xs text-app-text outline-none focus:border-primary"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsSpecialEvent((v) => !v)}
+              aria-pressed={isSpecialEvent}
+              className={`self-start inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[0.68rem] transition-colors ${
+                isSpecialEvent ? 'border-special text-special bg-special/10' : 'border-surface-border text-app-muted'
+              }`}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full border ${isSpecialEvent ? 'bg-special border-special' : 'border-app-muted-2'}`} />
+              Evento especial
+            </button>
+          </div>
+        </div>
+
+        <div className="hidden md:block w-px bg-surface-border" />
+
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 font-semibold">Hábitos</h3>
+            <span className="font-mono text-[0.68rem] font-semibold text-success bg-success-dim rounded-full px-2 py-0.5">
+              {habitDone}/{habitTotal}
+            </span>
+          </div>
+          <HabitChecklist date={date} onCountsChange={(done, total) => { setHabitDone(done); setHabitTotal(total); }} />
         </div>
       </div>
-
-      <div>
-        <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 mb-2 font-semibold">Hábitos</h3>
-        <HabitChecklist date={date} />
-      </div>
-    </div>
+    </Card>
   );
 }
