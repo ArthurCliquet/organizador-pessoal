@@ -84,24 +84,78 @@ body {
   pointer-events: none;
 }
 
-.hero-fold {
+/* Day header as one page of a desk-calendar pad: two page edges peek out
+   behind the current page, and a filing tab (weekly review) is clipped into
+   its top edge. */
+
+.day-pad-sliver {
   position: absolute;
-  right: 0;
-  bottom: 0;
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--color-surface-hi) 0%, var(--color-surface-hi) 48%, var(--color-app-bg) 50.5%, var(--color-app-bg) 100%);
-  clip-path: polygon(100% 0, 100% 100%, 0% 100%);
-  border-radius: 0 0 var(--radius-hero) 0;
-  box-shadow: -4px -4px 10px rgba(0, 0, 0, 0.45);
+  left: 14px;
+  right: 14px;
+  bottom: -7px;
+  height: 20px;
+  background: var(--color-surface-2);
+  border-radius: 0 0 14px 14px;
+  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.5);
+  z-index: 0;
 }
 
-.perforation-dot {
+.day-pad-sliver-2 {
+  left: 26px;
+  right: 26px;
+  bottom: -13px;
+  height: 16px;
+  background: var(--color-surface);
+}
+
+.day-pad-tab {
+  position: absolute;
+  top: 0;
+  right: 26px;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 30px;
+  padding: 0 0.85rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-app-muted);
+  background: var(--color-surface-hi);
+  border: 1px solid var(--color-surface-border);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.day-pad-tab:hover,
+.day-pad-tab:focus-visible {
+  color: var(--color-primary-bright);
+  background: color-mix(in srgb, var(--color-surface-hi) 80%, var(--color-primary) 8%);
+}
+
+.day-pad-tab .go-arrow {
+  transition: transform 0.15s ease;
+}
+
+.day-pad-tab:hover .go-arrow {
+  transform: translateX(2px);
+}
+
+/* Special-event mark for the day header stat line — a diamond instead of a
+   round dot, so an event reads as a distinct kind of thing, not just another
+   task bumping the same counter. */
+
+.day-pad-event-mark {
+  display: inline-block;
   width: 6px;
   height: 6px;
-  border-radius: 9999px;
-  background: var(--color-app-bg);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.7);
+  background: var(--color-special);
+  transform: rotate(45deg);
+  box-shadow: 0 0 4px color-mix(in srgb, var(--color-special) 60%, transparent);
 }
 
 @keyframes card-settle {

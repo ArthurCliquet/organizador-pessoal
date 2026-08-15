@@ -1,28 +1,30 @@
+import { Link } from 'react-router-dom';
+
 interface DayHeaderProps {
   taskCount: number;
+  eventCount: number;
   habitDone: number;
   habitTotal: number;
 }
 
-const PERFORATION_DOTS = 18;
-
-export function DayHeader({ taskCount, habitDone, habitTotal }: DayHeaderProps) {
+export function DayHeader({ taskCount, eventCount, habitDone, habitTotal }: DayHeaderProps) {
   const now = new Date();
   const weekdayLabel = now.toLocaleDateString('pt-BR', { weekday: 'long' });
   const monthLabel = now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase();
 
   return (
-    <div className="animate-card-settle relative bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-6 mb-6 overflow-hidden">
-      <div className="hero-texture" />
+    <div className="relative pt-4 mb-8">
+      <div className="day-pad-sliver day-pad-sliver-2" />
+      <div className="day-pad-sliver" />
 
-      <div className="relative flex justify-between px-0.5 pb-5">
-        {Array.from({ length: PERFORATION_DOTS }).map((_, i) => (
-          <span key={i} className="perforation-dot" />
-        ))}
-      </div>
+      <Link to="/revisao-semanal" className="day-pad-tab">
+        Revisão semanal <span className="go-arrow" aria-hidden="true">→</span>
+      </Link>
 
-      <div className="relative flex items-end justify-between gap-5 flex-wrap">
-        <div className="flex items-baseline gap-4">
+      <div className="animate-card-settle relative z-[1] bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-6 overflow-hidden">
+        <div className="hero-texture" />
+
+        <div className="relative flex items-baseline gap-4">
           <span className="font-display text-6xl md:text-7xl text-primary-bright font-semibold leading-none tracking-tight">
             {now.getDate()}
           </span>
@@ -34,25 +36,36 @@ export function DayHeader({ taskCount, habitDone, habitTotal }: DayHeaderProps) 
           </div>
         </div>
 
-        <div className="flex gap-2.5 flex-wrap">
-          <span className="font-mono text-xs flex items-center gap-2 bg-white/[0.03] border border-surface-border rounded-full px-3.5 py-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-            <b className="text-primary-bright font-semibold">{taskCount}</b>
+        <p className="relative font-mono text-xs text-app-muted mt-5 flex items-center gap-2 flex-wrap">
+          <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+          <span>
+            <b className="text-primary-bright font-semibold">{taskCount}</b>{' '}
             {taskCount === 1 ? 'tarefa hoje' : 'tarefas hoje'}
           </span>
-          {habitTotal > 0 && (
-            <span className="font-mono text-xs flex items-center gap-2 bg-white/[0.03] border border-surface-border rounded-full px-3.5 py-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
-              <b className="text-primary-bright font-semibold">
-                {habitDone}/{habitTotal}
-              </b>
-              hábitos
-            </span>
+          {eventCount > 0 && (
+            <>
+              <span className="text-app-muted-2">·</span>
+              <span className="day-pad-event-mark shrink-0" aria-hidden="true" />
+              <span>
+                <b className="text-special font-semibold">{eventCount}</b>{' '}
+                {eventCount === 1 ? 'evento especial' : 'eventos especiais'}
+              </span>
+            </>
           )}
-        </div>
+          {habitTotal > 0 && (
+            <>
+              <span className="text-app-muted-2">·</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-success shrink-0" />
+              <span>
+                <b className="text-primary-bright font-semibold">
+                  {habitDone}/{habitTotal}
+                </b>{' '}
+                hábitos
+              </span>
+            </>
+          )}
+        </p>
       </div>
-
-      <div className="hero-fold" />
     </div>
   );
 }

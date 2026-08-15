@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { DayHeader } from '../features/dashboard/DayHeader';
 import { TodayAgenda } from '../features/dashboard/TodayAgenda';
 import { MiniStrip } from '../features/dashboard/MiniStrip';
@@ -12,26 +11,24 @@ import { toISODate } from '../features/calendar/dateUtils';
 
 export function DashboardPage() {
   const today = toISODate(new Date());
-  const [taskCount, setTaskCount] = useState(0);
+  const [agendaCounts, setAgendaCounts] = useState({ tasks: 0, events: 0 });
   const [habitCounts, setHabitCounts] = useState({ done: 0, total: 0 });
 
   return (
     <div className="relative overflow-hidden">
       <div className="dash-glow" />
       <div className="relative p-4 md:p-6 max-w-4xl mx-auto">
-        <DayHeader taskCount={taskCount} habitDone={habitCounts.done} habitTotal={habitCounts.total} />
-
-        <Link
-          to="/revisao-semanal"
-          className="font-mono text-xs text-app-muted hover:text-primary-bright transition-colors mb-5 inline-block"
-        >
-          Ver revisão da semana →
-        </Link>
+        <DayHeader
+          taskCount={agendaCounts.tasks}
+          eventCount={agendaCounts.events}
+          habitDone={habitCounts.done}
+          habitTotal={habitCounts.total}
+        />
 
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] gap-5 items-stretch">
             <Card delay="80ms">
-              <TodayAgenda onCountChange={setTaskCount} />
+              <TodayAgenda onCountsChange={(tasks, events) => setAgendaCounts({ tasks, events })} />
               <hr className="my-5 border-surface-border" />
               <MiniStrip />
             </Card>

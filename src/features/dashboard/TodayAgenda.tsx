@@ -11,10 +11,10 @@ type DayItem =
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean };
 
 interface TodayAgendaProps {
-  onCountChange?: (count: number) => void;
+  onCountsChange?: (taskCount: number, eventCount: number) => void;
 }
 
-export function TodayAgenda({ onCountChange }: TodayAgendaProps) {
+export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
   const { showError } = useToast();
   const today = toISODate(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -51,9 +51,12 @@ export function TodayAgenda({ onCountChange }: TodayAgendaProps) {
       })),
   ].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
 
+  const eventCount = dayItems.filter((item) => item.kind === 'task' && item.isSpecialEvent).length;
+  const taskCount = dayItems.length - eventCount;
+
   useEffect(() => {
-    onCountChange?.(dayItems.length);
-  }, [dayItems.length, onCountChange]);
+    onCountsChange?.(taskCount, eventCount);
+  }, [taskCount, eventCount, onCountsChange]);
 
   async function handleToggle(item: DayItem) {
     if (item.kind === 'task') {
