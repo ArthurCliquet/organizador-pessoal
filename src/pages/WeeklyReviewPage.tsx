@@ -172,7 +172,9 @@ export function WeeklyReviewPage() {
               </div>
               <div>
                 <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Lucro/Perda</p>
-                <p className="font-display text-xl font-semibold text-app-text">{formatCurrency(income - expense)}</p>
+                <p className={`font-display text-xl font-semibold ${income - expense >= 0 ? 'text-success' : 'text-danger'}`}>
+                  {formatCurrency(income - expense)}
+                </p>
               </div>
               <div>
                 <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Investido</p>
