@@ -15,6 +15,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
   const [habits, setHabits] = useState<Habit[]>([]);
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [newHabitName, setNewHabitName] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
 
@@ -62,6 +63,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
     try {
       await createHabit(newHabitName.trim());
       setNewHabitName('');
+      setIsAdding(false);
       load();
     } catch {
       showError('Não foi possível criar o hábito.');
@@ -131,18 +133,49 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
         ))}
       </div>
       {allowCreate && (
-        <div className="flex items-center gap-2 border border-dashed border-surface-border rounded-[11px] px-3 py-2 mt-2 focus-within:border-primary transition-colors">
-          <span className="font-mono text-app-muted-2 text-sm">+</span>
-          <input
-            value={newHabitName}
-            onChange={(e) => setNewHabitName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') handleCreate();
+        isAdding ? (
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleCreate();
             }}
-            placeholder="Novo hábito"
-            className="flex-1 bg-transparent text-xs text-app-text outline-none placeholder:text-app-muted-2"
-          />
-        </div>
+            className="flex items-center gap-2 border border-surface-border rounded-[11px] pl-3 pr-1 py-1 mt-2"
+          >
+            <input
+              autoFocus
+              value={newHabitName}
+              onChange={(e) => setNewHabitName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Escape') {
+                  setIsAdding(false);
+                  setNewHabitName('');
+                }
+              }}
+              onBlur={() => {
+                if (!newHabitName.trim()) setIsAdding(false);
+              }}
+              placeholder="Novo hábito"
+              className="flex-1 min-w-0 bg-transparent text-sm text-app-text outline-none placeholder:text-app-muted-2"
+            />
+            <button
+              type="submit"
+              aria-label="Adicionar hábito"
+              className="shrink-0 w-7 h-7 flex items-center justify-center rounded-lg border border-surface-border bg-surface-2 text-app-muted hover:text-success hover:border-success transition-colors"
+            >
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+                <path d="M3 8l3.5 3.5L13 4.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+          </form>
+        ) : (
+          <button
+            type="button"
+            onClick={() => setIsAdding(true)}
+            className="flex items-center gap-2 w-full border border-dashed border-surface-border rounded-[11px] px-3 py-2 mt-2 text-left font-mono text-sm text-app-muted-2 hover:text-primary hover:border-app-muted transition-colors"
+          >
+            + Novo hábito
+          </button>
+        )
       )}
     </div>
   );

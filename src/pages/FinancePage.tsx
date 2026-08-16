@@ -218,20 +218,20 @@ export function FinancePage() {
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
             <button
               onClick={() => setNewAccountOpen(true)}
-              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text font-semibold hover:text-primary-bright transition-colors"
+              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text hover:text-primary-bright transition-colors"
             >
               + Nova conta
             </button>
             <button
               onClick={() => setManageAccountsOpen(true)}
-              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text font-semibold hover:text-primary-bright transition-colors"
+              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text hover:text-primary-bright transition-colors"
             >
               Editar contas
             </button>
             {accounts.length >= 2 && (
               <button
                 onClick={() => setTransferOpen(true)}
-                className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text font-semibold hover:text-primary-bright transition-colors"
+                className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text hover:text-primary-bright transition-colors"
               >
                 Transferir
               </button>
@@ -240,7 +240,7 @@ export function FinancePage() {
           {accounts.some((a) => !a.is_investment) && (
             <button
               onClick={() => setAddOpen(true)}
-              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg font-semibold hover:bg-primary-bright transition-colors md:ml-2"
+              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg hover:bg-primary-bright transition-colors md:ml-2"
             >
               + Adicionar movimentação
             </button>
