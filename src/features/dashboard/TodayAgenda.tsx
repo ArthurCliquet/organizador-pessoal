@@ -49,7 +49,10 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
         time: rt.time,
         done: recurringLogs.find((l) => l.recurring_task_id === rt.id)?.done ?? false,
       })),
-  ].sort((a, b) => (a.time ?? '99:99').localeCompare(b.time ?? '99:99'));
+  ].sort((a, b) => {
+    if (a.done !== b.done) return a.done ? 1 : -1;
+    return (a.time ?? '99:99').localeCompare(b.time ?? '99:99');
+  });
 
   const eventCount = dayItems.filter((item) => item.kind === 'task' && item.isSpecialEvent).length;
   const taskCount = dayItems.length - eventCount;
@@ -105,7 +108,7 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
           {dayItems.length} {dayItems.length === 1 ? 'tarefa' : 'tarefas'}
         </span>
       </div>
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5 max-h-[180px] overflow-y-auto overscroll-contain scrollbar-thin -mr-2 pr-2">
         {dayItems.map((item, i) => (
           <label
             key={`${item.kind}-${item.id}`}
@@ -117,9 +120,7 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
               {item.time && <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span>}
               {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
               {item.kind === 'task' && item.isSpecialEvent && (
-                <span className="text-special mr-0.5" title="Evento especial">
-                  ●
-                </span>
+                <span className="day-pad-event-mark inline-block align-middle mr-1.5" title="Evento especial" />
               )}
               {item.title}
             </span>

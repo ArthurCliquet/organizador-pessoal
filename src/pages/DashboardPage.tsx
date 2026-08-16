@@ -4,8 +4,7 @@ import { TodayAgenda } from '../features/dashboard/TodayAgenda';
 import { MiniStrip } from '../features/dashboard/MiniStrip';
 import { RecentNotes } from '../features/dashboard/RecentNotes';
 import { PendingTasks } from '../features/dashboard/PendingTasks';
-import { HabitChecklist } from '../features/habits/HabitChecklist';
-import { HabitProgressRing } from '../features/dashboard/HabitProgressRing';
+import { HabitStrip } from '../features/dashboard/HabitStrip';
 import { Card } from '../components/common/Card';
 import { toISODate } from '../features/calendar/dateUtils';
 
@@ -26,19 +25,14 @@ export function DashboardPage() {
         />
 
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-stretch">
-            <Card delay="80ms">
-              <TodayAgenda onCountsChange={(tasks, events) => setAgendaCounts({ tasks, events })} />
-              <hr className="my-5 border-surface-border" />
-              <MiniStrip />
-            </Card>
+          <Card delay="80ms">
+            <TodayAgenda onCountsChange={(tasks, events) => setAgendaCounts({ tasks, events })} />
+            <MiniStrip />
+          </Card>
 
-            <Card delay="150ms">
-              <h2 className="font-display text-lg font-semibold mb-1">Hábitos diários</h2>
-              {habitCounts.total > 0 && <HabitProgressRing done={habitCounts.done} total={habitCounts.total} />}
-              <HabitChecklist date={today} allowCreate onCountsChange={(done, total) => setHabitCounts({ done, total })} />
-            </Card>
-          </div>
+          <Card delay="150ms" direction="row" padding="px-5 py-4" className="items-center gap-4">
+            <HabitStrip date={today} onCountsChange={(done, total) => setHabitCounts({ done, total })} />
+          </Card>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
             <Card delay="220ms">

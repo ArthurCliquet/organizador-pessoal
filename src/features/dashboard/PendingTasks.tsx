@@ -59,7 +59,7 @@ export function PendingTasks() {
           {tasks.length} {tasks.length === 1 ? 'tarefa' : 'tarefas'}
         </span>
       </div>
-      <div className="flex-1 flex flex-col gap-0.5 mb-3">
+      <div className="flex-1 flex flex-col gap-0.5 mb-3 max-h-[180px] overflow-y-auto overscroll-contain scrollbar-thin -mr-2 pr-2">
         {tasks.map((task, i) => (
           <div
             key={task.id}

@@ -22,7 +22,7 @@ export function MiniStrip() {
   const [days, setDays] = useState<MiniDay[]>([]);
 
   useEffect(() => {
-    const rangeDates = [1, 2, 3].map((n) => addDays(new Date(), n));
+    const rangeDates = [0, 1, 2].map((n) => addDays(new Date(), n));
     const rangeDays = rangeDates.map((d) => toISODate(d));
     const start = rangeDays[0];
     const end = rangeDays[rangeDays.length - 1];
@@ -48,8 +48,7 @@ export function MiniStrip() {
   }, [showError]);
 
   return (
-    <div>
-      <div className="font-mono text-[0.6rem] uppercase tracking-widest text-app-muted-2 mb-1.5">Próximos dias</div>
+    <div className="day-ribbon-wrap">
       <div className="day-ribbon">
         {days.map((day, i) => (
           <Fragment key={day.iso}>
@@ -59,9 +58,9 @@ export function MiniStrip() {
                 {formatWeekdayAbbrev(day.date)}
               </span>
               <span className="font-display text-lg font-semibold leading-none">{day.date.getDate()}</span>
-              <span className="h-[5px] flex items-center gap-1">
+              <span className="h-[6px] flex items-center gap-1">
                 {day.hasRegular && <span className="day-ribbon-dot bg-primary" />}
-                {day.hasSpecial && <span className="day-ribbon-dot bg-special" />}
+                {day.hasSpecial && <span className="day-pad-event-mark" />}
               </span>
             </Link>
           </Fragment>
