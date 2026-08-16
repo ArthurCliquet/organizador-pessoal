@@ -37,7 +37,6 @@ export function WeeklyReviewPage() {
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
-  const [prevHabitLogs, setPrevHabitLogs] = useState<HabitLog[]>([]);
   const [prevTransactions, setPrevTransactions] = useState<Transaction[]>([]);
 
   const weekEnd = getWeekRange(weekStart).end;
@@ -50,14 +49,13 @@ export function WeeklyReviewPage() {
   const prevWeekEnd = subDays(weekEnd, 7);
   const prevStartISO = toISODate(prevWeekStart);
   const prevEndISO = toISODate(prevWeekEnd);
-  const prevWeekDates = getSevenDaysFrom(prevWeekStart);
 
   const load = useCallback(async () => {
     const gen = ++loadGenRef.current;
     setLoading(true);
     setError(false);
     try {
-      const [t, rt, rl, h, hl, tx, accs, prevHl, prevTx] = await Promise.all([
+      const [t, rt, rl, h, hl, tx, accs, prevTx] = await Promise.all([
         getTasksForRange(startISO, endISO),
         getRecurringTasks(),
         getRecurringLogsForRange(startISO, endISO),
@@ -65,7 +63,6 @@ export function WeeklyReviewPage() {
         getHabitLogsForRange(startISO, endISO),
         getTransactionsForRange(startISO, endISO),
         getAccounts(),
-        getHabitLogsForRange(prevStartISO, prevEndISO),
         getTransactionsForRange(prevStartISO, prevEndISO),
       ]);
       if (gen !== loadGenRef.current) return;
@@ -76,7 +73,6 @@ export function WeeklyReviewPage() {
       setHabitLogs(hl);
       setTransactions(tx);
       setAccounts(accs);
-      setPrevHabitLogs(prevHl);
       setPrevTransactions(prevTx);
       setHasLoadedOnce(true);
     } catch {
@@ -95,11 +91,6 @@ export function WeeklyReviewPage() {
   const taskStats = calculateTaskStats(tasks, recurringTasks, recurringLogs, weekDates);
   const habitStats = calculateHabitStats(habits, habitLogs, weekDates);
   const { income, expense, invested } = calculateMonthSummary(transactions, startISO, endISO, accounts);
-
-  const prevHabitStats = calculateHabitStats(habits, prevHabitLogs, prevWeekDates);
-  const habitsDoneThisWeek = habitStats.reduce((sum, h) => sum + h.done, 0);
-  const habitsDonePrevWeek = prevHabitStats.reduce((sum, h) => sum + h.done, 0);
-  const habitsDelta = habitsDoneThisWeek - habitsDonePrevWeek;
 
   const { income: prevIncome, expense: prevExpense } = calculateMonthSummary(prevTransactions, prevStartISO, prevEndISO, accounts);
   const net = income - expense;
@@ -300,17 +291,7 @@ export function WeeklyReviewPage() {
                   Hábitos <span className="go-arrow">→ calendário</span>
                 </Link>
               </h2>
-              <div className="flex flex-col items-end gap-[0.3rem] shrink-0">
-                <span className="font-mono text-[0.62rem] font-semibold tracking-[0.14em] uppercase text-app-muted-2">Dom → Sáb</span>
-                {habitsDelta !== 0 && (
-                  <span
-                    className={`trend-chip ${habitsDelta > 0 ? 'up' : 'down'}`}
-                    title={`Semana de ${formatWeekLabel(prevWeekStart, prevWeekEnd)}: ${habitsDonePrevWeek} marcações no total`}
-                  >
-                    <span className="arrow">{habitsDelta > 0 ? '▲' : '▼'}</span> {Math.abs(habitsDelta)} · semana passada
-                  </span>
-                )}
-              </div>
+              <span className="font-mono text-[0.62rem] font-semibold tracking-[0.14em] uppercase text-app-muted-2 shrink-0">Dom → Sáb</span>
             </div>
 
             {habitStats.length === 0 ? (
