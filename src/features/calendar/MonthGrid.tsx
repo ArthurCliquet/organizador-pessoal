@@ -60,7 +60,7 @@ export function MonthGrid({ year, month, tasksByDate, selectedDate, onSelectDay,
               {(hasRegularTask || hasSpecialEvent) && (
                 <span className="absolute bottom-1.5 left-1.5 flex items-center gap-0.5">
                   {hasRegularTask && <span className="w-1 h-1 rounded-full bg-primary inline-block" />}
-                  {hasSpecialEvent && <span className="w-1 h-1 rounded-full bg-special inline-block" />}
+                  {hasSpecialEvent && <span className="day-pad-event-mark" />}
                 </span>
               )}
             </button>

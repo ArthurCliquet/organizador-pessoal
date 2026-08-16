@@ -213,9 +213,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                   >
                     {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
                     {item.kind === 'task' && item.task.is_special_event && (
-                      <span className="text-special" title="Evento especial">
-                        ●{' '}
-                      </span>
+                      <span className="day-pad-event-mark inline-block align-middle mr-1.5" title="Evento especial" />
                     )}
                     {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
                     {item.title}
