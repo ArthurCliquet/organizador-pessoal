@@ -78,7 +78,7 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
           label="1,2,3"
         />
       </div>
-      <EditorContent editor={editor} className="flex-1 overflow-y-auto px-4 py-3 text-app-text" />
+      <EditorContent editor={editor} className="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 text-app-text" />
     </div>
   );
 }

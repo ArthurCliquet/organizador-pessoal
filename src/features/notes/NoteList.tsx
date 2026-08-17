@@ -29,7 +29,7 @@ export function NoteList({
   emptyMessage = 'Nenhuma nota aqui',
 }: NoteListProps) {
   return (
-    <div className="flex-1 overflow-y-auto flex flex-col">
+    <div className="flex-1 overflow-y-auto scrollbar-thin flex flex-col">
       <button onClick={onCreate} className="m-3 bg-primary text-app-bg text-sm rounded py-1.5 font-semibold">
         + Nova nota
       </button>
