@@ -116,7 +116,7 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
             className="list-row-in group grid grid-cols-[18px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
           >
             <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
-            <span className={`text-sm strike ${item.done ? 'text-app-muted is-done' : 'text-app-text'}`}>
+            <span className={`text-sm strike justify-self-start ${item.done ? 'text-app-muted is-done' : 'text-app-text'}`}>
               {item.time && <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span>}
               {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
               {item.kind === 'task' && item.isSpecialEvent && (
