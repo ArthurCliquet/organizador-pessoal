@@ -1,6 +1,8 @@
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import { useEffect, useRef } from 'react';
+import Link from '@tiptap/extension-link';
+import Highlight from '@tiptap/extension-highlight';
+import { useEffect, useRef, useState } from 'react';
 
 interface NoteEditorProps {
   noteId: string;
@@ -13,10 +15,16 @@ interface NoteEditorProps {
 export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBack }: NoteEditorProps) {
   const titleRef = useRef<HTMLInputElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showLinkInput, setShowLinkInput] = useState(false);
+  const [linkUrl, setLinkUrl] = useState('');
 
   const editor = useEditor(
     {
-      extensions: [StarterKit],
+      extensions: [
+        StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
+        Link.configure({ openOnClick: false, autolink: false }),
+        Highlight,
+      ],
       content: initialContent,
       onUpdate: () => scheduleSave(),
     },
@@ -35,6 +43,16 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         content: editor?.getHTML() ?? '',
       });
     }, 800);
+  }
+
+  function applyLink() {
+    if (!editor) return;
+    const url = linkUrl.trim();
+    if (url) {
+      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+    }
+    setShowLinkInput(false);
+    setLinkUrl('');
   }
 
   if (!editor) return null;
@@ -59,25 +77,58 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
           className="font-display flex-1 min-w-0 bg-transparent text-xl font-semibold text-app-text px-4 py-3 outline-none"
         />
       </div>
-      <div className="flex gap-1 px-4 py-2 border-b border-surface-border">
+      <div className="flex flex-wrap items-center gap-1 px-4 py-2 border-b border-surface-border">
+        <ToolbarButton active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} label="H1" />
+        <ToolbarButton active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} label="H2" />
+        <ToolbarButton active={editor.isActive('heading', { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} label="H3" />
+        <span className="w-px h-4 bg-surface-border mx-1" />
         <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} label="B" />
         <ToolbarButton active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} label="I" />
+        <ToolbarButton active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()} label="Destacar" />
         <ToolbarButton
-          active={editor.isActive('heading', { level: 2 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-          label="H2"
+          active={editor.isActive('link')}
+          onClick={() => {
+            setLinkUrl(editor.getAttributes('link').href ?? '');
+            setShowLinkInput((v) => !v);
+          }}
+          label="Link"
         />
-        <ToolbarButton
-          active={editor.isActive('bulletList')}
-          onClick={() => editor.chain().focus().toggleBulletList().run()}
-          label="Lista"
-        />
-        <ToolbarButton
-          active={editor.isActive('orderedList')}
-          onClick={() => editor.chain().focus().toggleOrderedList().run()}
-          label="1,2,3"
-        />
+        <span className="w-px h-4 bg-surface-border mx-1" />
+        <ToolbarButton active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} label="Citação" />
+        <ToolbarButton active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} label="Lista" />
+        <ToolbarButton active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} label="1,2,3" />
+        <ToolbarButton active={false} onClick={() => editor.chain().focus().setHorizontalRule().run()} label="Divisor" />
       </div>
+      {showLinkInput && (
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-surface-border bg-surface-2">
+          <input
+            autoFocus
+            value={linkUrl}
+            onChange={(e) => setLinkUrl(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') applyLink();
+              if (e.key === 'Escape') setShowLinkInput(false);
+            }}
+            placeholder="https://…"
+            className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-xs text-app-text outline-none"
+          />
+          <button type="button" onClick={applyLink} className="font-mono text-xs text-primary px-2 py-1">
+            Aplicar
+          </button>
+          {editor.isActive('link') && (
+            <button
+              type="button"
+              onClick={() => {
+                editor.chain().focus().unsetLink().run();
+                setShowLinkInput(false);
+              }}
+              className="font-mono text-xs text-app-muted hover:text-danger px-2 py-1"
+            >
+              Remover
+            </button>
+          )}
+        </div>
+      )}
       <EditorContent editor={editor} className="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 text-app-text" />
     </div>
   );

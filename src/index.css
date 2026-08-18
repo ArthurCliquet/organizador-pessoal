@@ -322,10 +322,43 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 .ProseMirror {
   outline: none;
 }
+.ProseMirror h1 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0.85rem 0 0.5rem;
+}
 .ProseMirror h2 {
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0.75rem 0 0.5rem;
+}
+.ProseMirror h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0.65rem 0 0.4rem;
+}
+.ProseMirror blockquote {
+  border-left: 3px solid var(--color-surface-border);
+  padding-left: 0.75rem;
+  margin: 0.5rem 0;
+  color: var(--color-app-muted);
+}
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--color-surface-border);
+  margin: 1rem 0;
+}
+.ProseMirror mark {
+  background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+  color: var(--color-app-text);
+  border-radius: 2px;
+  padding: 0 0.1em;
+}
+.ProseMirror a {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
 }
 .ProseMirror ul {
   list-style: disc;
