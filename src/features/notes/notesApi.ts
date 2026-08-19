@@ -7,11 +7,11 @@ export async function getFolders(): Promise<Folder[]> {
   return data;
 }
 
-export async function createFolder(name: string): Promise<Folder> {
+export async function createFolder(name: string, parentId: string | null = null): Promise<Folder> {
   const { data: userData } = await supabase.auth.getUser();
   const { data, error } = await supabase
     .from('folders')
-    .insert({ name, user_id: userData.user!.id })
+    .insert({ name, parent_id: parentId, user_id: userData.user!.id })
     .select()
     .single();
   if (error) throw error;
@@ -26,6 +26,25 @@ export async function renameFolder(id: string, name: string): Promise<void> {
 export async function deleteFolder(id: string): Promise<void> {
   const { error } = await supabase.from('folders').delete().eq('id', id);
   if (error) throw error;
+}
+
+export function getDescendantFolderIds(folders: Folder[], id: string): string[] {
+  const directChildren = folders.filter((f) => f.parent_id === id).map((f) => f.id);
+  return directChildren.concat(directChildren.flatMap((childId) => getDescendantFolderIds(folders, childId)));
+}
+
+export async function getFolderDeletionImpact(
+  folders: Folder[],
+  id: string,
+): Promise<{ descendantFolderIds: string[]; noteCount: number }> {
+  const descendantFolderIds = getDescendantFolderIds(folders, id);
+  const folderIds = [id, ...descendantFolderIds];
+  const { count, error } = await supabase
+    .from('notes')
+    .select('id', { count: 'exact', head: true })
+    .in('folder_id', folderIds);
+  if (error) throw error;
+  return { descendantFolderIds, noteCount: count ?? 0 };
 }
 
 export async function pinFolder(id: string): Promise<void> {
