@@ -6,7 +6,13 @@ import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
+import Image from '@tiptap/extension-image';
+import type { EditorView } from '@tiptap/pm/view';
+import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { useEffect, useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { uploadNoteImage } from './noteImagesApi';
+import { useToast } from '../../contexts/ToastContext';
 
 interface NoteEditorProps {
   noteId: string;
@@ -16,9 +22,43 @@ interface NoteEditorProps {
   onBack?: () => void;
 }
 
+function findPlaceholder(doc: ProseMirrorNode, marker: string): { from: number; to: number } | null {
+  let result: { from: number; to: number } | null = null;
+  doc.descendants((node, pos) => {
+    if (result) return false;
+    if (node.isText && node.text?.includes(marker)) {
+      const index = node.text.indexOf(marker);
+      result = { from: pos + index, to: pos + index + marker.length };
+    }
+    return true;
+  });
+  return result;
+}
+
+function insertUploadingImage(view: EditorView, file: File, showError: (message: string) => void) {
+  const marker = `⏳enviando-imagem-${crypto.randomUUID()}⏳`;
+  const { state } = view;
+  view.dispatch(state.tr.insertText(marker, state.selection.from, state.selection.to));
+
+  uploadNoteImage(file)
+    .then((src) => {
+      const pos = findPlaceholder(view.state.doc, marker);
+      if (!pos) return;
+      const node = view.state.schema.nodes.image.create({ src });
+      view.dispatch(view.state.tr.replaceWith(pos.from, pos.to, node));
+    })
+    .catch(() => {
+      const pos = findPlaceholder(view.state.doc, marker);
+      if (pos) view.dispatch(view.state.tr.delete(pos.from, pos.to));
+      showError('Não foi possível enviar a imagem.');
+    });
+}
+
 export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBack }: NoteEditorProps) {
+  const { showError } = useToast();
   const titleRef = useRef<HTMLInputElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [showLinkInput, setShowLinkInput] = useState(false);
   const [linkUrl, setLinkUrl] = useState('');
 
@@ -32,9 +72,29 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         TableRow,
         TableHeader,
         TableCell,
+        Image,
       ],
       content: initialContent,
       onUpdate: () => scheduleSave(),
+      editorProps: {
+        handlePaste(view, event) {
+          const items = Array.from(event.clipboardData?.items ?? []);
+          const imageItem = items.find((item) => item.type.startsWith('image/'));
+          if (!imageItem) return false;
+          const file = imageItem.getAsFile();
+          if (!file) return false;
+          event.preventDefault();
+          insertUploadingImage(view, file, showError);
+          return true;
+        },
+        handleDrop(view, event) {
+          const file = Array.from(event.dataTransfer?.files ?? []).find((f) => f.type.startsWith('image/'));
+          if (!file) return false;
+          event.preventDefault();
+          insertUploadingImage(view, file, showError);
+          return true;
+        },
+      },
     },
     [noteId],
   );
@@ -61,6 +121,13 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
     }
     setShowLinkInput(false);
     setLinkUrl('');
+  }
+
+  function handleFileChosen(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !editor) return;
+    insertUploadingImage(editor.view, file, showError);
   }
 
   if (!editor) return null;
@@ -111,6 +178,8 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
           label="Tabela"
         />
         <ToolbarButton active={false} onClick={() => editor.chain().focus().setHorizontalRule().run()} label="Divisor" />
+        <ToolbarButton active={false} onClick={() => fileInputRef.current?.click()} label="Imagem" />
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChosen} className="hidden" />
       </div>
       {showLinkInput && (
         <div className="flex items-center gap-2 px-4 py-2 border-b border-surface-border bg-surface-2">
@@ -152,7 +221,11 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
           <ToolbarButton active={false} onClick={() => editor.chain().focus().deleteTable().run()} label="Excluir tabela" />
         </div>
       )}
-      <EditorContent editor={editor} className="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 text-app-text" />
+      <EditorContent
+        editor={editor}
+        className="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 text-app-text"
+        onDragOver={(e) => e.preventDefault()}
+      />
     </div>
   );
 }
