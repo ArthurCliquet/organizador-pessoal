@@ -5,6 +5,7 @@ import {
   createFolder,
   renameFolder,
   deleteFolder,
+  getFolderDeletionImpact,
   getNotes,
   createNote,
   updateNote,
@@ -41,6 +42,11 @@ function pinnedFirst<T extends { pinned_at: string | null }>(items: T[]): T[] {
   });
 }
 
+interface FolderDeletionImpact {
+  descendantFolderIds: string[];
+  noteCount: number;
+}
+
 export function NotesPage() {
   const { showError } = useToast();
   const [folders, setFolders] = useState<Folder[]>([]);
@@ -50,6 +56,7 @@ export function NotesPage() {
   const [query, setQuery] = useState('');
   const [confirmDeleteNote, setConfirmDeleteNote] = useState<Note | null>(null);
   const [confirmDeleteFolder, setConfirmDeleteFolder] = useState<Folder | null>(null);
+  const [deleteFolderImpact, setDeleteFolderImpact] = useState<FolderDeletionImpact | null>(null);
   const [pinnedNotes, setPinnedNotes] = useState<Note[]>([]);
 
   useEffect(() => {
@@ -103,6 +110,7 @@ export function NotesPage() {
   const matchedFolders = trimmedQuery
     ? pinnedFirst(folders.filter((f) => f.name.toLowerCase().includes(trimmedQuery.toLowerCase())))
     : [];
+  const childFolders = pinnedFirst(folders.filter((f) => f.parent_id === selectedFolderId));
 
   async function handleTogglePinFolder(folder: Folder) {
     try {
@@ -170,11 +178,26 @@ export function NotesPage() {
     }
   }
 
-  async function handleDeleteFolder(id: string) {
+  async function handleOpenDeleteFolderConfirm(id: string) {
+    const folder = folders.find((f) => f.id === id) ?? null;
+    if (!folder) return;
+    try {
+      const impact = await getFolderDeletionImpact(folders, id);
+      setConfirmDeleteFolder(folder);
+      setDeleteFolderImpact(impact);
+    } catch {
+      showError('Não foi possível calcular o impacto da exclusão.');
+    }
+  }
+
+  async function handleDeleteFolder(id: string, impact: FolderDeletionImpact) {
     try {
       await deleteFolder(id);
-      if (selectedFolderId === id) setSelectedFolderId(null);
+      if (selectedFolderId === id || impact.descendantFolderIds.includes(selectedFolderId ?? '')) {
+        setSelectedFolderId(null);
+      }
       loadFolders();
+      loadNotes();
     } catch {
       showError('Não foi possível excluir a pasta.');
     }
@@ -210,9 +233,9 @@ export function NotesPage() {
             selectedFolderId={selectedFolderId}
             onSelect={handleSelectFolder}
             onTogglePin={handleTogglePinFolder}
-            onCreate={async (name) => {
+            onCreate={async (name, parentId) => {
               try {
-                await createFolder(name);
+                await createFolder(name, parentId);
                 loadFolders();
               } catch {
                 showError('Não foi possível criar a pasta.');
@@ -226,7 +249,7 @@ export function NotesPage() {
                 showError('Não foi possível renomear a pasta.');
               }
             }}
-            onDelete={(id) => setConfirmDeleteFolder(folders.find((f) => f.id === id) ?? null)}
+            onDelete={handleOpenDeleteFolderConfirm}
           />
           <div className="flex-1 min-h-0 md:flex-none md:w-56 md:shrink-0 md:border-r border-surface-border flex flex-col">
             <NoteList
@@ -236,7 +259,7 @@ export function NotesPage() {
               onCreate={handleCreateNote}
               onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
               onTogglePin={handleTogglePinNote}
-              folders={matchedFolders}
+              folders={trimmedQuery ? matchedFolders : childFolders}
               onSelectFolder={handleSelectFolder}
               emptyMessage={trimmedQuery ? 'Nenhum resultado encontrado' : 'Nenhuma nota aqui'}
             />
@@ -270,14 +293,22 @@ export function NotesPage() {
         />
       )}
 
-      {confirmDeleteFolder && (
+      {confirmDeleteFolder && deleteFolderImpact && (
         <ConfirmDialog
           title="Excluir pasta"
-          message={`Excluir a pasta "${confirmDeleteFolder.name}"? As notas dela não serão apagadas, só ficarão sem pasta.`}
-          onCancel={() => setConfirmDeleteFolder(null)}
-          onConfirm={() => {
-            handleDeleteFolder(confirmDeleteFolder.id);
+          message={
+            deleteFolderImpact.descendantFolderIds.length > 0 || deleteFolderImpact.noteCount > 0
+              ? `Excluir "${confirmDeleteFolder.name}"? Isso apaga ${deleteFolderImpact.descendantFolderIds.length} sub-pasta(s) e ${deleteFolderImpact.noteCount} nota(s). Essa ação não pode ser desfeita.`
+              : `Excluir "${confirmDeleteFolder.name}"? Essa ação não pode ser desfeita.`
+          }
+          onCancel={() => {
             setConfirmDeleteFolder(null);
+            setDeleteFolderImpact(null);
+          }}
+          onConfirm={() => {
+            handleDeleteFolder(confirmDeleteFolder.id, deleteFolderImpact);
+            setConfirmDeleteFolder(null);
+            setDeleteFolderImpact(null);
           }}
         />
       )}
