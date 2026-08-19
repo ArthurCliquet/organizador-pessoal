@@ -2,6 +2,10 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
+import Table from '@tiptap/extension-table';
+import TableRow from '@tiptap/extension-table-row';
+import TableHeader from '@tiptap/extension-table-header';
+import TableCell from '@tiptap/extension-table-cell';
 import { useEffect, useRef, useState } from 'react';
 
 interface NoteEditorProps {
@@ -24,6 +28,10 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         StarterKit.configure({ heading: { levels: [1, 2, 3] } }),
         Link.configure({ openOnClick: false, autolink: false }),
         Highlight,
+        Table.configure({ resizable: false }),
+        TableRow,
+        TableHeader,
+        TableCell,
       ],
       content: initialContent,
       onUpdate: () => scheduleSave(),
@@ -97,6 +105,11 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         <ToolbarButton active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()} label="Citação" />
         <ToolbarButton active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} label="Lista" />
         <ToolbarButton active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} label="1,2,3" />
+        <ToolbarButton
+          active={editor.isActive('table')}
+          onClick={() => editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()}
+          label="Tabela"
+        />
         <ToolbarButton active={false} onClick={() => editor.chain().focus().setHorizontalRule().run()} label="Divisor" />
       </div>
       {showLinkInput && (
@@ -127,6 +140,16 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
               Remover
             </button>
           )}
+        </div>
+      )}
+      {editor.isActive('table') && (
+        <div className="flex items-center gap-1 px-4 py-1.5 border-b border-surface-border bg-surface-2">
+          <span className="font-mono text-[0.65rem] text-app-muted-2 mr-1">TABELA</span>
+          <ToolbarButton active={false} onClick={() => editor.chain().focus().addRowAfter().run()} label="+ linha" />
+          <ToolbarButton active={false} onClick={() => editor.chain().focus().addColumnAfter().run()} label="+ coluna" />
+          <ToolbarButton active={false} onClick={() => editor.chain().focus().deleteRow().run()} label="− linha" />
+          <ToolbarButton active={false} onClick={() => editor.chain().focus().deleteColumn().run()} label="− coluna" />
+          <ToolbarButton active={false} onClick={() => editor.chain().focus().deleteTable().run()} label="Excluir tabela" />
         </div>
       )}
       <EditorContent editor={editor} className="flex-1 overflow-y-auto scrollbar-thin px-4 py-3 text-app-text" />

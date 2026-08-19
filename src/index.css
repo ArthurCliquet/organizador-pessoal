@@ -360,6 +360,27 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   text-underline-offset: 2px;
   cursor: pointer;
 }
+.ProseMirror table {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 0.5rem 0;
+}
+.ProseMirror td,
+.ProseMirror th {
+  border: 1px solid var(--color-surface-border);
+  padding: 0.35rem 0.5rem;
+  vertical-align: top;
+  position: relative;
+}
+.ProseMirror th {
+  background: var(--color-surface-2);
+  font-weight: 600;
+  text-align: left;
+}
+.ProseMirror .selectedCell {
+  background: var(--color-primary-dim);
+}
 .ProseMirror ul {
   list-style: disc;
   padding-left: 1.25rem;
