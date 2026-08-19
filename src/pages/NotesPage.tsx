@@ -110,7 +110,7 @@ export function NotesPage() {
   const matchedFolders = trimmedQuery
     ? pinnedFirst(folders.filter((f) => f.name.toLowerCase().includes(trimmedQuery.toLowerCase())))
     : [];
-  const childFolders = pinnedFirst(folders.filter((f) => f.parent_id === selectedFolderId));
+  const childFolders = selectedFolderId ? pinnedFirst(folders.filter((f) => f.parent_id === selectedFolderId)) : [];
 
   async function handleTogglePinFolder(folder: Folder) {
     try {
@@ -195,6 +195,11 @@ export function NotesPage() {
       await deleteFolder(id);
       if (selectedFolderId === id || impact.descendantFolderIds.includes(selectedFolderId ?? '')) {
         setSelectedFolderId(null);
+      }
+      const deletedFolderIds = new Set([id, ...impact.descendantFolderIds]);
+      const openNote = notes.find((n) => n.id === selectedNoteId);
+      if (openNote && deletedFolderIds.has(openNote.folder_id ?? '')) {
+        setSelectedNoteId(null);
       }
       loadFolders();
       loadNotes();

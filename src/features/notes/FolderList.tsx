@@ -59,8 +59,8 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
     const hasChildren = children.length > 0;
     const isExpanded = expandedIds.has(folder.id);
     return (
-      <div key={folder.id}>
-        <div className="group shrink-0 md:shrink flex items-center border-b border-surface-2">
+      <div key={folder.id} className="shrink-0 md:shrink">
+        <div className="group flex items-center border-b border-surface-2">
           {hasChildren ? (
             <button
               onClick={() => toggleExpanded(folder.id)}
@@ -138,6 +138,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && creatingName.trim()) {
                   onCreate(creatingName.trim(), folder.id);
+                  setExpandedIds((prev) => new Set(prev).add(folder.id));
                   setCreatingUnderId(null);
                   setCreatingName('');
                 }
