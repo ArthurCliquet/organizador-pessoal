@@ -22,6 +22,12 @@ interface NoteEditorProps {
   onBack?: () => void;
 }
 
+const PLACEHOLDER_PATTERN = /⏳enviando-imagem-[0-9a-fA-F-]+⏳/g;
+
+function stripPlaceholders(html: string): string {
+  return html.replace(PLACEHOLDER_PATTERN, '');
+}
+
 function findPlaceholder(doc: ProseMirrorNode, marker: string): { from: number; to: number } | null {
   let result: { from: number; to: number } | null = null;
   doc.descendants((node, pos) => {
@@ -35,21 +41,38 @@ function findPlaceholder(doc: ProseMirrorNode, marker: string): { from: number; 
   return result;
 }
 
-function insertUploadingImage(view: EditorView, file: File, showError: (message: string) => void) {
+function insertUploadingImage(
+  view: EditorView,
+  file: File,
+  showError: (message: string) => void,
+  at?: { from: number; to: number },
+) {
   const marker = `⏳enviando-imagem-${crypto.randomUUID()}⏳`;
   const { state } = view;
-  view.dispatch(state.tr.insertText(marker, state.selection.from, state.selection.to));
+  const from = at?.from ?? state.selection.from;
+  const to = at?.to ?? state.selection.to;
+  view.dispatch(state.tr.insertText(marker, from, to));
 
   uploadNoteImage(file)
     .then((src) => {
+      if (view.isDestroyed) return;
       const pos = findPlaceholder(view.state.doc, marker);
       if (!pos) return;
       const node = view.state.schema.nodes.image.create({ src });
-      view.dispatch(view.state.tr.replaceWith(pos.from, pos.to, node));
+      // Se o marcador é todo o conteúdo de um bloco (ex.: parágrafo criado ao
+      // soltar a imagem entre blocos), substitui o bloco inteiro para não
+      // sobrar um parágrafo vazio ao trocá-lo pela imagem.
+      const $from = view.state.doc.resolve(pos.from);
+      const wholeBlock = $from.parent.isTextblock && $from.parent.textContent === marker;
+      const replaceFrom = wholeBlock ? $from.before() : pos.from;
+      const replaceTo = wholeBlock ? $from.after() : pos.to;
+      view.dispatch(view.state.tr.replaceWith(replaceFrom, replaceTo, node));
     })
     .catch(() => {
-      const pos = findPlaceholder(view.state.doc, marker);
-      if (pos) view.dispatch(view.state.tr.delete(pos.from, pos.to));
+      if (!view.isDestroyed) {
+        const pos = findPlaceholder(view.state.doc, marker);
+        if (pos) view.dispatch(view.state.tr.delete(pos.from, pos.to));
+      }
       showError('Não foi possível enviar a imagem.');
     });
 }
@@ -91,7 +114,13 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
           const file = Array.from(event.dataTransfer?.files ?? []).find((f) => f.type.startsWith('image/'));
           if (!file) return false;
           event.preventDefault();
-          insertUploadingImage(view, file, showError);
+          const dropPos = view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos;
+          insertUploadingImage(
+            view,
+            file,
+            showError,
+            dropPos === undefined ? undefined : { from: dropPos, to: dropPos },
+          );
           return true;
         },
       },
@@ -108,7 +137,7 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
     saveTimeout.current = setTimeout(() => {
       onSave({
         title: titleRef.current?.value ?? '',
-        content: editor?.getHTML() ?? '',
+        content: stripPlaceholders(editor?.getHTML() ?? ''),
       });
     }, 800);
   }
@@ -117,7 +146,15 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
     if (!editor) return;
     const url = linkUrl.trim();
     if (url) {
-      editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      if (editor.state.selection.empty && !editor.isActive('link')) {
+        editor
+          .chain()
+          .focus()
+          .insertContent({ type: 'text', text: url, marks: [{ type: 'link', attrs: { href: url } }] })
+          .run();
+      } else {
+        editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run();
+      }
     }
     setShowLinkInput(false);
     setLinkUrl('');
