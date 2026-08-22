@@ -60,18 +60,18 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
     const isExpanded = expandedIds.has(folder.id);
     return (
       <div key={folder.id} className="shrink-0 md:shrink">
-        <div className="group flex items-center border-b border-surface-2">
+        <div className={`f-row group ${selectedFolderId === folder.id ? 'active' : ''}`}>
           {hasChildren ? (
             <button
               onClick={() => toggleExpanded(folder.id)}
-              className="shrink-0 w-5 text-app-muted-2 hover:text-app-text text-xs"
+              className="twirl hover:text-app-text"
               style={{ marginLeft: `${depth * 12}px` }}
               title={isExpanded ? 'Recolher' : 'Expandir'}
             >
               {isExpanded ? '▾' : '▸'}
             </button>
           ) : (
-            <span className="shrink-0 w-5" style={{ marginLeft: `${depth * 12}px` }} />
+            <span className="twirl" style={{ marginLeft: `${depth * 12}px` }} />
           )}
           {editingId === folder.id ? (
             <input
@@ -85,7 +85,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
               onKeyDown={(e) => {
                 if (e.key === 'Enter') e.currentTarget.blur();
               }}
-              className="w-28 md:w-auto md:flex-1 bg-app-bg border border-primary rounded m-1.5 px-2 py-1 text-sm text-app-text outline-none"
+              className="w-28 md:w-auto md:flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
             />
           ) : (
             <button
@@ -94,39 +94,29 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
                 setEditingId(folder.id);
                 setEditingName(folder.name);
               }}
-              className={`w-28 md:w-auto md:flex-1 text-left px-2 py-3 text-sm truncate border-l-2 ${
-                selectedFolderId === folder.id ? 'text-app-text border-l-primary bg-surface-2 font-semibold' : 'text-app-muted border-l-transparent hover:text-app-text'
-              }`}
+              className="name w-28 md:w-auto md:flex-1 text-left truncate"
             >
               {folder.name}
             </button>
           )}
-          <button
-            onClick={() => setCreatingUnderId(folder.id)}
-            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-primary px-1.5 text-xs"
-            title="Nova sub-pasta"
-          >
-            +
-          </button>
-          <button
-            onClick={() => onTogglePin(folder)}
-            className={`shrink-0 px-1.5 flex items-center justify-center ${
-              folder.pinned_at ? '' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'
-            }`}
-            title={folder.pinned_at ? 'Desafixar' : 'Fixar'}
-          >
-            <span className={`w-1.5 h-1.5 rounded-full block ${folder.pinned_at ? 'bg-primary' : 'border border-app-muted'}`} />
-          </button>
-          <button
-            onClick={() => onDelete(folder.id)}
-            className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger px-2.5 py-1 text-xs"
-            title="Excluir pasta"
-          >
-            ✕
-          </button>
+          <div className="f-row-actions opacity-100 md:opacity-0 md:group-hover:opacity-100">
+            <button onClick={() => setCreatingUnderId(folder.id)} className="f-icon-btn" title="Nova sub-pasta">
+              <IconPlus />
+            </button>
+            <button
+              onClick={() => onTogglePin(folder)}
+              className={`f-icon-btn ${folder.pinned_at ? 'pin-on' : ''}`}
+              title={folder.pinned_at ? 'Desafixar' : 'Fixar'}
+            >
+              <IconPin filled={!!folder.pinned_at} />
+            </button>
+            <button onClick={() => onDelete(folder.id)} className="f-icon-btn danger" title="Excluir pasta">
+              <IconTrash />
+            </button>
+          </div>
         </div>
         {creatingUnderId === folder.id && (
-          <div className="p-2" style={{ paddingLeft: `${depth * 12 + 28}px` }}>
+          <div className="f-new-row" style={{ paddingLeft: `${depth * 12 + 28}px`, paddingRight: 8 }}>
             <input
               autoFocus
               value={creatingName}
@@ -148,7 +138,7 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
                 }
               }}
               placeholder="Nova sub-pasta"
-              className="w-28 md:w-full bg-app-bg border border-primary rounded px-2 py-1 text-xs text-app-text outline-none"
+              className="w-28 md:w-full"
             />
           </div>
         )}
@@ -160,17 +150,16 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
   const tree = buildTree(folders, null);
 
   return (
-    <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto scrollbar-hide bg-surface border-b md:border-b-0 md:border-r border-surface-border md:w-[170px] md:shrink-0">
+    <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto scrollbar-hide bg-surface border-b md:border-b-0 md:border-r border-surface-border md:w-[170px] md:shrink-0 md:py-2">
       <button
         onClick={() => onSelect(null)}
-        className={`shrink-0 md:shrink text-left px-4 py-3 text-sm border-b border-surface-2 border-l-2 whitespace-nowrap md:whitespace-normal ${
-          selectedFolderId === null ? 'text-app-text border-l-primary bg-surface-2 font-semibold' : 'text-app-muted border-l-transparent hover:text-app-text'
-        }`}
+        className={`f-row shrink-0 md:shrink whitespace-nowrap md:whitespace-normal ${selectedFolderId === null ? 'active' : ''}`}
       >
-        Sem pasta
+        <span className="twirl" />
+        <span className="name">Sem pasta</span>
       </button>
       {tree.map((node) => renderNode(node, 0))}
-      <div className="shrink-0 md:shrink p-2">
+      <div className="f-new-row shrink-0 md:shrink" style={{ padding: 8 }}>
         <input
           value={newName}
           onChange={(e) => setNewName(e.target.value)}
@@ -181,9 +170,35 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
             }
           }}
           placeholder="Nova pasta"
-          className="w-28 md:w-full bg-app-bg border border-surface-border rounded px-2 py-1 text-xs text-app-text outline-none focus:border-primary"
+          className="w-28 md:w-full"
         />
       </div>
     </div>
+  );
+}
+
+function IconPlus() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
+      <path d="M10 5v10M5 10h10" />
+    </svg>
+  );
+}
+function IconPin({ filled }: { filled: boolean }) {
+  return filled ? (
+    <svg viewBox="0 0 20 20" fill="currentColor">
+      <circle cx="10" cy="10" r="4" />
+    </svg>
+  ) : (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.6}>
+      <circle cx="10" cy="10" r="4" />
+    </svg>
+  );
+}
+function IconTrash() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
+      <path d="M5 5h10M8 5V3.6h4V5M6 5l.7 10.5a1 1 0 0 0 1 .9h4.6a1 1 0 0 0 1-.9L14 5" />
+    </svg>
   );
 }
