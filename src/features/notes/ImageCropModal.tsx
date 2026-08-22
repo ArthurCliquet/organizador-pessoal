@@ -141,8 +141,11 @@ export function ImageCropModal({ src, initialCrop, onApply, onCancel }: ImageCro
           />
           {rect && natural && (
             <div
-              className="absolute border-2 border-primary cursor-move"
-              style={{ ...toDisplayStyle(rect), boxShadow: '0 0 0 9999px rgba(0,0,0,0.55)' }}
+              className="absolute border-2 border-primary-bright cursor-move"
+              style={{
+                ...toDisplayStyle(rect),
+                boxShadow: '0 0 0 9999px rgba(0,0,0,0.35), 0 0 0 1px rgba(0,0,0,0.8)',
+              }}
               onPointerDown={startMove}
             >
               {HANDLES.map((h) => (
