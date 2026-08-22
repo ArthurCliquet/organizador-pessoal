@@ -308,36 +308,43 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         </div>
       </div>
 
-      {showLinkInput && (
-        <div className="flex items-center gap-2 px-4 py-2 border-b border-surface-border bg-surface-2">
-          <input
-            autoFocus
-            value={linkUrl}
-            onChange={(e) => setLinkUrl(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') applyLink();
-              if (e.key === 'Escape') setShowLinkInput(false);
-            }}
-            placeholder="https://…"
-            className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-xs text-app-text outline-none"
-          />
-          <button type="button" onClick={applyLink} className="font-mono text-xs text-primary px-2 py-1">
-            Aplicar
-          </button>
-          {editor.isActive('link') && (
-            <button
-              type="button"
-              onClick={() => {
-                editor.chain().focus().unsetLink().run();
-                setShowLinkInput(false);
+      {/* Wrapper stays mounted even when empty: BubbleMenu (below) uses tippy.js
+          to move its DOM node outside React's normal child order, so a sibling
+          that mounts/unmounts directly next to it makes React's reconciler try
+          to insertBefore a reference node tippy already relocated, crashing the
+          whole tree. Keeping this wrapper always-present isolates that churn. */}
+      <div>
+        {showLinkInput && (
+          <div className="flex items-center gap-2 px-4 py-2 border-b border-surface-border bg-surface-2">
+            <input
+              autoFocus
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') applyLink();
+                if (e.key === 'Escape') setShowLinkInput(false);
               }}
-              className="font-mono text-xs text-app-muted hover:text-danger px-2 py-1"
-            >
-              Remover
+              placeholder="https://…"
+              className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-xs text-app-text outline-none"
+            />
+            <button type="button" onClick={applyLink} className="font-mono text-xs text-primary px-2 py-1">
+              Aplicar
             </button>
-          )}
-        </div>
-      )}
+            {editor.isActive('link') && (
+              <button
+                type="button"
+                onClick={() => {
+                  editor.chain().focus().unsetLink().run();
+                  setShowLinkInput(false);
+                }}
+                className="font-mono text-xs text-app-muted hover:text-danger px-2 py-1"
+              >
+                Remover
+              </button>
+            )}
+          </div>
+        )}
+      </div>
 
       <BubbleMenu editor={editor} className="bubble">
         <Key active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
@@ -354,7 +361,7 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         </Key>
       </BubbleMenu>
 
-      {editor.isActive('table') && <TableContextStrip editor={editor} />}
+      <div>{editor.isActive('table') && <TableContextStrip editor={editor} />}</div>
 
       <EditorContent
         editor={editor}
