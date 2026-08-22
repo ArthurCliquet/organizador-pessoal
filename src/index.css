@@ -381,12 +381,40 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 .ProseMirror .selectedCell {
   background: var(--color-primary-dim);
 }
-.ProseMirror img {
-  max-width: 100%;
-  border-radius: 6px;
+.img-resize-wrap {
+  position: relative;
   display: block;
   margin: 0.5rem 0;
 }
+.img-resize-wrap img {
+  max-width: 100%;
+  border-radius: 6px;
+  display: block;
+}
+.img-resize-wrap.is-cropped {
+  overflow: hidden;
+  border-radius: 6px;
+}
+.img-resize-wrap.is-cropped img {
+  border-radius: 0;
+}
+.img-resize-wrap.is-selected {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+.img-handle {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background: var(--color-primary);
+  border: 1.5px solid var(--color-app-bg);
+  border-radius: 3px;
+  z-index: 1;
+}
+.img-handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.img-handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.img-handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
+.img-handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
 .ProseMirror ul {
   list-style: disc;
   padding-left: 1.25rem;

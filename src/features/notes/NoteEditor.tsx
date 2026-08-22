@@ -6,7 +6,7 @@ import Table from '@tiptap/extension-table';
 import TableRow from '@tiptap/extension-table-row';
 import TableHeader from '@tiptap/extension-table-header';
 import TableCell from '@tiptap/extension-table-cell';
-import Image from '@tiptap/extension-image';
+import { ResizableImage } from './ResizableImage';
 import type { Editor } from '@tiptap/react';
 import type { EditorView } from '@tiptap/pm/view';
 import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
@@ -98,7 +98,7 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         TableRow,
         TableHeader,
         TableCell,
-        Image,
+        ResizableImage,
       ],
       content: initialContent,
       onUpdate: () => scheduleSave(),
@@ -346,7 +346,7 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
         )}
       </div>
 
-      <BubbleMenu editor={editor} className="bubble">
+      <BubbleMenu editor={editor} className="bubble" shouldShow={() => !editor.state.selection.empty && !editor.isActive('image')}>
         <Key active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
           <IconBold />
         </Key>
