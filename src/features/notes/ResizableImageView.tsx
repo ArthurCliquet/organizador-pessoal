@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from 'react';
 import { NodeViewWrapper } from '@tiptap/react';
 import type { NodeViewProps } from '@tiptap/react';
+import { ImageCropModal } from './ImageCropModal';
 
 const MIN_WIDTH_PERCENT = 10;
 
@@ -22,6 +23,7 @@ export function ResizableImageView({ node, updateAttributes, selected }: NodeVie
   const { src, alt, width, cropX, cropY, cropW, cropH, naturalWidth } = node.attrs as ImageNodeAttrs;
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [liveWidth, setLiveWidth] = useState<number | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
 
   const isCropped = cropX != null && cropY != null && cropW != null && cropH != null && naturalWidth != null;
   const displayWidth = liveWidth ?? width;
@@ -76,11 +78,30 @@ export function ResizableImageView({ node, updateAttributes, selected }: NodeVie
       <img src={src} alt={alt ?? ''} style={imgStyle} draggable={false} />
       {selected && (
         <>
+          <button
+            type="button"
+            className="absolute top-1.5 right-1.5 z-10 font-mono text-[0.65rem] px-2 py-1 rounded bg-app-bg/80 text-primary-bright border border-surface-border"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => setCropOpen(true)}
+          >
+            Cortar
+          </button>
           <span className="img-handle img-handle-nw" onPointerDown={(e) => handleResizeStart('nw', e)} />
           <span className="img-handle img-handle-ne" onPointerDown={(e) => handleResizeStart('ne', e)} />
           <span className="img-handle img-handle-sw" onPointerDown={(e) => handleResizeStart('sw', e)} />
           <span className="img-handle img-handle-se" onPointerDown={(e) => handleResizeStart('se', e)} />
         </>
+      )}
+      {cropOpen && (
+        <ImageCropModal
+          src={src}
+          initialCrop={isCropped ? { cropX: cropX!, cropY: cropY!, cropW: cropW!, cropH: cropH! } : null}
+          onApply={(crop) => {
+            updateAttributes(crop);
+            setCropOpen(false);
+          }}
+          onCancel={() => setCropOpen(false)}
+        />
       )}
     </NodeViewWrapper>
   );

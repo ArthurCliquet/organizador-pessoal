@@ -415,6 +415,22 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 .img-handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
 .img-handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
 .img-handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.crop-handle {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--color-primary);
+  border: 1.5px solid var(--color-app-bg);
+  border-radius: 3px;
+}
+.crop-handle-n  { top: -6px; left: 50%; margin-left: -6px; cursor: ns-resize; }
+.crop-handle-s  { bottom: -6px; left: 50%; margin-left: -6px; cursor: ns-resize; }
+.crop-handle-e  { top: 50%; right: -6px; margin-top: -6px; cursor: ew-resize; }
+.crop-handle-w  { top: 50%; left: -6px; margin-top: -6px; cursor: ew-resize; }
+.crop-handle-ne { top: -6px; right: -6px; cursor: nesw-resize; }
+.crop-handle-nw { top: -6px; left: -6px; cursor: nwse-resize; }
+.crop-handle-se { bottom: -6px; right: -6px; cursor: nwse-resize; }
+.crop-handle-sw { bottom: -6px; left: -6px; cursor: nesw-resize; }
 .ProseMirror ul {
   list-style: disc;
   padding-left: 1.25rem;
