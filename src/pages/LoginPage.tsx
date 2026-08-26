@@ -43,61 +43,67 @@ export function LoginPage() {
     navigate('/', { replace: true });
   }
 
-  const today = new Date();
+  function toggleMode() {
+    setMode((m) => (m === 'signin' ? 'signup' : 'signin'));
+    setError(null);
+    setInfo(null);
+  }
+
+  const isSignup = mode === 'signup';
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-app-bg px-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm flex flex-col gap-4">
-        <div className="flex items-center gap-2.5 mb-1">
-          <NockMark size={34} />
-          <NockWordmark size={22} />
-        </div>
-        <div className="w-11 h-11 border border-surface-border rounded bg-surface flex flex-col items-center justify-center mb-1">
-          <span className="font-display text-primary text-lg leading-none font-semibold">{today.getDate()}</span>
-          <span className="font-mono text-app-muted-2 text-[0.5rem] tracking-widest">
-            {today.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '').toUpperCase()}
-          </span>
-        </div>
-        <h1 className="font-display text-2xl font-semibold text-app-text">{mode === 'signin' ? 'Entrar' : 'Criar conta'}</h1>
-        <p className="text-sm text-app-muted -mt-2">Suas notas, tarefas e hábitos, num só lugar.</p>
-        <input
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="E-mail"
-          className="bg-surface border border-surface-border rounded px-3 py-2 text-app-text outline-none focus:border-primary"
-        />
-        <input
-          type="password"
-          required
-          minLength={6}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          placeholder="Senha"
-          className="bg-surface border border-surface-border rounded px-3 py-2 text-app-text outline-none focus:border-primary"
-        />
-        {error && <p className="text-sm text-danger">{error}</p>}
-        {info && <p className="text-sm text-primary">{info}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="bg-primary text-app-bg rounded py-2 font-semibold disabled:opacity-50"
-        >
-          {mode === 'signin' ? 'Entrar' : 'Criar conta'}
-        </button>
+    <div className="login-page">
+      <div className="login-glow" />
+      <div className="login-cover-slot">
+        <div className="login-cover-sliver login-cover-sliver-1" style={{ animationDelay: '0.05s' }} />
+        <div className="login-cover-sliver login-cover-sliver-2" style={{ animationDelay: '0.12s' }} />
+
         <button
           type="button"
-          onClick={() => {
-            setMode(mode === 'signin' ? 'signup' : 'signin');
-            setError(null);
-            setInfo(null);
-          }}
-          className="text-sm text-app-muted hover:text-app-text"
+          className="login-tab"
+          onClick={toggleMode}
+          aria-label={isSignup ? 'Alternar para entrar' : 'Alternar para criar conta'}
         >
-          {mode === 'signin' ? 'Não tem conta? Criar uma' : 'Já tem conta? Entrar'}
+          {isSignup ? 'Entrar' : 'Criar conta'}
+          <span className="login-tab-arrow">›</span>
         </button>
-      </form>
+
+        <form onSubmit={handleSubmit} className="login-cover" style={{ animationDelay: '0.18s' }}>
+          <div className="login-logo-row">
+            <NockMark size={30} />
+            <NockWordmark size={19} />
+          </div>
+          <div className="login-tear" />
+
+          <h1 className="font-display text-2xl font-semibold text-app-text">
+            {isSignup ? 'Criar conta' : 'Entrar'}
+          </h1>
+          <p className="text-sm text-app-muted -mt-2">Suas notas, tarefas e hábitos, num só lugar.</p>
+
+          <input
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="E-mail"
+            className="login-input"
+          />
+          <input
+            type="password"
+            required
+            minLength={6}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Senha"
+            className="login-input"
+          />
+          {error && <p className="text-sm text-danger">{error}</p>}
+          {info && <p className="text-sm text-primary">{info}</p>}
+          <button type="submit" disabled={submitting} className="login-submit">
+            {isSignup ? 'Criar conta' : 'Entrar'}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
