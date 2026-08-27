@@ -748,6 +748,52 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   text-decoration-color: var(--color-primary-bright);
 }
 
+/* ---- Dashboard: vertical day rail (Agenda card) ---- */
+
+.agenda-rail {
+  border-left: 1px solid var(--color-surface-border);
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.agenda-rail-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+  text-decoration: none;
+  color: inherit;
+  border-radius: 8px;
+  padding: 2px 4px;
+  margin: -2px -4px;
+  transition: background-color 0.15s ease;
+}
+.agenda-rail-item:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.agenda-rail-label {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-app-muted-2);
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+}
+
+.agenda-rail-dot-empty {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  border: 1.3px solid var(--color-surface-border);
+  display: inline-block;
+  flex-shrink: 0;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .check-control .stamp-ring,
   .ring-control .stamp-ring,

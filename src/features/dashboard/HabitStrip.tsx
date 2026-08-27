@@ -4,6 +4,7 @@ import { getHabits, createHabit, renameHabit, deleteHabit, getHabitLogsForDate, 
 import { useToast } from '../../contexts/ToastContext';
 import { HabitProgressRing } from './HabitProgressRing';
 import { HabitManageModal } from './HabitManageModal';
+import { HabitRing } from '../../components/common/HabitRing';
 
 interface HabitStripProps {
   date: string;
@@ -83,24 +84,26 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
   }
 
   return (
-    <>
-      {habits.length > 0 && <HabitProgressRing done={done} total={habits.length} size={30} />}
-
-      <div className="habit-chip-row">
-        {habits.map((habit) => (
-          <button
-            key={habit.id}
-            type="button"
-            onClick={() => handleToggle(habit.id)}
-            className={`habit-chip ${isDone(habit.id) ? 'on' : ''}`}
-          >
-            {habit.name}
-          </button>
-        ))}
-        {habits.length === 0 && <span className="text-sm text-app-muted">Nenhum hábito ainda</span>}
+    <div className="flex flex-col flex-1">
+      <div className="flex items-baseline justify-between mb-4">
+        <h2 className="font-display text-lg font-semibold">Hábitos</h2>
+        {habits.length > 0 && <HabitProgressRing done={done} total={habits.length} size={30} />}
       </div>
 
-      <button type="button" onClick={() => setManaging(true)} className="habit-more-link">
+      <div className="flex flex-col gap-0.5">
+        {habits.map((habit) => (
+          <label
+            key={habit.id}
+            className="flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
+          >
+            <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
+            <span className={`flex-1 text-sm ${isDone(habit.id) ? 'text-success' : 'text-app-text'}`}>{habit.name}</span>
+          </label>
+        ))}
+        {habits.length === 0 && <p className="text-sm text-app-muted">Nenhum hábito ainda</p>}
+      </div>
+
+      <button type="button" onClick={() => setManaging(true)} className="habit-more-link mt-2">
         ver mais
       </button>
 
@@ -115,6 +118,6 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
           onClose={() => setManaging(false)}
         />
       )}
-    </>
+    </div>
   );
 }
