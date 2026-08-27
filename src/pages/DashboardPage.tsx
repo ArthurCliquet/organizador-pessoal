@@ -26,7 +26,7 @@ export function DashboardPage() {
   return (
     <div className="relative overflow-hidden">
       <div className="dash-glow" />
-      <div className="relative p-4 md:p-6 max-w-5xl mx-auto">
+      <div className="relative p-4 md:p-6 max-w-7xl mx-auto">
         <DayHeader
           taskCount={agendaCounts.tasks}
           eventCount={agendaCounts.events}

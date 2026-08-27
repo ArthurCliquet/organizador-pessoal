@@ -211,7 +211,7 @@ export function FinancePage() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-4xl mx-auto flex flex-col gap-5">
+    <div className="p-4 md:p-6 max-w-7xl mx-auto flex flex-col gap-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-2">
         <h1 className="font-display text-2xl font-semibold">Finanças</h1>
         <div className="flex flex-col-reverse gap-2 md:flex-row md:items-center">
