@@ -29,7 +29,7 @@ export function DashboardPage() {
             <TodayAgenda onCountsChange={(tasks, events) => setAgendaCounts({ tasks, events })} rail={<AgendaRail />} />
           </Card>
 
-          <Card delay="150ms" direction="row" padding="px-5 py-4" className="items-center gap-4">
+          <Card delay="150ms">
             <HabitStrip date={today} onCountsChange={(done, total) => setHabitCounts({ done, total })} />
           </Card>
 
