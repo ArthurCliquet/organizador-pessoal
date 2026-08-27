@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { DayHeader } from '../features/dashboard/DayHeader';
 import { TodayAgenda } from '../features/dashboard/TodayAgenda';
-import { MiniStrip } from '../features/dashboard/MiniStrip';
+import { AgendaRail } from '../features/dashboard/AgendaRail';
 import { RecentNotes } from '../features/dashboard/RecentNotes';
 import { PendingTasks } from '../features/dashboard/PendingTasks';
 import { HabitStrip } from '../features/dashboard/HabitStrip';
@@ -26,8 +26,7 @@ export function DashboardPage() {
 
         <div className="flex flex-col gap-5">
           <Card delay="80ms">
-            <TodayAgenda onCountsChange={(tasks, events) => setAgendaCounts({ tasks, events })} />
-            <MiniStrip />
+            <TodayAgenda onCountsChange={(tasks, events) => setAgendaCounts({ tasks, events })} rail={<AgendaRail />} />
           </Card>
 
           <Card delay="150ms" direction="row" padding="px-5 py-4" className="items-center gap-4">
