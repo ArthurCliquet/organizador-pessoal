@@ -18,7 +18,7 @@ export function MonthSummary({ transactions, accounts }: MonthSummaryProps) {
   return (
     <div className="flex flex-col flex-1">
       <h2 className="font-display text-lg font-semibold mb-4">Resumo do mês</h2>
-      <div className="flex flex-wrap justify-center gap-x-16 gap-y-4 text-center">
+      <div className="flex flex-wrap gap-x-16 gap-y-4">
         <div>
           <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Entradas</p>
           <p className="font-display text-xl font-semibold text-success">{formatCurrency(income)}</p>
