@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import type { Task } from '../types';
 import { getTasksForRange } from '../features/tasks/tasksApi';
 import { getMonthGrid, toISODate } from '../features/calendar/dateUtils';
+import { MonthHeader } from '../features/calendar/MonthHeader';
 import { MonthGrid } from '../features/calendar/MonthGrid';
 import { DayPanel } from '../features/calendar/DayPanel';
 import { RecurringTasksModal } from '../features/tasks/RecurringTasksModal';
@@ -38,24 +39,62 @@ export function CalendarPage() {
     loadTasks();
   }, [loadTasks]);
 
+  function prevMonth() {
+    setYear((y) => (month === 0 ? y - 1 : y));
+    setMonth((m) => (m === 0 ? 11 : m - 1));
+  }
+  function nextMonth() {
+    setYear((y) => (month === 11 ? y + 1 : y));
+    setMonth((m) => (m === 11 ? 0 : m + 1));
+  }
+  function goToToday() {
+    const now = new Date();
+    setYear(now.getFullYear());
+    setMonth(now.getMonth());
+  }
+
+  const { monthTaskCount, monthEventCount } = useMemo(() => {
+    let tasks = 0;
+    let events = 0;
+    for (const [iso, list] of Object.entries(tasksByDate)) {
+      if (new Date(`${iso}T12:00:00`).getMonth() !== month) continue;
+      for (const t of list) {
+        if (t.is_special_event) events++;
+        else tasks++;
+      }
+    }
+    return { monthTaskCount: tasks, monthEventCount: events };
+  }, [tasksByDate, month]);
+
   return (
-    <div className="p-4 md:p-6">
-      <MonthGrid
-        year={year}
-        month={month}
-        tasksByDate={tasksByDate}
-        selectedDate={selectedDate}
-        onSelectDay={setSelectedDate}
-        onMonthChange={(y, m) => { setYear(y); setMonth(m); }}
-      />
-      {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
-      <button
-        type="button"
-        onClick={() => setRecurringOpen(true)}
-        className="mt-8 font-mono text-xs text-app-muted hover:text-primary underline"
-      >
-        Tarefas recorrentes
-      </button>
+    <div className="relative overflow-hidden">
+      <div className="dash-glow" />
+      <div className="relative p-4 md:p-6 max-w-7xl mx-auto">
+        <MonthHeader
+          year={year}
+          month={month}
+          monthTaskCount={monthTaskCount}
+          monthEventCount={monthEventCount}
+          onPrev={prevMonth}
+          onNext={nextMonth}
+          onToday={goToToday}
+          onOpenRecurring={() => setRecurringOpen(true)}
+        />
+
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 items-start">
+          <MonthGrid
+            year={year}
+            month={month}
+            tasksByDate={tasksByDate}
+            selectedDate={selectedDate}
+            onSelectDay={setSelectedDate}
+          />
+          <div className="md:sticky md:top-6">
+            {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
+          </div>
+        </div>
+      </div>
+
       {recurringOpen && (
         <RecurringTasksModal
           onClose={() => setRecurringOpen(false)}
