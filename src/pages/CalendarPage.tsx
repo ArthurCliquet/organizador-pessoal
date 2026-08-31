@@ -81,7 +81,7 @@ export function CalendarPage() {
           onOpenRecurring={() => setRecurringOpen(true)}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 md:items-start">
           <MonthGrid
             year={year}
             month={month}
@@ -89,10 +89,8 @@ export function CalendarPage() {
             selectedDate={selectedDate}
             onSelectDay={setSelectedDate}
           />
-          <div className="md:relative">
-            <div className="md:absolute md:inset-0 md:flex md:flex-col md:overflow-hidden">
-              {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
-            </div>
+          <div className="md:sticky md:top-6 md:max-h-[calc(100vh-3rem)] md:flex md:flex-col md:min-h-0">
+            {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
           </div>
         </div>
       </div>
