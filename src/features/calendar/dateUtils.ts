@@ -1,5 +1,4 @@
 import { startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
 
 export function toISODate(d: Date): string {
   return format(d, 'yyyy-MM-dd');
@@ -28,10 +27,6 @@ export function getWeekRange(date: Date): { start: Date; end: Date } {
 
 export function getSevenDaysFrom(start: Date): string[] {
   return Array.from({ length: 7 }, (_, i) => toISODate(addDays(start, i)));
-}
-
-export function formatMonthTitle(year: number, month: number): string {
-  return format(new Date(year, month, 1), 'MMMM yyyy', { locale: ptBR });
 }
 
 export function getWeekday(dateStr: string): number {
