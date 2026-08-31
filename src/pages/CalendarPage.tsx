@@ -4,7 +4,7 @@ import { getTasksForRange } from '../features/tasks/tasksApi';
 import { getMonthGrid, toISODate } from '../features/calendar/dateUtils';
 import { MonthGrid } from '../features/calendar/MonthGrid';
 import { DayPanel } from '../features/calendar/DayPanel';
-import { RecurringTasksManager } from '../features/tasks/RecurringTasksManager';
+import { RecurringTasksModal } from '../features/tasks/RecurringTasksModal';
 import { useToast } from '../contexts/ToastContext';
 
 export function CalendarPage() {
@@ -15,6 +15,7 @@ export function CalendarPage() {
   const [tasksByDate, setTasksByDate] = useState<Record<string, Task[]>>({});
   const [selectedDate, setSelectedDate] = useState<string | null>(toISODate(today));
   const [recurringVersion, setRecurringVersion] = useState(0);
+  const [recurringOpen, setRecurringOpen] = useState(false);
 
   const loadTasks = useCallback(async () => {
     const days = getMonthGrid(year, month);
@@ -48,12 +49,22 @@ export function CalendarPage() {
         onMonthChange={(y, m) => { setYear(y); setMonth(m); }}
       />
       {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
-      <RecurringTasksManager
-        onChanged={() => {
-          loadTasks();
-          setRecurringVersion((v) => v + 1);
-        }}
-      />
+      <button
+        type="button"
+        onClick={() => setRecurringOpen(true)}
+        className="mt-8 font-mono text-xs text-app-muted hover:text-primary underline"
+      >
+        Tarefas recorrentes
+      </button>
+      {recurringOpen && (
+        <RecurringTasksModal
+          onClose={() => setRecurringOpen(false)}
+          onChanged={() => {
+            loadTasks();
+            setRecurringVersion((v) => v + 1);
+          }}
+        />
+      )}
     </div>
   );
 }
