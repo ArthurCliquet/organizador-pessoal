@@ -156,8 +156,8 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
 
   return (
     <div className="md:flex md:flex-col md:min-h-0">
-      <div className="tear-rule"><span /><i /><span /></div>
-      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5 md:flex md:flex-col md:min-h-0 md:flex-1">
+      <div className="tear-rule shrink-0"><span /><i /><span /></div>
+      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5 md:flex md:flex-col md:min-h-0">
         <div className="hero-texture" />
 
         <div className="relative flex items-baseline gap-3 pb-4 mb-4 border-b border-surface-border shrink-0">
@@ -170,7 +170,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
           </div>
         </div>
 
-        <div className="relative md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-contain scrollbar-thin md:-mr-2 md:pr-2">
+        <div className="relative md:min-h-0 md:overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin">
         {/* --- Tarefas --- */}
         <div className="relative">
           <div className="flex items-center justify-between mb-3">

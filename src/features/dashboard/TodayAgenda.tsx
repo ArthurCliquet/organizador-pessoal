@@ -110,7 +110,7 @@ export function TodayAgenda({ onCountsChange, rail }: TodayAgendaProps) {
         </span>
       </div>
       <div className={rail ? 'grid grid-cols-1 md:grid-cols-[1fr_200px] gap-6' : undefined}>
-        <div className="flex flex-col gap-0.5 max-h-[180px] overflow-y-auto overscroll-contain scrollbar-thin -mr-2 pr-2">
+        <div className="flex flex-col gap-0.5 max-h-[180px] overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin">
           {dayItems.map((item, i) => (
             <label
               key={`${item.kind}-${item.id}`}
