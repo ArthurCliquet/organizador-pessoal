@@ -155,12 +155,12 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   }
 
   return (
-    <div>
+    <div className="md:flex md:flex-col md:min-h-0">
       <div className="tear-rule"><span /><i /><span /></div>
-      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5">
+      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5 md:flex md:flex-col md:min-h-0 md:flex-1">
         <div className="hero-texture" />
 
-        <div className="relative flex items-baseline gap-3 pb-4 mb-4 border-b border-surface-border">
+        <div className="relative flex items-baseline gap-3 pb-4 mb-4 border-b border-surface-border shrink-0">
           <span className="font-display text-5xl text-primary-bright font-semibold leading-none">
             {new Date(`${date}T12:00:00`).getDate()}
           </span>
@@ -170,6 +170,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
           </div>
         </div>
 
+        <div className="relative md:flex-1 md:min-h-0 md:overflow-y-auto overscroll-contain scrollbar-thin md:-mr-2 md:pr-2">
         {/* --- Tarefas --- */}
         <div className="relative">
           <div className="flex items-center justify-between mb-3">
@@ -288,6 +289,7 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
             </span>
           </div>
           <HabitChecklist date={date} onCountsChange={(done, total) => { setHabitDone(done); setHabitTotal(total); }} />
+        </div>
         </div>
       </div>
     </div>
