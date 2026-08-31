@@ -1,11 +1,10 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, type CSSProperties } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, createTask, updateTask, toggleTask, deleteTask } from '../tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
 import { HabitChecklist } from '../habits/HabitChecklist';
 import { getWeekday } from './dateUtils';
 import { useToast } from '../../contexts/ToastContext';
-import { Card } from '../../components/common/Card';
 import { TaskCheck } from '../../components/common/TaskCheck';
 
 interface DayPanelProps {
@@ -156,28 +155,41 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   }
 
   return (
-    <Card className="mt-8">
-      <div className="flex items-baseline justify-between pb-4 mb-5 border-b border-surface-border">
-        <span className="font-mono text-xs uppercase tracking-wider text-app-muted">
-          <span className="capitalize">{weekdayName}</span> — {fullDate}
-        </span>
-      </div>
+    <div>
+      <div className="tear-rule"><span /><i /><span /></div>
+      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5">
+        <div className="hero-texture" />
 
-      <div className="grid grid-cols-1 md:grid-cols-[1.3fr_auto_1fr] gap-6">
-        <div>
+        <div className="relative flex items-baseline gap-3 pb-4 mb-4 border-b border-surface-border">
+          <span className="font-display text-5xl text-primary-bright font-semibold leading-none">
+            {new Date(`${date}T12:00:00`).getDate()}
+          </span>
+          <div className="flex flex-col gap-0.5">
+            <span className="font-display text-lg capitalize">{weekdayName}</span>
+            <span className="font-mono text-[0.6rem] uppercase tracking-widest text-app-muted-2">{fullDate}</span>
+          </div>
+        </div>
+
+        {/* --- Tarefas --- */}
+        <div className="relative">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 font-semibold">Tarefas</h3>
-            <span className="font-mono text-[0.68rem] font-semibold text-primary bg-primary-dim rounded-full px-2 py-0.5">
+            <h3 className="font-mono text-[0.64rem] uppercase tracking-widest text-app-muted-2 font-semibold">Tarefas</h3>
+            <span className="font-mono text-[0.62rem] font-semibold text-primary bg-primary-dim rounded-full px-2 py-0.5">
               {doneCount}/{dayItems.length}
             </span>
           </div>
-          <div className="flex flex-col gap-0.5 mb-2">
-            {dayItems.map((item) => (
-              <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2.5 py-1 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]">
+
+          <div className="flex flex-col gap-0.5">
+            {dayItems.map((item, i) => (
+              <div
+                key={`${item.kind}-${item.id}`}
+                style={{ '--stagger': i * 40 } as CSSProperties}
+                className="list-row-in group grid grid-cols-[18px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
+              >
                 <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
                 {item.kind === 'task' && editingId === item.id ? (
                   <div
-                    className="flex-1 flex items-center gap-1"
+                    className="flex items-center gap-1"
                     onBlur={(e) => {
                       if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
                     }}
@@ -209,22 +221,19 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                 ) : (
                   <span
                     onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
-                    className={`flex-1 text-sm ${item.done ? 'text-app-muted line-through' : 'text-app-text'}`}
+                    className={`text-sm strike justify-self-start ${item.done ? 'text-app-muted is-done' : 'text-app-text'}`}
                   >
-                    {item.kind === 'recurring' && <span title="Tarefa recorrente">↻ </span>}
+                    {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
                     {item.kind === 'task' && item.task.is_special_event && (
                       <span className="day-pad-event-mark inline-block align-middle mr-1.5" title="Evento especial" />
                     )}
-                    {item.time ? <span className="font-mono text-app-muted-2">{item.time.slice(0, 5)} — </span> : ''}
+                    {item.time ? <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span> : null}
                     {item.title}
                   </span>
                 )}
-                {item.kind === 'task' && (
-                  <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">
-                    ✕
-                  </button>
-                )}
-                {item.kind === 'recurring' && (
+                {item.kind === 'task' ? (
+                  <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">✕</button>
+                ) : (
                   <button
                     onClick={() => handleSkipRecurring(item.id)}
                     title="Pular só hoje, sem mexer nos outros dias"
@@ -235,8 +244,9 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                 )}
               </div>
             ))}
-            {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa</p>}
+            {dayItems.length === 0 && <p className="text-sm text-app-muted-2">Nenhuma tarefa nesse dia</p>}
           </div>
+
           <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-dashed border-surface-border">
             <div className="flex gap-1.5">
               <input
@@ -269,18 +279,17 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
           </div>
         </div>
 
-        <div className="hidden md:block w-px bg-surface-border" />
-
-        <div>
+        {/* --- Hábitos --- */}
+        <div className="relative mt-5 pt-5 border-t border-surface-border">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-mono text-xs uppercase tracking-wider text-app-muted-2 font-semibold">Hábitos</h3>
-            <span className="font-mono text-[0.68rem] font-semibold text-success bg-success-dim rounded-full px-2 py-0.5">
+            <h3 className="font-mono text-[0.64rem] uppercase tracking-widest text-app-muted-2 font-semibold">Hábitos</h3>
+            <span className="font-mono text-[0.62rem] font-semibold text-success bg-success-dim rounded-full px-2 py-0.5">
               {habitDone}/{habitTotal}
             </span>
           </div>
           <HabitChecklist date={date} onCountsChange={(done, total) => { setHabitDone(done); setHabitTotal(total); }} />
         </div>
       </div>
-    </Card>
+    </div>
   );
 }
