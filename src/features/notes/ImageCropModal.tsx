@@ -128,7 +128,7 @@ export function ImageCropModal({ src, initialCrop, onApply, onCancel }: ImageCro
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="font-display text-lg text-app-text">Cortar imagem</h3>
-        <div className="relative select-none">
+        <div className="relative select-none overflow-hidden">
           <img
             ref={imgRef}
             src={src}
