@@ -149,6 +149,8 @@ export function NotesPage() {
 
   function handleSelectNote(id: string) {
     setSelectedNoteId(id);
+    const note = notes.find((n) => n.id === id);
+    if (note) setSelectedFolderId(note.folder_id ?? null);
     touchNoteViewed(id).catch(() => {});
   }
 
