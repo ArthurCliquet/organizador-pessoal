@@ -50,7 +50,7 @@ export function AgendaRail() {
   return (
     <div className="agenda-rail">
       {days.map((day, i) => (
-        <Link key={day.iso} to="/calendario" className="agenda-rail-item">
+        <Link key={day.iso} to={`/calendario?dia=${day.iso}`} className="agenda-rail-item">
           <span className="agenda-rail-label">
             {day.hasSpecial ? (
               <span className="day-pad-event-mark" />

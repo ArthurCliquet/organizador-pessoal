@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import type { Task } from '../types';
 import { getTasksForRange } from '../features/tasks/tasksApi';
 import { getMonthGrid, toISODate } from '../features/calendar/dateUtils';
@@ -11,10 +12,14 @@ import { useToast } from '../contexts/ToastContext';
 export function CalendarPage() {
   const { showError } = useToast();
   const today = new Date();
-  const [year, setYear] = useState(today.getFullYear());
-  const [month, setMonth] = useState(today.getMonth());
+  const [searchParams] = useSearchParams();
+  const diaParam = searchParams.get('dia');
+  const initialDate = diaParam && /^\d{4}-\d{2}-\d{2}$/.test(diaParam) ? diaParam : toISODate(today);
+  const initialDateObj = new Date(`${initialDate}T12:00:00`);
+  const [year, setYear] = useState(initialDateObj.getFullYear());
+  const [month, setMonth] = useState(initialDateObj.getMonth());
   const [tasksByDate, setTasksByDate] = useState<Record<string, Task[]>>({});
-  const [selectedDate, setSelectedDate] = useState<string | null>(toISODate(today));
+  const [selectedDate, setSelectedDate] = useState<string | null>(initialDate);
   const [recurringVersion, setRecurringVersion] = useState(0);
   const [recurringOpen, setRecurringOpen] = useState(false);
 
