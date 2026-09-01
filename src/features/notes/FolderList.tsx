@@ -85,7 +85,8 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
               onKeyDown={(e) => {
                 if (e.key === 'Enter') e.currentTarget.blur();
               }}
-              className="w-28 md:w-auto md:flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
+              size={1}
+              className="w-28 md:w-auto md:flex-1 md:min-w-0 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
             />
           ) : (
             <button
