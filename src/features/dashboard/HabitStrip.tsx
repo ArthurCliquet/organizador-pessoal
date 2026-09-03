@@ -1,6 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 import type { Habit, HabitLog } from '../../types';
-import { getHabits, createHabit, renameHabit, deleteHabit, getHabitLogsForDate, toggleHabitLog } from '../habits/habitsApi';
+import {
+  getHabits,
+  createHabit,
+  renameHabit,
+  deleteHabit,
+  reorderHabits,
+  getHabitLogsForDate,
+  toggleHabitLog,
+} from '../habits/habitsApi';
 import { useToast } from '../../contexts/ToastContext';
 import { HabitProgressRing } from './HabitProgressRing';
 import { HabitManageModal } from './HabitManageModal';
@@ -83,6 +91,17 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
     }
   }
 
+  async function handleReorder(orderedIds: string[]) {
+    const prev = habits;
+    setHabits((cur) => orderedIds.map((id) => cur.find((h) => h.id === id)).filter((h): h is Habit => !!h));
+    try {
+      await reorderHabits(orderedIds);
+    } catch {
+      setHabits(prev);
+      showError('Não foi possível reordenar os hábitos.');
+    }
+  }
+
   return (
     <div className="flex flex-col flex-1">
       <div className="flex items-baseline justify-between mb-4">
@@ -115,6 +134,7 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
           onCreate={handleCreate}
           onRename={handleRename}
           onDelete={handleDelete}
+          onReorder={handleReorder}
           onClose={() => setManaging(false)}
         />
       )}

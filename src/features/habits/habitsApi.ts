@@ -2,16 +2,34 @@ import { supabase } from '../../lib/supabase';
 import type { Habit, HabitLog } from '../../types';
 
 export async function getHabits(): Promise<Habit[]> {
-  const { data, error } = await supabase.from('habits').select('*').order('created_at');
+  const { data, error } = await supabase.from('habits').select('*').order('position');
   if (error) throw error;
   return data;
 }
 
 export async function createHabit(name: string): Promise<Habit> {
   const { data: userData } = await supabase.auth.getUser();
-  const { data, error } = await supabase.from('habits').insert({ name, user_id: userData.user!.id }).select().single();
+  const { data: last } = await supabase
+    .from('habits')
+    .select('position')
+    .order('position', { ascending: false })
+    .limit(1);
+  const position = (last?.[0]?.position ?? -1) + 1;
+  const { data, error } = await supabase
+    .from('habits')
+    .insert({ name, position, user_id: userData.user!.id })
+    .select()
+    .single();
   if (error) throw error;
   return data;
+}
+
+export async function reorderHabits(orderedIds: string[]): Promise<void> {
+  const results = await Promise.all(
+    orderedIds.map((id, index) => supabase.from('habits').update({ position: index }).eq('id', id)),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) throw failed.error;
 }
 
 export async function renameHabit(id: string, name: string): Promise<void> {
