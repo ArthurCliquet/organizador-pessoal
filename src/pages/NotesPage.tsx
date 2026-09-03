@@ -380,6 +380,7 @@ export function NotesPage() {
               <NoteList
                 notes={sortedNotes}
                 selectedNoteId={selectedNoteId}
+                dndDisabled={!!trimmedQuery}
                 onSelect={handleSelectNote}
                 onCreate={handleCreateNote}
                 onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
