@@ -50,10 +50,11 @@ function readStoredId(key: string): string | null {
 
 const PIN_LIMIT = 5;
 
+// Fixados primeiro; dentro de cada grupo preserva a ordem recebida (por `position`,
+// vinda da API), para que o arraste manual valha também entre os fixados.
 function pinnedFirst<T extends { pinned_at: string | null }>(items: T[]): T[] {
   return [...items].sort((a, b) => {
     if (!!a.pinned_at !== !!b.pinned_at) return a.pinned_at ? -1 : 1;
-    if (a.pinned_at && b.pinned_at) return b.pinned_at.localeCompare(a.pinned_at);
     return 0;
   });
 }
