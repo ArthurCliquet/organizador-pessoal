@@ -14,6 +14,7 @@ export function MonthSummary({ transactions, accounts }: MonthSummaryProps) {
   const monthStart = toISODate(startOfMonth(now));
   const monthEnd = toISODate(endOfMonth(now));
   const { income, expense, invested } = calculateMonthSummary(transactions, monthStart, monthEnd, accounts);
+  const net = income - expense;
 
   return (
     <div className="flex flex-col flex-1">
@@ -26,6 +27,10 @@ export function MonthSummary({ transactions, accounts }: MonthSummaryProps) {
         <div>
           <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Gastos</p>
           <p className="font-display text-xl font-semibold text-danger">{formatCurrency(expense)}</p>
+        </div>
+        <div>
+          <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Lucro / perda</p>
+          <p className={`font-display text-xl font-semibold ${net >= 0 ? 'text-success' : 'text-danger'}`}>{formatCurrency(net)}</p>
         </div>
         <div>
           <p className="font-mono text-[0.65rem] text-app-muted-2 mb-1">Investido</p>
