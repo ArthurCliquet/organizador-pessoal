@@ -1179,6 +1179,44 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 .n-del:hover { color: var(--color-danger); }
 .n-del svg { width: 11px; height: 11px; }
 
+/* ---- Notes: drag-and-drop para reordenar ---- */
+
+.drag-overlay-row {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 0.83rem;
+  color: var(--color-app-text);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.drag-grip {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--color-app-muted-2);
+  border-radius: 4px;
+  cursor: grab;
+  flex-shrink: 0;
+  touch-action: none;
+}
+.drag-grip:hover { color: var(--color-primary); background: var(--color-surface); }
+.drag-grip:active { cursor: grabbing; }
+.drag-grip svg { width: 12px; height: 12px; }
+
+.f-row.dragging,
+.sb-row.dragging { opacity: 0.4; }
+
 /* ---- Login: the cover of the notebook — same stacked-page/filing-tab
    idea as the dashboard's day-pad, but its own classes so the two screens
    can change independently later. ---- */
