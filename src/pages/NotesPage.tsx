@@ -355,6 +355,7 @@ export function NotesPage() {
             <FolderList
               folders={sortedFolders}
               selectedFolderId={selectedFolderId}
+              dndDisabled={!!trimmedQuery}
               onSelect={handleSelectFolder}
               onTogglePin={handleTogglePinFolder}
               onCreate={async (name, parentId) => {
