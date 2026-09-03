@@ -3,6 +3,7 @@ export interface Folder {
   user_id: string;
   name: string;
   parent_id: string | null;
+  position: number;
   created_at: string;
   pinned_at: string | null;
 }
@@ -11,6 +12,7 @@ export interface Note {
   id: string;
   user_id: string;
   folder_id: string | null;
+  position: number;
   title: string;
   content: string;
   updated_at: string;
