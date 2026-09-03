@@ -1,5 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { Folder } from '../../types';
+
+const INDENT_WIDTH = 12;
 
 interface FolderListProps {
   folders: Folder[];
@@ -9,15 +13,27 @@ interface FolderListProps {
   onRename: (id: string, name: string) => void;
   onDelete: (id: string) => void;
   onTogglePin: (folder: Folder) => void;
+  dndDisabled: boolean;
 }
 
-interface TreeNode {
+interface FlatFolder {
   folder: Folder;
-  children: TreeNode[];
+  depth: number;
 }
 
-function buildTree(folders: Folder[], parentId: string | null): TreeNode[] {
-  return folders.filter((f) => f.parent_id === parentId).map((folder) => ({ folder, children: buildTree(folders, folder.id) }));
+function flatten(
+  folders: Folder[],
+  expandedIds: Set<string>,
+  parentId: string | null = null,
+  depth = 0,
+): FlatFolder[] {
+  return folders
+    .filter((f) => (f.parent_id ?? null) === parentId)
+    .flatMap((folder) => {
+      const self: FlatFolder = { folder, depth };
+      const children = expandedIds.has(folder.id) ? flatten(folders, expandedIds, folder.id, depth + 1) : [];
+      return [self, ...children];
+    });
 }
 
 function ancestorIds(folders: Folder[], id: string): string[] {
@@ -26,7 +42,16 @@ function ancestorIds(folders: Folder[], id: string): string[] {
   return [folder.parent_id, ...ancestorIds(folders, folder.parent_id)];
 }
 
-export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRename, onDelete, onTogglePin }: FolderListProps) {
+export function FolderList({
+  folders,
+  selectedFolderId,
+  onSelect,
+  onCreate,
+  onRename,
+  onDelete,
+  onTogglePin,
+  dndDisabled,
+}: FolderListProps) {
   const [newName, setNewName] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
@@ -54,101 +79,8 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
     });
   }
 
-  function renderNode(node: TreeNode, depth: number) {
-    const { folder, children } = node;
-    const hasChildren = children.length > 0;
-    const isExpanded = expandedIds.has(folder.id);
-    return (
-      <div key={folder.id} className="shrink-0 md:shrink">
-        <div className={`f-row group ${selectedFolderId === folder.id ? 'active' : ''}`}>
-          {hasChildren ? (
-            <button
-              onClick={() => toggleExpanded(folder.id)}
-              className="twirl hover:text-app-text"
-              style={{ marginLeft: `${depth * 12}px` }}
-              title={isExpanded ? 'Recolher' : 'Expandir'}
-            >
-              {isExpanded ? '▾' : '▸'}
-            </button>
-          ) : (
-            <span className="twirl" style={{ marginLeft: `${depth * 12}px` }} />
-          )}
-          {editingId === folder.id ? (
-            <input
-              autoFocus
-              value={editingName}
-              onChange={(e) => setEditingName(e.target.value)}
-              onBlur={() => {
-                if (editingName.trim()) onRename(folder.id, editingName.trim());
-                setEditingId(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') e.currentTarget.blur();
-              }}
-              size={1}
-              className="w-28 md:w-auto md:flex-1 md:min-w-0 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
-            />
-          ) : (
-            <button
-              onClick={() => onSelect(folder.id)}
-              onDoubleClick={() => {
-                setEditingId(folder.id);
-                setEditingName(folder.name);
-              }}
-              className="name w-28 md:w-auto md:flex-1 text-left truncate"
-            >
-              {folder.name}
-            </button>
-          )}
-          <div className="f-row-actions opacity-100 md:opacity-0 md:group-hover:opacity-100">
-            <button onClick={() => setCreatingUnderId(folder.id)} className="f-icon-btn" title="Nova sub-pasta">
-              <IconPlus />
-            </button>
-            <button
-              onClick={() => onTogglePin(folder)}
-              className={`f-icon-btn ${folder.pinned_at ? 'pin-on' : ''}`}
-              title={folder.pinned_at ? 'Desafixar' : 'Fixar'}
-            >
-              <IconPin filled={!!folder.pinned_at} />
-            </button>
-            <button onClick={() => onDelete(folder.id)} className="f-icon-btn danger" title="Excluir pasta">
-              <IconTrash />
-            </button>
-          </div>
-        </div>
-        {creatingUnderId === folder.id && (
-          <div className="f-new-row" style={{ paddingLeft: `${depth * 12 + 28}px`, paddingRight: 8 }}>
-            <input
-              autoFocus
-              value={creatingName}
-              onChange={(e) => setCreatingName(e.target.value)}
-              onBlur={() => {
-                setCreatingUnderId(null);
-                setCreatingName('');
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && creatingName.trim()) {
-                  onCreate(creatingName.trim(), folder.id);
-                  setExpandedIds((prev) => new Set(prev).add(folder.id));
-                  setCreatingUnderId(null);
-                  setCreatingName('');
-                }
-                if (e.key === 'Escape') {
-                  setCreatingUnderId(null);
-                  setCreatingName('');
-                }
-              }}
-              placeholder="Nova sub-pasta"
-              className="w-28 md:w-full"
-            />
-          </div>
-        )}
-        {hasChildren && isExpanded && children.map((child) => renderNode(child, depth + 1))}
-      </div>
-    );
-  }
-
-  const tree = buildTree(folders, null);
+  const flat = useMemo(() => flatten(folders, expandedIds), [folders, expandedIds]);
+  const sortableIds = useMemo(() => flat.map((f) => f.folder.id), [flat]);
 
   return (
     <div className="flex flex-row md:flex-col overflow-x-auto md:overflow-y-auto scrollbar-hide bg-surface border-b md:border-b-0 md:border-r border-surface-border md:w-[170px] md:shrink-0 md:py-2">
@@ -159,7 +91,52 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
         <span className="twirl" />
         <span className="name">Sem pasta</span>
       </button>
-      {tree.map((node) => renderNode(node, 0))}
+
+      <SortableContext items={sortableIds} strategy={verticalListSortingStrategy}>
+        {flat.map(({ folder, depth }) => (
+          <FolderRow
+            key={folder.id}
+            folder={folder}
+            depth={depth}
+            hasChildren={folders.some((f) => (f.parent_id ?? null) === folder.id)}
+            expanded={expandedIds.has(folder.id)}
+            selected={selectedFolderId === folder.id}
+            editing={editingId === folder.id}
+            editingName={editingName}
+            creating={creatingUnderId === folder.id}
+            creatingName={creatingName}
+            dndDisabled={dndDisabled}
+            onToggleExpand={() => toggleExpanded(folder.id)}
+            onSelect={() => onSelect(folder.id)}
+            onStartEdit={() => {
+              setEditingId(folder.id);
+              setEditingName(folder.name);
+            }}
+            onChangeEditName={setEditingName}
+            onCommitEdit={() => {
+              if (editingName.trim()) onRename(folder.id, editingName.trim());
+              setEditingId(null);
+            }}
+            onStartCreate={() => setCreatingUnderId(folder.id)}
+            onChangeCreateName={setCreatingName}
+            onCommitCreate={() => {
+              if (creatingName.trim()) {
+                onCreate(creatingName.trim(), folder.id);
+                setExpandedIds((prev) => new Set(prev).add(folder.id));
+              }
+              setCreatingUnderId(null);
+              setCreatingName('');
+            }}
+            onCancelCreate={() => {
+              setCreatingUnderId(null);
+              setCreatingName('');
+            }}
+            onTogglePin={() => onTogglePin(folder)}
+            onDelete={() => onDelete(folder.id)}
+          />
+        ))}
+      </SortableContext>
+
       <div className="f-new-row shrink-0 md:shrink" style={{ padding: 8 }}>
         <input
           value={newName}
@@ -175,6 +152,138 @@ export function FolderList({ folders, selectedFolderId, onSelect, onCreate, onRe
         />
       </div>
     </div>
+  );
+}
+
+interface FolderRowProps {
+  folder: Folder;
+  depth: number;
+  hasChildren: boolean;
+  expanded: boolean;
+  selected: boolean;
+  editing: boolean;
+  editingName: string;
+  creating: boolean;
+  creatingName: string;
+  dndDisabled: boolean;
+  onToggleExpand: () => void;
+  onSelect: () => void;
+  onStartEdit: () => void;
+  onChangeEditName: (v: string) => void;
+  onCommitEdit: () => void;
+  onStartCreate: () => void;
+  onChangeCreateName: (v: string) => void;
+  onCommitCreate: () => void;
+  onCancelCreate: () => void;
+  onTogglePin: () => void;
+  onDelete: () => void;
+}
+
+function FolderRow(p: FolderRowProps) {
+  const { folder } = p;
+  const { attributes, listeners, setNodeRef, setActivatorNodeRef, transform, transition, isDragging } = useSortable({
+    id: folder.id,
+    data: { type: 'folder', id: folder.id },
+  });
+  const style: CSSProperties = { transform: CSS.Translate.toString(transform), transition };
+
+  return (
+    <div className="shrink-0 md:shrink" ref={setNodeRef} style={style}>
+      <div className={`f-row group ${p.selected ? 'active' : ''} ${isDragging ? 'dragging' : ''}`}>
+        {p.hasChildren ? (
+          <button
+            onClick={p.onToggleExpand}
+            className="twirl hover:text-app-text"
+            style={{ marginLeft: `${p.depth * INDENT_WIDTH}px` }}
+            title={p.expanded ? 'Recolher' : 'Expandir'}
+          >
+            {p.expanded ? '▾' : '▸'}
+          </button>
+        ) : (
+          <span className="twirl" style={{ marginLeft: `${p.depth * INDENT_WIDTH}px` }} />
+        )}
+
+        {p.editing ? (
+          <input
+            autoFocus
+            value={p.editingName}
+            onChange={(e) => p.onChangeEditName(e.target.value)}
+            onBlur={p.onCommitEdit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') e.currentTarget.blur();
+            }}
+            size={1}
+            className="w-28 md:w-auto md:flex-1 md:min-w-0 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
+          />
+        ) : (
+          <button
+            onClick={p.onSelect}
+            onDoubleClick={p.onStartEdit}
+            className="name w-28 md:w-auto md:flex-1 text-left truncate"
+          >
+            {folder.name}
+          </button>
+        )}
+
+        <div className="f-row-actions opacity-100 md:opacity-0 md:group-hover:opacity-100">
+          {!p.dndDisabled && (
+            <button
+              ref={setActivatorNodeRef}
+              {...attributes}
+              {...listeners}
+              className="drag-grip"
+              title="Arrastar"
+              aria-label="Arrastar pasta"
+            >
+              <IconGrip />
+            </button>
+          )}
+          <button onClick={p.onStartCreate} className="f-icon-btn" title="Nova sub-pasta">
+            <IconPlus />
+          </button>
+          <button
+            onClick={p.onTogglePin}
+            className={`f-icon-btn ${folder.pinned_at ? 'pin-on' : ''}`}
+            title={folder.pinned_at ? 'Desafixar' : 'Fixar'}
+          >
+            <IconPin filled={!!folder.pinned_at} />
+          </button>
+          <button onClick={p.onDelete} className="f-icon-btn danger" title="Excluir pasta">
+            <IconTrash />
+          </button>
+        </div>
+      </div>
+
+      {p.creating && (
+        <div className="f-new-row" style={{ paddingLeft: `${p.depth * INDENT_WIDTH + 28}px`, paddingRight: 8 }}>
+          <input
+            autoFocus
+            value={p.creatingName}
+            onChange={(e) => p.onChangeCreateName(e.target.value)}
+            onBlur={p.onCancelCreate}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && p.creatingName.trim()) p.onCommitCreate();
+              if (e.key === 'Escape') p.onCancelCreate();
+            }}
+            placeholder="Nova sub-pasta"
+            className="w-28 md:w-full"
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IconGrip() {
+  return (
+    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+      <circle cx="7" cy="5" r="1.4" />
+      <circle cx="13" cy="5" r="1.4" />
+      <circle cx="7" cy="10" r="1.4" />
+      <circle cx="13" cy="10" r="1.4" />
+      <circle cx="7" cy="15" r="1.4" />
+      <circle cx="13" cy="15" r="1.4" />
+    </svg>
   );
 }
 

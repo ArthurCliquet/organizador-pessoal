@@ -1,4 +1,17 @@
 import { useEffect, useState, useCallback } from 'react';
+import {
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  closestCenter,
+  type CollisionDetection,
+  type DragStartEvent,
+  type DragEndEvent,
+} from '@dnd-kit/core';
 import type { Folder, Note } from '../types';
 import {
   getFolders,
@@ -17,7 +30,10 @@ import {
   pinNote,
   unpinNote,
   getPinnedNotes,
+  reorderFolders,
+  reorderNotes,
 } from '../features/notes/notesApi';
+import { reorderWithinPinGroup } from '../features/notes/reorder';
 import { FolderList } from '../features/notes/FolderList';
 import { NoteList } from '../features/notes/NoteList';
 import { NoteEditor } from '../features/notes/NoteEditor';
@@ -58,6 +74,7 @@ export function NotesPage() {
   const [confirmDeleteFolder, setConfirmDeleteFolder] = useState<Folder | null>(null);
   const [deleteFolderImpact, setDeleteFolderImpact] = useState<FolderDeletionImpact | null>(null);
   const [pinnedNotes, setPinnedNotes] = useState<Note[]>([]);
+  const [activeDrag, setActiveDrag] = useState<{ type: 'folder' | 'note'; id: string } | null>(null);
 
   useEffect(() => {
     sessionStorage.setItem('notas:selectedFolderId', JSON.stringify(selectedFolderId));
@@ -220,6 +237,99 @@ export function NotesPage() {
     }
   }
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
+    useSensor(KeyboardSensor),
+  );
+
+  const collisionDetectionStrategy: CollisionDetection = useCallback(
+    (args) => {
+      const activeType = args.active.data.current?.type;
+      const folderIds = new Set(folders.map((f) => f.id));
+      if (activeType === 'folder') {
+        return closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter((c) => folderIds.has(String(c.id))),
+        });
+      }
+      if (activeType === 'note') {
+        return closestCenter({
+          ...args,
+          droppableContainers: args.droppableContainers.filter((c) => !folderIds.has(String(c.id))),
+        });
+      }
+      return closestCenter(args);
+    },
+    [folders],
+  );
+
+  function handleDragStart(e: DragStartEvent) {
+    const data = e.active.data.current as { type: 'folder' | 'note'; id: string } | undefined;
+    if (data) setActiveDrag({ type: data.type, id: data.id });
+  }
+
+  async function handleReorderFolders(orderedIds: string[]) {
+    const prev = folders;
+    setFolders((cur) =>
+      cur.map((f) => {
+        const idx = orderedIds.indexOf(f.id);
+        return idx === -1 ? f : { ...f, position: idx };
+      }),
+    );
+    try {
+      await reorderFolders(orderedIds);
+      loadFolders();
+    } catch {
+      setFolders(prev);
+      showError('Não foi possível reordenar as pastas.');
+    }
+  }
+
+  async function handleReorderNotes(orderedIds: string[]) {
+    const prev = notes;
+    setNotes((cur) =>
+      cur.map((n) => {
+        const idx = orderedIds.indexOf(n.id);
+        return idx === -1 ? n : { ...n, position: idx };
+      }),
+    );
+    try {
+      await reorderNotes(orderedIds);
+      loadNotes();
+    } catch {
+      setNotes(prev);
+      showError('Não foi possível reordenar as notas.');
+    }
+  }
+
+  async function handleDragEnd(e: DragEndEvent) {
+    setActiveDrag(null);
+    const activeId = String(e.active.id);
+    const overId = e.over ? String(e.over.id) : null;
+    if (!overId || activeId === overId) return;
+    const type = e.active.data.current?.type;
+
+    if (type === 'folder') {
+      const a = folders.find((f) => f.id === activeId);
+      const o = folders.find((f) => f.id === overId);
+      if (!a || !o || (a.parent_id ?? null) !== (o.parent_id ?? null)) return;
+      const group = sortedFolders.filter((f) => (f.parent_id ?? null) === (a.parent_id ?? null));
+      const ordered = reorderWithinPinGroup(group, activeId, overId);
+      if (ordered) await handleReorderFolders(ordered);
+      return;
+    }
+
+    if (type === 'note') {
+      const ordered = reorderWithinPinGroup(sortedNotes, activeId, overId);
+      if (ordered) await handleReorderNotes(ordered);
+    }
+  }
+
+  function handleDragCancel() {
+    setActiveDrag(null);
+  }
+
   return (
     <div className="p-4 md:p-6 flex flex-col h-full min-h-[calc(100vh-57px)]">
       <div className="mb-4 max-w-xs">
@@ -232,46 +342,65 @@ export function NotesPage() {
       </div>
 
       <div className="flex-1 min-h-0 border border-surface-border rounded overflow-hidden flex flex-col md:flex-row">
-        <div
-          className={`${selectedNoteId ? 'hidden' : 'flex'} md:flex flex-1 md:flex-none flex-col md:flex-row w-full md:w-auto min-h-0`}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={collisionDetectionStrategy}
+          onDragStart={handleDragStart}
+          onDragEnd={handleDragEnd}
+          onDragCancel={handleDragCancel}
         >
-          <FolderList
-            folders={sortedFolders}
-            selectedFolderId={selectedFolderId}
-            onSelect={handleSelectFolder}
-            onTogglePin={handleTogglePinFolder}
-            onCreate={async (name, parentId) => {
-              try {
-                await createFolder(name, parentId);
-                loadFolders();
-              } catch {
-                showError('Não foi possível criar a pasta.');
-              }
-            }}
-            onRename={async (id, name) => {
-              try {
-                await renameFolder(id, name);
-                loadFolders();
-              } catch {
-                showError('Não foi possível renomear a pasta.');
-              }
-            }}
-            onDelete={handleOpenDeleteFolderConfirm}
-          />
-          <div className="flex-1 min-h-0 md:flex-none md:w-56 md:shrink-0 md:border-r border-surface-border flex flex-col">
-            <NoteList
-              notes={sortedNotes}
-              selectedNoteId={selectedNoteId}
-              onSelect={handleSelectNote}
-              onCreate={handleCreateNote}
-              onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
-              onTogglePin={handleTogglePinNote}
-              folders={trimmedQuery ? matchedFolders : childFolders}
-              onSelectFolder={handleSelectFolder}
-              emptyMessage={trimmedQuery ? 'Nenhum resultado encontrado' : 'Nenhuma nota aqui'}
+          <div
+            className={`${selectedNoteId ? 'hidden' : 'flex'} md:flex flex-1 md:flex-none flex-col md:flex-row w-full md:w-auto min-h-0`}
+          >
+            <FolderList
+              folders={sortedFolders}
+              selectedFolderId={selectedFolderId}
+              dndDisabled={!!trimmedQuery}
+              onSelect={handleSelectFolder}
+              onTogglePin={handleTogglePinFolder}
+              onCreate={async (name, parentId) => {
+                try {
+                  await createFolder(name, parentId);
+                  loadFolders();
+                } catch {
+                  showError('Não foi possível criar a pasta.');
+                }
+              }}
+              onRename={async (id, name) => {
+                try {
+                  await renameFolder(id, name);
+                  loadFolders();
+                } catch {
+                  showError('Não foi possível renomear a pasta.');
+                }
+              }}
+              onDelete={handleOpenDeleteFolderConfirm}
             />
+            <div className="flex-1 min-h-0 md:flex-none md:w-56 md:shrink-0 md:border-r border-surface-border flex flex-col">
+              <NoteList
+                notes={sortedNotes}
+                selectedNoteId={selectedNoteId}
+                dndDisabled={!!trimmedQuery}
+                onSelect={handleSelectNote}
+                onCreate={handleCreateNote}
+                onDelete={(id) => setConfirmDeleteNote(notes.find((n) => n.id === id) ?? null)}
+                onTogglePin={handleTogglePinNote}
+                folders={trimmedQuery ? matchedFolders : childFolders}
+                onSelectFolder={handleSelectFolder}
+                emptyMessage={trimmedQuery ? 'Nenhum resultado encontrado' : 'Nenhuma nota aqui'}
+              />
+            </div>
           </div>
-        </div>
+          <DragOverlay dropAnimation={null}>
+            {activeDrag ? (
+              <div className="drag-overlay-row">
+                {activeDrag.type === 'folder'
+                  ? folders.find((f) => f.id === activeDrag.id)?.name
+                  : notes.find((n) => n.id === activeDrag.id)?.title || 'Sem título'}
+              </div>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
         <div className={`${selectedNoteId ? 'block' : 'hidden'} md:block flex-1 min-w-0 bg-surface`}>
           {selectedNote ? (
             <NoteEditor

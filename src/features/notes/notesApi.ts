@@ -2,16 +2,19 @@ import { supabase } from '../../lib/supabase';
 import type { Folder, Note } from '../../types';
 
 export async function getFolders(): Promise<Folder[]> {
-  const { data, error } = await supabase.from('folders').select('*').order('name');
+  const { data, error } = await supabase.from('folders').select('*').order('position');
   if (error) throw error;
   return data;
 }
 
 export async function createFolder(name: string, parentId: string | null = null): Promise<Folder> {
   const { data: userData } = await supabase.auth.getUser();
+  const q = supabase.from('folders').select('position').order('position', { ascending: false }).limit(1);
+  const { data: last } = parentId === null ? await q.is('parent_id', null) : await q.eq('parent_id', parentId);
+  const position = (last?.[0]?.position ?? -1) + 1;
   const { data, error } = await supabase
     .from('folders')
-    .insert({ name, parent_id: parentId, user_id: userData.user!.id })
+    .insert({ name, parent_id: parentId, position, user_id: userData.user!.id })
     .select()
     .single();
   if (error) throw error;
@@ -26,6 +29,22 @@ export async function renameFolder(id: string, name: string): Promise<void> {
 export async function deleteFolder(id: string): Promise<void> {
   const { error } = await supabase.from('folders').delete().eq('id', id);
   if (error) throw error;
+}
+
+async function renumber(table: 'folders' | 'notes', orderedIds: string[]): Promise<void> {
+  const results = await Promise.all(
+    orderedIds.map((id, index) => supabase.from(table).update({ position: index }).eq('id', id)),
+  );
+  const failed = results.find((r) => r.error);
+  if (failed?.error) throw failed.error;
+}
+
+export async function reorderFolders(orderedIds: string[]): Promise<void> {
+  await renumber('folders', orderedIds);
+}
+
+export async function reorderNotes(orderedIds: string[]): Promise<void> {
+  await renumber('notes', orderedIds);
 }
 
 export function getDescendantFolderIds(folders: Folder[], id: string): string[] {
@@ -58,7 +77,7 @@ export async function unpinFolder(id: string): Promise<void> {
 }
 
 export async function getNotes(folderId: string | null): Promise<Note[]> {
-  const base = supabase.from('notes').select('*').order('updated_at', { ascending: false });
+  const base = supabase.from('notes').select('*').order('position');
   const { data, error } = folderId === null ? await base.is('folder_id', null) : await base.eq('folder_id', folderId);
   if (error) throw error;
   return data;
@@ -93,9 +112,12 @@ export async function touchNoteViewed(id: string): Promise<void> {
 
 export async function createNote(folderId: string | null, title: string, content: string): Promise<Note> {
   const { data: userData } = await supabase.auth.getUser();
+  const q = supabase.from('notes').select('position').order('position', { ascending: true }).limit(1);
+  const { data: first } = folderId === null ? await q.is('folder_id', null) : await q.eq('folder_id', folderId);
+  const position = (first?.[0]?.position ?? 0) - 1;
   const { data, error } = await supabase
     .from('notes')
-    .insert({ folder_id: folderId, title, content, user_id: userData.user!.id })
+    .insert({ folder_id: folderId, title, content, position, user_id: userData.user!.id })
     .select()
     .single();
   if (error) throw error;
