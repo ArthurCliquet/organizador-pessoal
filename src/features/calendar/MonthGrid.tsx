@@ -16,15 +16,15 @@ export function MonthGrid({ year, month, tasksByDate, selectedDate, onSelectDay 
   const today = toISODate(new Date());
 
   return (
-    <div className="bg-surface border border-surface-border rounded-card shadow-card p-3 md:p-3.5">
-      <div className="grid grid-cols-7">
+    <div className="bg-surface border border-surface-border rounded-card shadow-card p-3 md:p-3.5 md:min-h-0 md:flex md:flex-col md:overflow-hidden">
+      <div className="grid grid-cols-7 md:shrink-0">
         {WEEKDAYS.map((w) => (
           <div key={w} className="text-center font-mono text-[0.62rem] tracking-widest uppercase text-app-muted-2 pb-2.5">
             {w}
           </div>
         ))}
       </div>
-      <div className="grid grid-cols-7 gap-1.5">
+      <div className="grid grid-cols-7 gap-1.5 md:flex-1 md:min-h-0 md:overflow-y-auto scrollbar-thin md:[grid-auto-rows:minmax(3.25rem,1fr)]">
         {days.map((day) => {
           const iso = toISODate(day);
           const inMonth = day.getMonth() === month;
@@ -54,7 +54,7 @@ export function MonthGrid({ year, month, tasksByDate, selectedDate, onSelectDay 
             <button
               key={iso}
               onClick={() => onSelectDay(iso)}
-              className={`relative aspect-[1/0.92] rounded-xl p-2 flex flex-col items-start gap-1 transition-colors ${
+              className={`relative aspect-[1/0.92] md:aspect-auto md:min-h-0 overflow-hidden rounded-xl p-2 flex flex-col items-start gap-1 transition-colors ${
                 isSelected
                   ? 'bg-primary shadow-[0_0_0_3px_var(--color-primary-dim)]'
                   : inMonth

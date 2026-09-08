@@ -72,9 +72,9 @@ export function CalendarPage() {
   }, [tasksByDate, month]);
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative overflow-hidden md:h-full md:flex md:flex-col">
       <div className="dash-glow" />
-      <div className="relative p-4 md:p-6 max-w-7xl mx-auto">
+      <div className="relative p-4 md:p-6 max-w-7xl w-full mx-auto md:flex-1 md:flex md:flex-col md:min-h-0">
         <MonthHeader
           year={year}
           month={month}
@@ -86,7 +86,7 @@ export function CalendarPage() {
           onOpenRecurring={() => setRecurringOpen(true)}
         />
 
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 md:items-start">
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 md:items-stretch md:flex-1 md:min-h-0 md:[grid-template-rows:minmax(0,1fr)]">
           <MonthGrid
             year={year}
             month={month}
@@ -94,7 +94,7 @@ export function CalendarPage() {
             selectedDate={selectedDate}
             onSelectDay={setSelectedDate}
           />
-          <div className="md:sticky md:top-6 md:max-h-[calc(100vh-3rem)] md:flex md:flex-col md:min-h-0">
+          <div className="md:min-h-0">
             {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
           </div>
         </div>

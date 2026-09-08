@@ -21,7 +21,7 @@ export function MonthHeader({
     'w-8 h-8 flex items-center justify-center rounded-lg border border-surface-border text-app-muted hover:text-app-text hover:bg-white/[0.04] transition-colors font-mono';
 
   return (
-    <div className="relative pt-4 mb-8">
+    <div className="relative pt-4 mb-8 md:shrink-0">
       <div className="day-pad-sliver day-pad-sliver-2" />
       <div className="day-pad-sliver" />
 

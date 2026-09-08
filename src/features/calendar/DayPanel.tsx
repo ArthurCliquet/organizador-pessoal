@@ -155,9 +155,9 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   }
 
   return (
-    <div className="md:flex md:flex-col md:min-h-0">
+    <div className="md:h-full md:flex md:flex-col md:min-h-0">
       <div className="tear-rule shrink-0"><span /><i /><span /></div>
-      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5 md:flex md:flex-col md:min-h-0">
+      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5 md:flex-1 md:flex md:flex-col md:min-h-0">
         <div className="hero-texture" />
 
         <div className="relative flex items-baseline gap-3 pb-4 mb-4 border-b border-surface-border shrink-0">
