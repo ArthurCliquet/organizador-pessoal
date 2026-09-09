@@ -11,14 +11,14 @@ import { toISODate } from '../features/calendar/dateUtils';
 
 export function DashboardPage() {
   const today = toISODate(new Date());
-  const [agendaCounts, setAgendaCounts] = useState({ tasks: 0, events: 0 });
+  const [agendaCounts, setAgendaCounts] = useState({ tasks: 0, events: 0, total: 0, done: 0 });
   const [habitCounts, setHabitCounts] = useState({ done: 0, total: 0 });
 
   // Stable references: TodayAgenda/HabitStrip call these from a useEffect keyed
   // partly on the callback itself, so a fresh arrow function every render
   // re-triggers that effect forever ("Maximum update depth exceeded").
-  const handleAgendaCounts = useCallback((tasks: number, events: number) => {
-    setAgendaCounts({ tasks, events });
+  const handleAgendaCounts = useCallback((tasks: number, events: number, total: number, done: number) => {
+    setAgendaCounts({ tasks, events, total, done });
   }, []);
   const handleHabitCounts = useCallback((done: number, total: number) => {
     setHabitCounts({ done, total });
@@ -29,8 +29,8 @@ export function DashboardPage() {
       <div className="dash-glow" />
       <div className="relative p-4 md:p-6 max-w-7xl mx-auto">
         <DayHeader
-          taskCount={agendaCounts.tasks}
-          eventCount={agendaCounts.events}
+          taskDone={agendaCounts.done}
+          taskTotal={agendaCounts.total}
           habitDone={habitCounts.done}
           habitTotal={habitCounts.total}
         />

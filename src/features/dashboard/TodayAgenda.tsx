@@ -11,7 +11,7 @@ type DayItem =
   | { kind: 'recurring'; id: string; title: string; time: string | null; done: boolean };
 
 interface TodayAgendaProps {
-  onCountsChange?: (taskCount: number, eventCount: number) => void;
+  onCountsChange?: (taskCount: number, eventCount: number, dayTotal: number, dayDone: number) => void;
   rail?: ReactNode;
 }
 
@@ -57,10 +57,11 @@ export function TodayAgenda({ onCountsChange, rail }: TodayAgendaProps) {
 
   const eventCount = dayItems.filter((item) => item.kind === 'task' && item.isSpecialEvent).length;
   const taskCount = dayItems.length - eventCount;
+  const dayDone = dayItems.filter((item) => item.done).length;
 
   useEffect(() => {
-    onCountsChange?.(taskCount, eventCount);
-  }, [taskCount, eventCount, onCountsChange]);
+    onCountsChange?.(taskCount, eventCount, dayItems.length, dayDone);
+  }, [taskCount, eventCount, dayItems.length, dayDone, onCountsChange]);
 
   async function handleToggle(item: DayItem) {
     if (item.kind === 'task') {
