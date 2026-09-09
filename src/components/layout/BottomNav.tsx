@@ -1,13 +1,15 @@
 import { useState } from 'react';
+import type { LucideIcon } from 'lucide-react';
+import { CalendarDays, NotebookPen, Sun, Wallet } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { emailInitials } from '../../lib/emailInitials';
 
-const links = [
-  { to: '/', label: 'Hoje' },
-  { to: '/notas', label: 'Notas' },
-  { to: '/calendario', label: 'Calendário' },
-  { to: '/financas', label: 'Finanças' },
+const links: { to: string; label: string; icon: LucideIcon }[] = [
+  { to: '/', label: 'Hoje', icon: Sun },
+  { to: '/notas', label: 'Notas', icon: NotebookPen },
+  { to: '/calendario', label: 'Calendário', icon: CalendarDays },
+  { to: '/financas', label: 'Finanças', icon: Wallet },
 ];
 
 export function BottomNav() {
@@ -17,16 +19,18 @@ export function BottomNav() {
   return (
     <>
       <nav className="flex md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-surface-border">
-        {links.map((link) => (
+        {links.map(({ to, label, icon: Icon }) => (
           <NavLink
-            key={link.to}
-            to={link.to}
-            end={link.to === '/'}
+            key={to}
+            to={to}
+            end={to === '/'}
+            title={label}
+            aria-label={label}
             className={({ isActive }) =>
-              `flex-1 text-center py-3 font-mono text-xs ${isActive ? 'text-primary font-bold' : 'text-app-muted'}`
+              `flex-1 flex items-center justify-center py-3 ${isActive ? 'text-primary' : 'text-app-muted'}`
             }
           >
-            {link.label}
+            <Icon size={20} strokeWidth={2} aria-hidden="true" />
           </NavLink>
         ))}
         <button
