@@ -21,7 +21,7 @@ export function MonthHeader({
     'w-8 h-8 flex items-center justify-center rounded-lg border border-surface-border text-app-muted hover:text-app-text hover:bg-white/[0.04] transition-colors font-mono';
 
   return (
-    <div className="relative pt-4 mb-8 md:shrink-0">
+    <div className="relative pt-4 mb-6 md:shrink-0">
       <div className="day-pad-sliver day-pad-sliver-2" />
       <div className="day-pad-sliver" />
 
@@ -29,7 +29,7 @@ export function MonthHeader({
         Tarefas recorrentes <span className="go-arrow" aria-hidden="true">→</span>
       </button>
 
-      <div className="animate-card-settle relative z-[1] bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-6 overflow-hidden">
+      <div className="animate-card-settle relative z-[1] bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-5 overflow-hidden">
         <div className="hero-texture" />
 
         <div className="relative flex items-end justify-between gap-4 flex-wrap">
@@ -52,7 +52,7 @@ export function MonthHeader({
           </div>
         </div>
 
-        <p className="relative font-mono text-xs text-app-muted mt-5 flex items-center gap-2 flex-wrap">
+        <p className="relative font-mono text-xs text-app-muted mt-4 flex items-center gap-2 flex-wrap">
           <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
           <span>
             <b className="text-primary-bright font-semibold">{monthTaskCount}</b>{' '}
