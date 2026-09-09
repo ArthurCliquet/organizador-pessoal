@@ -213,7 +213,12 @@ export function FinancePage() {
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto flex flex-col gap-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-2">
-        <h1 className="font-display text-2xl font-semibold">Finanças</h1>
+        <h1
+          className="font-display text-2xl md:text-[1.65rem] leading-none font-semibold -tracking-[0.01em] text-app-text w-fit pb-1.5 border-b-[3px] border-double border-primary/40"
+          style={{ fontOpticalSizing: 'none', fontVariationSettings: "'opsz' 120" }}
+        >
+          Finanças
+        </h1>
         <div className="flex flex-col-reverse gap-2 md:flex-row md:items-center">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
             <button
