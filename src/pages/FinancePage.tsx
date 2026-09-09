@@ -12,6 +12,8 @@ import {
   updateAccountName,
   deleteAccount,
   createTransaction,
+  updateTransaction,
+  deleteTransaction,
   createTransfer,
   updateInvestmentValue,
   calculateContributedTotal,
@@ -38,6 +40,7 @@ export function FinancePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [newAccountOpen, setNewAccountOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [manageAccountsOpen, setManageAccountsOpen] = useState(false);
@@ -184,6 +187,36 @@ export function FinancePage() {
     }
   }
 
+  async function handleUpdateTransaction(
+    id: string,
+    input: {
+      type: 'income' | 'expense';
+      amount: number;
+      description: string;
+      date: string;
+      categoryId: string | null;
+      accountId: string;
+    },
+  ) {
+    try {
+      await updateTransaction(id, input);
+      setTransactions(await getTransactions());
+      setEditingTransaction(null);
+    } catch {
+      showError('Não foi possível atualizar a movimentação.');
+    }
+  }
+
+  async function handleDeleteTransaction(id: string) {
+    try {
+      await deleteTransaction(id);
+      setTransactions(await getTransactions());
+      setEditingTransaction(null);
+    } catch {
+      showError('Não foi possível excluir a movimentação.');
+    }
+  }
+
   if (loading) {
     return (
       <div className="p-4 md:p-6 flex items-center justify-center min-h-[50vh]">
@@ -287,7 +320,12 @@ export function FinancePage() {
       </Card>
 
       <Card>
-        <RecentTransactions transactions={transactions} categories={categories} accounts={accounts} />
+        <RecentTransactions
+          transactions={transactions}
+          categories={categories}
+          accounts={accounts}
+          onEdit={setEditingTransaction}
+        />
       </Card>
 
       {addOpen && (
@@ -296,6 +334,17 @@ export function FinancePage() {
           accounts={accounts}
           onCancel={() => setAddOpen(false)}
           onSave={handleCreateTransaction}
+        />
+      )}
+
+      {editingTransaction && (
+        <AddTransactionModal
+          categories={categories}
+          accounts={accounts}
+          transaction={editingTransaction}
+          onCancel={() => setEditingTransaction(null)}
+          onSave={(input) => handleUpdateTransaction(editingTransaction.id, input)}
+          onDelete={() => handleDeleteTransaction(editingTransaction.id)}
         />
       )}
 

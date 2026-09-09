@@ -8,9 +8,10 @@ interface RecentTransactionsProps {
   transactions: Transaction[];
   categories: Category[];
   accounts: Account[];
+  onEdit?: (transaction: Transaction) => void;
 }
 
-export function RecentTransactions({ transactions, categories, accounts }: RecentTransactionsProps) {
+export function RecentTransactions({ transactions, categories, accounts, onEdit }: RecentTransactionsProps) {
   const now = new Date();
   const monthStart = toISODate(startOfMonth(now));
   const monthEnd = toISODate(endOfMonth(now));
@@ -30,10 +31,27 @@ export function RecentTransactions({ transactions, categories, accounts }: Recen
       <h2 className="font-display text-lg font-semibold mb-4">Últimas movimentações</h2>
       {recent.length === 0 && <p className="text-sm text-app-muted">Nenhuma movimentação ainda</p>}
       <div className={`flex flex-col ${recent.length > 5 ? 'max-h-[300px] overflow-y-auto overflow-x-hidden scrollbar-thin pr-1' : ''}`}>
-        {recent.map((t) => (
+        {recent.map((t) => {
+          const editable = t.type !== 'transfer' && !!onEdit;
+          return (
           <div
             key={t.id}
-            className="flex items-center justify-between gap-3 py-2.5 px-1.5 -mx-1.5 border-b border-surface-2 last:border-none"
+            onClick={editable ? () => onEdit!(t) : undefined}
+            role={editable ? 'button' : undefined}
+            tabIndex={editable ? 0 : undefined}
+            onKeyDown={
+              editable
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      onEdit!(t);
+                    }
+                  }
+                : undefined
+            }
+            className={`flex items-center justify-between gap-3 py-2.5 px-1.5 -mx-1.5 border-b border-surface-2 last:border-none ${
+              editable ? 'cursor-pointer hover:bg-surface-2 rounded outline-none focus-visible:bg-surface-2' : ''
+            }`}
           >
             <div className="min-w-0">
               <p className="text-sm text-app-text truncate">
@@ -54,7 +72,8 @@ export function RecentTransactions({ transactions, categories, accounts }: Recen
               {formatCurrency(t.amount)}
             </span>
           </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

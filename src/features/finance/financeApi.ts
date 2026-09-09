@@ -87,6 +87,39 @@ export async function createTransaction(input: {
   return data;
 }
 
+export async function updateTransaction(
+  id: string,
+  input: {
+    accountId: string;
+    categoryId: string | null;
+    type: 'income' | 'expense';
+    amount: number;
+    description: string;
+    date: string;
+  },
+): Promise<Transaction> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({
+      account_id: input.accountId,
+      category_id: input.categoryId,
+      type: input.type,
+      amount: input.amount,
+      description: input.description,
+      date: input.date,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+export async function deleteTransaction(id: string): Promise<void> {
+  const { error } = await supabase.from('transactions').delete().eq('id', id);
+  if (error) throw error;
+}
+
 export async function createTransfer(input: {
   fromAccountId: string;
   toAccountId: string;

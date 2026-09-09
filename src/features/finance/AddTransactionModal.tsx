@@ -1,11 +1,13 @@
 import { useState } from 'react';
-import type { Account, Category } from '../../types';
+import type { Account, Category, Transaction } from '../../types';
 import { toISODate } from '../calendar/dateUtils';
-import { parseCurrencyInput } from '../../lib/currency';
+import { parseCurrencyInput, formatAmountForInput } from '../../lib/currency';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 
 interface AddTransactionModalProps {
   categories: Category[];
   accounts: Account[];
+  transaction?: Transaction | null;
   onCancel: () => void;
   onSave: (input: {
     type: 'income' | 'expense';
@@ -15,16 +17,30 @@ interface AddTransactionModalProps {
     categoryId: string | null;
     accountId: string;
   }) => void;
+  onDelete?: () => void;
 }
 
-export function AddTransactionModal({ categories, accounts, onCancel, onSave }: AddTransactionModalProps) {
-  const [type, setType] = useState<'income' | 'expense'>('expense');
-  const [description, setDescription] = useState('');
-  const [amount, setAmount] = useState('');
-  const [date, setDate] = useState(toISODate(new Date()));
-  const [categoryId, setCategoryId] = useState('');
-  const [accountId, setAccountId] = useState(accounts.find((a) => !a.is_investment)?.id ?? '');
+export function AddTransactionModal({
+  categories,
+  accounts,
+  transaction,
+  onCancel,
+  onSave,
+  onDelete,
+}: AddTransactionModalProps) {
+  const isEditing = !!transaction;
+  const [type, setType] = useState<'income' | 'expense'>(
+    transaction && transaction.type !== 'transfer' ? transaction.type : 'expense',
+  );
+  const [description, setDescription] = useState(transaction?.description ?? '');
+  const [amount, setAmount] = useState(transaction ? formatAmountForInput(Number(transaction.amount)) : '');
+  const [date, setDate] = useState(transaction?.date ?? toISODate(new Date()));
+  const [categoryId, setCategoryId] = useState(transaction?.category_id ?? '');
+  const [accountId, setAccountId] = useState(
+    transaction?.account_id ?? accounts.find((a) => !a.is_investment)?.id ?? '',
+  );
   const [amountError, setAmountError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const filteredCategories = categories.filter((c) => c.type === type);
 
@@ -41,12 +57,13 @@ export function AddTransactionModal({ categories, accounts, onCancel, onSave }: 
   }
 
   return (
+    <>
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onCancel}>
       <div
         className="bg-surface border border-surface-border rounded p-6 max-w-sm w-full flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-display text-lg">Nova movimentação</h3>
+        <h3 className="font-display text-lg">{isEditing ? 'Editar movimentação' : 'Nova movimentação'}</h3>
 
         <div className="flex gap-2">
           <button
@@ -122,15 +139,36 @@ export function AddTransactionModal({ categories, accounts, onCancel, onSave }: 
             ))}
         </select>
 
-        <div className="flex justify-end gap-2 mt-1">
-          <button type="button" onClick={onCancel} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
-            Cancelar
-          </button>
-          <button type="button" onClick={handleSubmit} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
-            Salvar
-          </button>
+        <div className="flex items-center gap-2 mt-1">
+          {isEditing && onDelete && (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="font-mono text-xs px-3 py-2 rounded text-danger hover:bg-danger/10"
+            >
+              Excluir
+            </button>
+          )}
+          <div className="flex justify-end gap-2 ml-auto">
+            <button type="button" onClick={onCancel} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
+              Cancelar
+            </button>
+            <button type="button" onClick={handleSubmit} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
+              Salvar
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
+      {confirmDelete && onDelete && (
+        <ConfirmDialog
+          title="Excluir movimentação"
+          message="Esta movimentação será removida e os saldos serão recalculados."
+          onConfirm={onDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
+    </>
   );
 }
