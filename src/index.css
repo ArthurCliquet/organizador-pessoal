@@ -731,21 +731,37 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
 }
 
-.habit-more-link {
-  flex-shrink: 0;
+/* Ação padrão no rodapé de um card (ex.: "nova pendência", "gerenciar hábitos") */
+.card-foot-action {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin-top: auto;
+  padding: 0.5rem 0.85rem;
+  border: 1px dashed var(--color-surface-border);
+  border-radius: 11px;
   font-family: var(--font-mono);
-  font-size: 0.78rem;
-  color: var(--color-app-muted);
-  white-space: nowrap;
-  padding: 0.3rem 0 0.3rem 0.3rem;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+  font-size: 0.8rem;
+  letter-spacing: 0.01em;
+  color: var(--color-app-muted-2);
+  text-align: left;
+  transition: color 0.16s ease, border-color 0.16s ease, background-color 0.16s ease;
 }
-.habit-more-link:hover,
-.habit-more-link:focus-visible {
-  color: var(--color-primary-bright);
-  text-decoration-color: var(--color-primary-bright);
+.card-foot-action svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+  transition: opacity 0.16s ease;
+}
+.card-foot-action:hover,
+.card-foot-action:focus-visible {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 40%, var(--color-surface-border));
+  background-color: color-mix(in srgb, var(--color-primary) 5%, transparent);
+}
+.card-foot-action:hover svg,
+.card-foot-action:focus-visible svg {
+  opacity: 1;
 }
 
 /* ---- Dashboard: vertical day rail (Agenda card) ---- */

@@ -109,7 +109,7 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
         {habits.length > 0 && <HabitProgressRing done={done} total={habits.length} size={30} />}
       </div>
 
-      <div className="flex flex-col gap-0.5">
+      <div className="flex flex-col gap-0.5 mb-3">
         {habits.map((habit) => (
           <label
             key={habit.id}
@@ -122,8 +122,13 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
         {habits.length === 0 && <p className="text-sm text-app-muted">Nenhum hábito ainda</p>}
       </div>
 
-      <button type="button" onClick={() => setManaging(true)} className="habit-more-link mt-2">
-        ver mais
+      <button type="button" onClick={() => setManaging(true)} className="card-foot-action">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <path d="M2 4.5h7M2 11.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="11.5" cy="4.5" r="1.9" stroke="currentColor" strokeWidth="1.6" />
+          <circle cx="8.5" cy="11.5" r="1.9" stroke="currentColor" strokeWidth="1.6" />
+        </svg>
+        gerenciar hábitos
       </button>
 
       {managing && (

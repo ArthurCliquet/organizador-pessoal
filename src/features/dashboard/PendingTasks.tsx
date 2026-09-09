@@ -115,12 +115,11 @@ export function PendingTasks() {
           </button>
         </form>
       ) : (
-        <button
-          type="button"
-          onClick={() => setIsAdding(true)}
-          className="flex items-center gap-2 w-full border border-dashed border-surface-border rounded-[11px] px-3 py-2 text-left font-mono text-sm text-app-muted-2 hover:text-primary hover:border-app-muted transition-colors"
-        >
-          + Nova pendência
+        <button type="button" onClick={() => setIsAdding(true)} className="card-foot-action">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+            <path d="M8 3v10M3 8h10" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+          nova pendência
         </button>
       )}
     </div>
