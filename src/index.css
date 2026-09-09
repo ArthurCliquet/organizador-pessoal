@@ -858,7 +858,7 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   color: var(--color-app-muted-2);
 }
 
-.drawer-right { left: auto; right: 0; }
+.drawer.drawer-right { left: auto; right: 0; }
 
 .bubble-sep {
   align-self: stretch;
