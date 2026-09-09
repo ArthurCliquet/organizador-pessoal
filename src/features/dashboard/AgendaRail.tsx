@@ -62,7 +62,7 @@ export function AgendaRail() {
             {formatWeekdayAbbrev(day.date)}
             {i === 0 ? ' · hoje' : ''}
           </span>
-          <span className={`font-display text-lg font-semibold leading-none ${i === 0 ? 'text-app-text' : 'text-app-muted'}`}>
+          <span className={`font-display text-xl font-semibold leading-none ${i === 0 ? 'text-app-text' : 'text-app-muted'}`}>
             {day.date.getDate()}
           </span>
         </Link>
