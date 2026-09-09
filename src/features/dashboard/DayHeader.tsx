@@ -68,24 +68,18 @@ export function DayHeader({ taskDone, taskTotal, habitDone, habitTotal }: DayHea
   const greeting = name ? `${hello}, ${name}!` : `${hello}!`;
 
   return (
-    <div className="relative mb-6">
+    <div className="relative pt-4 mb-6">
       <div className="day-pad-sliver day-pad-sliver-2" />
       <div className="day-pad-sliver" />
+
+      <Link to="/revisao-semanal" className="day-pad-tab">
+        Revisão semanal <span className="go-arrow" aria-hidden="true">→</span>
+      </Link>
 
       <div className="animate-card-settle relative z-[1] bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-5 overflow-hidden">
         <div className="hero-texture" />
 
         <div className="relative flex flex-col gap-5 md:flex-row md:items-center md:gap-8">
-          <Link
-            to="/revisao-semanal"
-            className="group order-first self-end md:order-last md:self-auto shrink-0 inline-flex items-center gap-1.5 rounded-full border border-surface-border bg-surface-2 px-3.5 py-2 font-mono text-[0.62rem] uppercase tracking-[0.08em] text-app-muted transition-colors hover:border-primary/40 hover:text-primary-bright"
-          >
-            Revisão semanal
-            <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5">
-              →
-            </span>
-          </Link>
-
           <div className="flex items-start gap-4 shrink-0">
             <span className="font-display text-6xl md:text-7xl text-primary-bright font-semibold leading-none tracking-tight shrink-0">
               {now.getDate()}
@@ -102,7 +96,7 @@ export function DayHeader({ taskDone, taskTotal, habitDone, habitTotal }: DayHea
             </div>
           </div>
 
-          <div className="flex-1 grid gap-x-10 gap-y-4 sm:grid-cols-2 md:pr-4">
+          <div className="flex-1 grid gap-x-10 gap-y-4 sm:grid-cols-2 md:mt-1 md:pr-4">
             <ProgressMeter label="Tarefas do dia" done={taskDone} total={taskTotal} tone="primary" />
             <ProgressMeter label="Hábitos" done={habitDone} total={habitTotal} tone="success" />
           </div>
