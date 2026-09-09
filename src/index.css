@@ -820,61 +820,52 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   }
 }
 
-/* ---- Notes: edit tray — grouped grooves of raised keys, like a
-   compositor's tray. What's reached for constantly (marks, headings,
-   structure) stays in view; table/image/rule live one press away in the
-   insert drawer. Group labels reuse the .day-pad-tab filing-tab device. ---- */
+/* ---- Notes: editor header — title as the document's own field, with a
+   discreet metadata line (folder • last edited) below it. Formatting lives
+   in the floating selection bubble (.bubble); only insert (table/image/rule)
+   keeps a persistent affordance, tucked at the end of the title row. ---- */
 
-.tray {
+.note-head {
+  border-bottom: 1px solid var(--color-surface-border);
+  padding: 12px 16px 10px;
+}
+
+.note-head-row {
   display: flex;
-  align-items: flex-end;
-  gap: 14px;
-  padding: 10px 16px 12px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
 }
 
-.tray-unit { display: flex; flex-direction: column; align-items: flex-start; }
-
-.tray-unit-label {
-  font-family: var(--font-mono);
-  font-size: 0.56rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--color-app-muted);
-  background: var(--color-surface-hi);
-  border: 1px solid var(--color-surface-border);
-  border-bottom: none;
-  border-radius: 5px 5px 0 0;
-  padding: 2px 7px 4px;
-  margin-left: 7px;
-  position: relative;
-  z-index: 1;
-}
-.tray-unit-label.bare {
-  background: none;
+.note-title-input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
   border: none;
-  padding: 0 0 4px 0;
-  margin-left: 0;
+  padding: 0;
+  outline: none;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--color-app-text);
+}
+.note-title-input::placeholder { color: var(--color-app-muted-2); }
+
+.note-meta {
+  margin-top: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.03em;
   color: var(--color-app-muted-2);
 }
 
-.groove {
-  display: flex;
-  gap: 3px;
-  padding: 4px;
-  border-radius: 0 8px 8px 8px;
-  background: color-mix(in srgb, var(--color-app-bg) 88%, black);
-  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.6), inset 0 0 0 1px var(--color-surface-border);
-  position: relative;
-}
-.groove::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background-image: repeating-linear-gradient(100deg, rgba(255, 255, 255, 0.03) 0px, rgba(255, 255, 255, 0.03) 1px, transparent 1px, transparent 4px);
-  opacity: 0.5;
-  pointer-events: none;
+.drawer-right { left: auto; right: 0; }
+
+.bubble-sep {
+  align-self: stretch;
+  width: 1px;
+  margin: 2px 3px;
+  background: var(--color-surface-border);
+  flex-shrink: 0;
 }
 
 .key {
@@ -999,7 +990,10 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 /* floating selection bubble (TipTap BubbleMenu) */
 .bubble {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 2px;
+  max-width: min(92vw, 430px);
   padding: 4px;
   background: var(--color-surface-hi);
   border: 1px solid var(--color-surface-border);
@@ -1157,6 +1151,17 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   flex-shrink: 0;
   transition: opacity 0.12s ease;
 }
+.n-pin-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  color: var(--color-primary);
+}
+.n-pin-badge svg { width: 12px; height: 12px; display: block; }
+
 .n-pin {
   font-family: var(--font-mono);
   font-size: 0.62rem;

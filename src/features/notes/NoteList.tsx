@@ -99,7 +99,14 @@ function NoteRow({
       onClick={onSelect}
     >
       <div className="flex-1 min-w-0">
-        <div className="truncate text-sm text-app-text">{note.title || 'Sem título'}</div>
+        <div className="flex items-center gap-1.5">
+          {note.pinned_at && (
+            <span className="n-pin-badge" title="Nota fixada" aria-label="Nota fixada">
+              <IconPin />
+            </span>
+          )}
+          <span className="truncate text-sm text-app-text">{note.title || 'Sem título'}</span>
+        </div>
         {preview && <div className="truncate text-xs text-app-muted-2 mt-0.5">{preview}</div>}
       </div>
       <div className="n-actions opacity-100 md:opacity-0 md:group-hover:opacity-100">
@@ -138,6 +145,15 @@ function NoteRow({
         </button>
       </div>
     </div>
+  );
+}
+
+function IconPin() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <line x1="12" y1="16" x2="12" y2="22" />
+      <path d="M6 9V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v5a4 4 0 0 0 1.5 3.1l.3.2a1 1 0 0 1-.6 1.8H4.8a1 1 0 0 1-.6-1.8l.3-.2A4 4 0 0 0 6 9Z" />
+    </svg>
   );
 }
 

@@ -409,6 +409,8 @@ export function NotesPage() {
               noteId={selectedNote.id}
               initialTitle={selectedNote.title}
               initialContent={selectedNote.content}
+              folderName={folders.find((f) => f.id === selectedNote.folder_id)?.name ?? null}
+              updatedAt={selectedNote.updated_at}
               onSave={handleSaveNote}
               onBack={() => setSelectedNoteId(null)}
             />

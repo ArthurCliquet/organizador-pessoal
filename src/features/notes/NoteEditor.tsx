@@ -13,12 +13,15 @@ import type { Node as ProseMirrorNode } from '@tiptap/pm/model';
 import { useEffect, useRef, useState } from 'react';
 import type { ChangeEvent, ReactNode } from 'react';
 import { uploadNoteImage } from './noteImagesApi';
+import { formatRelativeDate } from '../../lib/relativeDate';
 import { useToast } from '../../contexts/ToastContext';
 
 interface NoteEditorProps {
   noteId: string;
   initialTitle: string;
   initialContent: string;
+  folderName?: string | null;
+  updatedAt: string;
   onSave: (fields: { title: string; content: string }) => void;
   onBack?: () => void;
 }
@@ -78,7 +81,7 @@ function insertUploadingImage(
     });
 }
 
-export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBack }: NoteEditorProps) {
+export function NoteEditor({ noteId, initialTitle, initialContent, folderName, updatedAt, onSave, onBack }: NoteEditorProps) {
   const { showError } = useToast();
   const titleRef = useRef<HTMLInputElement>(null);
   const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -189,85 +192,30 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center border-b border-surface-border">
-        {onBack && (
-          <button
-            type="button"
-            onClick={onBack}
-            className="md:hidden shrink-0 pl-4 pr-2 py-3 text-app-muted hover:text-app-text text-sm"
-          >
-            ← Voltar
-          </button>
-        )}
-        <input
-          ref={titleRef}
-          defaultValue={initialTitle}
-          onChange={scheduleSave}
-          placeholder="Título"
-          className="font-display flex-1 min-w-0 bg-transparent text-xl font-semibold text-app-text px-4 py-3 outline-none"
-        />
-      </div>
-
-      {/* the tray */}
-      <div className="tray border-b border-surface-border">
-        <div className="tray-unit">
-          <div className="tray-unit-label">Texto</div>
-          <div className="groove">
-            <Key tip="Título 1" active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
-              H1
-            </Key>
-            <Key tip="Título 2" active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
-              H2
-            </Key>
-            <Key tip="Título 3" active={editor.isActive('heading', { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
-              H3
-            </Key>
-          </div>
-        </div>
-
-        <div className="tray-unit">
-          <div className="tray-unit-label">Marcas</div>
-          <div className="groove">
-            <Key tip="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
-              <IconBold />
-            </Key>
-            <Key tip="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
-              <IconItalic />
-            </Key>
-            <Key tip="Destacar" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()}>
-              <IconHighlight />
-            </Key>
-            <Key tip="Link" active={editor.isActive('link')} onClick={openLinkInput}>
-              <IconLink />
-            </Key>
-          </div>
-        </div>
-
-        <div className="tray-unit">
-          <div className="tray-unit-label">Estrutura</div>
-          <div className="groove">
-            <Key tip="Citação" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
-              <IconQuote />
-            </Key>
-            <Key tip="Lista" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
-              <IconBulletList />
-            </Key>
-            <Key tip="Numerada" wide active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
-              1.2.3
-            </Key>
-          </div>
-        </div>
-
-        <span className="tray-divider" />
-
-        <div className="tray-unit" ref={drawerRef}>
-          <div className="tray-unit-label bare">Mais</div>
-          <div className="drawer-wrap">
+      <div className="note-head">
+        <div className="note-head-row">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="md:hidden shrink-0 pr-1 text-app-muted hover:text-app-text text-sm"
+            >
+              ← Voltar
+            </button>
+          )}
+          <input
+            ref={titleRef}
+            defaultValue={initialTitle}
+            onChange={scheduleSave}
+            placeholder="Título"
+            className="note-title-input"
+          />
+          <div className="drawer-wrap shrink-0" ref={drawerRef}>
             <button type="button" className="key key-insert" data-tip="Inserir" onClick={() => setDrawerOpen((v) => !v)}>
               <IconPlus />
             </button>
             {drawerOpen && (
-              <div className="drawer">
+              <div className="drawer drawer-right">
                 <button
                   type="button"
                   className="drawer-item"
@@ -305,6 +253,9 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
             )}
             <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileChosen} className="hidden" />
           </div>
+        </div>
+        <div className="note-meta">
+          {folderName ? `${folderName} • ` : ''}Editado {formatRelativeDate(updatedAt)}
         </div>
       </div>
 
@@ -347,16 +298,37 @@ export function NoteEditor({ noteId, initialTitle, initialContent, onSave, onBac
       </div>
 
       <BubbleMenu editor={editor} className="bubble" shouldShow={() => !editor.state.selection.empty && !editor.isActive('image')}>
-        <Key active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
+        <Key tip="Negrito" active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()}>
           <IconBold />
         </Key>
-        <Key active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
+        <Key tip="Itálico" active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()}>
           <IconItalic />
         </Key>
-        <Key active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()}>
+        <Key tip="Destacar" active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()}>
           <IconHighlight />
         </Key>
-        <Key active={editor.isActive('link')} onClick={openLinkInput}>
+        <span className="bubble-sep" />
+        <Key tip="Título 1" active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}>
+          H1
+        </Key>
+        <Key tip="Título 2" active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}>
+          H2
+        </Key>
+        <Key tip="Título 3" active={editor.isActive('heading', { level: 3 })} onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}>
+          H3
+        </Key>
+        <span className="bubble-sep" />
+        <Key tip="Lista" active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()}>
+          <IconBulletList />
+        </Key>
+        <Key tip="Numerada" active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()}>
+          <IconOrderedList />
+        </Key>
+        <Key tip="Citação" active={editor.isActive('blockquote')} onClick={() => editor.chain().focus().toggleBlockquote().run()}>
+          <IconQuote />
+        </Key>
+        <span className="bubble-sep" />
+        <Key tip="Link" active={editor.isActive('link')} onClick={openLinkInput}>
           <IconLink />
         </Key>
       </BubbleMenu>
@@ -464,6 +436,17 @@ function IconBulletList() {
       <rect x="7.5" y="4.6" width="8" height="1.7" rx=".8" />
       <rect x="7.5" y="9.1" width="8" height="1.7" rx=".8" />
       <rect x="7.5" y="13.6" width="8" height="1.7" rx=".8" />
+    </svg>
+  );
+}
+function IconOrderedList() {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.7} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="8" y="4.6" width="8" height="1.7" rx=".8" fill="currentColor" stroke="none" />
+      <rect x="8" y="9.1" width="8" height="1.7" rx=".8" fill="currentColor" stroke="none" />
+      <rect x="8" y="13.6" width="8" height="1.7" rx=".8" fill="currentColor" stroke="none" />
+      <path d="M3.4 3.8h1.1v3.2M3.3 7h2.2" />
+      <path d="M3.3 10.2c0-.6.5-1 1.1-1s1.1.4 1.1 1c0 .9-2.2 1.5-2.2 2.7h2.3" />
     </svg>
   );
 }
