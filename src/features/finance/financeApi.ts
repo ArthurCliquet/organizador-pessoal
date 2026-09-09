@@ -146,6 +146,32 @@ export async function createTransfer(input: {
   return data;
 }
 
+export async function updateTransfer(
+  id: string,
+  input: {
+    fromAccountId: string;
+    toAccountId: string;
+    amount: number;
+    description: string;
+    date: string;
+  },
+): Promise<Transaction> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .update({
+      account_id: input.fromAccountId,
+      to_account_id: input.toAccountId,
+      amount: input.amount,
+      description: input.description,
+      date: input.date,
+    })
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 export async function getAccounts(): Promise<Account[]> {
   const { data, error } = await supabase.from('accounts').select('*').order('created_at');
   if (error) throw error;

@@ -15,6 +15,7 @@ import {
   updateTransaction,
   deleteTransaction,
   createTransfer,
+  updateTransfer,
   updateInvestmentValue,
   calculateContributedTotal,
   getCategoryLimits,
@@ -140,6 +141,19 @@ export function FinancePage() {
       setTransferOpen(false);
     } catch {
       showError('Não foi possível salvar a transferência.');
+    }
+  }
+
+  async function handleUpdateTransfer(
+    id: string,
+    input: { fromAccountId: string; toAccountId: string; amount: number; description: string; date: string },
+  ) {
+    try {
+      await updateTransfer(id, input);
+      setTransactions(await getTransactions());
+      setEditingTransaction(null);
+    } catch {
+      showError('Não foi possível atualizar a transferência.');
     }
   }
 
@@ -337,7 +351,17 @@ export function FinancePage() {
         />
       )}
 
-      {editingTransaction && (
+      {editingTransaction && editingTransaction.type === 'transfer' && (
+        <TransferModal
+          accounts={accounts}
+          transfer={editingTransaction}
+          onCancel={() => setEditingTransaction(null)}
+          onSave={(input) => handleUpdateTransfer(editingTransaction.id, input)}
+          onDelete={() => handleDeleteTransaction(editingTransaction.id)}
+        />
+      )}
+
+      {editingTransaction && editingTransaction.type !== 'transfer' && (
         <AddTransactionModal
           categories={categories}
           accounts={accounts}

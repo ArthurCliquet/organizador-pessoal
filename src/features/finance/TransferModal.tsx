@@ -1,21 +1,28 @@
 import { useState } from 'react';
-import type { Account } from '../../types';
+import type { Account, Transaction } from '../../types';
 import { toISODate } from '../calendar/dateUtils';
-import { parseCurrencyInput } from '../../lib/currency';
+import { parseCurrencyInput, formatAmountForInput } from '../../lib/currency';
+import { ConfirmDialog } from '../../components/common/ConfirmDialog';
 
 interface TransferModalProps {
   accounts: Account[];
+  transfer?: Transaction | null;
   onCancel: () => void;
   onSave: (input: { fromAccountId: string; toAccountId: string; amount: number; description: string; date: string }) => void;
+  onDelete?: () => void;
 }
 
-export function TransferModal({ accounts, onCancel, onSave }: TransferModalProps) {
-  const [fromAccountId, setFromAccountId] = useState(accounts[0]?.id ?? '');
-  const [toAccountId, setToAccountId] = useState(accounts.find((a) => a.id !== accounts[0]?.id)?.id ?? '');
-  const [amount, setAmount] = useState('');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(toISODate(new Date()));
+export function TransferModal({ accounts, transfer, onCancel, onSave, onDelete }: TransferModalProps) {
+  const isEditing = !!transfer;
+  const [fromAccountId, setFromAccountId] = useState(transfer?.account_id ?? accounts[0]?.id ?? '');
+  const [toAccountId, setToAccountId] = useState(
+    transfer?.to_account_id ?? accounts.find((a) => a.id !== accounts[0]?.id)?.id ?? '',
+  );
+  const [amount, setAmount] = useState(transfer ? formatAmountForInput(Number(transfer.amount)) : '');
+  const [description, setDescription] = useState(transfer?.description ?? '');
+  const [date, setDate] = useState(transfer?.date ?? toISODate(new Date()));
   const [amountError, setAmountError] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const destinationOptions = accounts.filter((a) => a.id !== fromAccountId);
 
@@ -38,12 +45,13 @@ export function TransferModal({ accounts, onCancel, onSave }: TransferModalProps
   }
 
   return (
+    <>
     <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onCancel}>
       <div
         className="bg-surface border border-surface-border rounded p-6 max-w-sm w-full flex flex-col gap-4"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-display text-lg">Transferir entre contas</h3>
+        <h3 className="font-display text-lg">{isEditing ? 'Editar transferência' : 'Transferir entre contas'}</h3>
 
         <select
           value={fromAccountId}
@@ -92,15 +100,36 @@ export function TransferModal({ accounts, onCancel, onSave }: TransferModalProps
           className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
         />
 
-        <div className="flex justify-end gap-2 mt-1">
-          <button type="button" onClick={onCancel} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
-            Cancelar
-          </button>
-          <button type="button" onClick={handleSubmit} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
-            Salvar
-          </button>
+        <div className="flex items-center gap-2 mt-1">
+          {isEditing && onDelete && (
+            <button
+              type="button"
+              onClick={() => setConfirmDelete(true)}
+              className="font-mono text-xs px-3 py-2 rounded text-danger hover:bg-danger/10"
+            >
+              Excluir
+            </button>
+          )}
+          <div className="flex justify-end gap-2 ml-auto">
+            <button type="button" onClick={onCancel} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
+              Cancelar
+            </button>
+            <button type="button" onClick={handleSubmit} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
+              Salvar
+            </button>
+          </div>
         </div>
       </div>
     </div>
+
+      {confirmDelete && onDelete && (
+        <ConfirmDialog
+          title="Excluir transferência"
+          message="Esta transferência será removida e os saldos serão recalculados."
+          onConfirm={onDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
+    </>
   );
 }
