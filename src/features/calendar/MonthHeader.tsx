@@ -21,7 +21,7 @@ export function MonthHeader({
     'w-8 h-8 flex items-center justify-center rounded-lg border border-surface-border text-app-muted hover:text-app-text hover:bg-white/[0.04] transition-colors font-mono';
 
   return (
-    <div className="relative pt-4 mb-6 md:shrink-0">
+    <div className="relative pt-4 mb-5 md:shrink-0">
       <div className="day-pad-sliver day-pad-sliver-2" />
       <div className="day-pad-sliver" />
 
@@ -29,12 +29,12 @@ export function MonthHeader({
         Tarefas recorrentes <span className="go-arrow" aria-hidden="true">→</span>
       </button>
 
-      <div className="animate-card-settle relative z-[1] bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-5 overflow-hidden">
+      <div className="animate-card-settle relative z-[1] bg-linear-to-br from-surface-hi via-surface to-surface rounded-hero shadow-hero px-6 py-4 overflow-hidden">
         <div className="hero-texture" />
 
         <div className="relative flex items-end justify-between gap-4 flex-wrap">
           <div className="flex items-baseline gap-3">
-            <h1 className="font-display text-4xl md:text-5xl text-primary-bright font-semibold capitalize leading-none tracking-tight">
+            <h1 className="font-display text-3xl md:text-4xl text-primary-bright font-semibold capitalize leading-none tracking-tight">
               {MONTH_NAMES[month]}
             </h1>
             <span className="font-mono text-sm text-app-muted-2 tracking-widest">{year}</span>
@@ -52,7 +52,7 @@ export function MonthHeader({
           </div>
         </div>
 
-        <p className="relative font-mono text-xs text-app-muted mt-4 flex items-center gap-2 flex-wrap">
+        <p className="relative font-mono text-xs text-app-muted mt-3 flex items-center gap-2 flex-wrap">
           <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
           <span>
             <b className="text-primary-bright font-semibold">{monthTaskCount}</b>{' '}
