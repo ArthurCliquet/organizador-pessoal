@@ -52,10 +52,10 @@ export function DashboardPage() {
               padding="p-0"
               className="md:col-span-2 overflow-hidden flex-col md:flex-row divide-y divide-surface-border md:divide-y-0 md:divide-x"
             >
-              <div className="flex-1 flex flex-col p-5 md:p-6">
+              <div className="flex-1 flex flex-col p-5 pb-6 md:p-6 md:pb-7">
                 <HabitStrip date={today} onCountsChange={handleHabitCounts} />
               </div>
-              <div className="flex-1 flex flex-col p-5 md:p-6">
+              <div className="flex-1 flex flex-col p-5 pb-6 md:p-6 md:pb-7">
                 <PendingTasks />
               </div>
             </Card>
