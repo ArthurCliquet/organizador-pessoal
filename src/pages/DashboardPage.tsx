@@ -5,6 +5,7 @@ import { AgendaRail } from '../features/dashboard/AgendaRail';
 import { PendingTasks } from '../features/dashboard/PendingTasks';
 import { HabitStrip } from '../features/dashboard/HabitStrip';
 import { BudgetSnapshot } from '../features/dashboard/BudgetSnapshot';
+import { BalanceSnapshot } from '../features/dashboard/BalanceSnapshot';
 import { Card } from '../components/common/Card';
 import { toISODate } from '../features/calendar/dateUtils';
 
@@ -35,17 +36,28 @@ export function DashboardPage() {
         />
 
         <div className="flex flex-col gap-5">
-          <Card delay="80ms">
-            <TodayAgenda onCountsChange={handleAgendaCounts} rail={<AgendaRail />} />
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
-            <Card delay="150ms">
-              <HabitStrip date={today} onCountsChange={handleHabitCounts} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
+            <Card delay="80ms">
+              <TodayAgenda onCountsChange={handleAgendaCounts} rail={<AgendaRail />} />
             </Card>
 
-            <Card delay="220ms">
-              <PendingTasks />
+            <Card delay="120ms">
+              <BalanceSnapshot />
+            </Card>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+            <Card
+              delay="150ms"
+              padding="p-0"
+              className="md:col-span-2 overflow-hidden flex-col md:flex-row divide-y divide-surface-border md:divide-y-0 md:divide-x"
+            >
+              <div className="flex-1 flex flex-col p-5 md:p-6">
+                <HabitStrip date={today} onCountsChange={handleHabitCounts} />
+              </div>
+              <div className="flex-1 flex flex-col p-5 md:p-6">
+                <PendingTasks />
+              </div>
             </Card>
 
             <Card delay="280ms">
