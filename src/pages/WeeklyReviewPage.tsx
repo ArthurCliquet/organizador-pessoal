@@ -127,7 +127,7 @@ export function WeeklyReviewPage() {
   // stays mounted at all times, even while a subsequent week's data is being fetched
   // or fails to load.
   return (
-    <RevealOnMount className="rev p-4 md:p-6 max-w-[780px] mx-auto flex flex-col">
+    <RevealOnMount className="rev p-4 md:p-6 max-w-[860px] mx-auto flex flex-col">
       <Link to="/" className="reveal-in back inline-block mb-3 text-xs text-app-muted-2 font-medium hover:text-primary-bright transition-colors w-fit">
         ‹ Hoje
       </Link>
@@ -159,10 +159,10 @@ export function WeeklyReviewPage() {
         </div>
       ) : (
         <div className={loading ? 'flex flex-col gap-4 opacity-50 transition-opacity' : 'flex flex-col gap-4'}>
-          <div className="grid grid-cols-1 md:grid-cols-[0.8fr_1fr] gap-3.5">
-            <Card className="reveal-in">
-              <div className="flex items-baseline justify-between mb-2">
-                <h3 className="text-sm font-semibold">Tarefas</h3>
+          <div className="grid grid-cols-1 md:grid-cols-[0.8fr_1fr] gap-4">
+            <Card className="reveal-in" padding="p-5 md:p-6">
+              <div className="flex items-baseline justify-between mb-3">
+                <h3 className="text-base font-semibold">Tarefas</h3>
                 <Link to="/calendario" className="text-xs text-app-muted-2 hover:text-primary-bright transition-colors">
                   calendário
                 </Link>
@@ -184,9 +184,9 @@ export function WeeklyReviewPage() {
               )}
             </Card>
 
-            <Card className="reveal-in">
-              <div className="flex items-baseline justify-between mb-2">
-                <h3 className="text-sm font-semibold">Finanças</h3>
+            <Card className="reveal-in" padding="p-5 md:p-6">
+              <div className="flex items-baseline justify-between mb-3">
+                <h3 className="text-base font-semibold">Finanças</h3>
                 <Link to="/financas" className="text-xs text-app-muted-2 hover:text-primary-bright transition-colors">
                   ver tudo
                 </Link>
@@ -227,9 +227,9 @@ export function WeeklyReviewPage() {
             </Card>
           </div>
 
-          <Card className="reveal-in">
-            <div className="flex items-baseline justify-between mb-2">
-              <h3 className="text-sm font-semibold">Hábitos</h3>
+          <Card className="reveal-in" padding="p-5 md:p-6">
+            <div className="flex items-baseline justify-between mb-3">
+              <h3 className="text-base font-semibold">Hábitos</h3>
               <Link to="/calendario" className="text-xs text-app-muted-2 hover:text-primary-bright transition-colors">
                 calendário
               </Link>
