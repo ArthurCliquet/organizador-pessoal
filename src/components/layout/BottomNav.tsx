@@ -4,6 +4,7 @@ import { CalendarDays, NotebookPen, Sun, Wallet } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { emailInitials } from '../../lib/emailInitials';
+import { ThemeToggle } from './ThemeToggle';
 
 const links: { to: string; label: string; icon: LucideIcon }[] = [
   { to: '/', label: 'Hoje', icon: Sun },
@@ -47,22 +48,27 @@ export function BottomNav() {
       {accountOpen && (
         <div className="md:hidden fixed inset-0 bg-black/60 z-50" onClick={() => setAccountOpen(false)}>
           <div
-            className="absolute bottom-16 right-2 left-2 bg-surface border border-surface-border rounded p-4 flex items-center gap-3"
+            className="absolute bottom-16 right-2 left-2 bg-surface border border-surface-border rounded-card p-4 flex flex-col gap-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-8 h-8 rounded-full bg-surface-2 text-primary font-mono text-xs flex items-center justify-center shrink-0">
-              {emailInitials(user?.email)}
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-surface-2 text-primary font-mono text-xs flex items-center justify-center shrink-0">
+                {emailInitials(user?.email)}
+              </div>
+              <div className="min-w-0 flex-1 truncate font-mono text-xs text-app-muted">{user?.email}</div>
+              <button
+                onClick={() => {
+                  setAccountOpen(false);
+                  signOut();
+                }}
+                className="font-mono text-xs text-primary shrink-0"
+              >
+                Sair
+              </button>
             </div>
-            <div className="min-w-0 flex-1 truncate font-mono text-xs text-app-muted">{user?.email}</div>
-            <button
-              onClick={() => {
-                setAccountOpen(false);
-                signOut();
-              }}
-              className="font-mono text-xs text-primary shrink-0"
-            >
-              Sair
-            </button>
+            <div className="flex justify-end">
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       )}
