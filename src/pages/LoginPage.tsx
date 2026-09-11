@@ -52,58 +52,53 @@ export function LoginPage() {
   const isSignup = mode === 'signup';
 
   return (
-    <div className="login-page">
-      <div className="login-glow" />
-      <div className="login-cover-slot">
-        <div className="login-cover-sliver login-cover-sliver-1" style={{ animationDelay: '0.05s' }} />
-        <div className="login-cover-sliver login-cover-sliver-2" style={{ animationDelay: '0.12s' }} />
+    <div className="min-h-dvh grid place-items-center p-6 bg-app-bg">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-surface border border-surface-border rounded-[14px] shadow-pop p-7 w-full max-w-[360px] flex flex-col gap-3"
+      >
+        <div className="flex items-center gap-2.5 mb-1">
+          <NockMark size={30} />
+          <NockWordmark size={19} />
+        </div>
 
+        <h1 className="text-xl font-semibold text-app-text">{isSignup ? 'Criar conta' : 'Entrar'}</h1>
+        <p className="text-sm text-app-muted -mt-2">Suas notas, tarefas e hábitos, num só lugar.</p>
+
+        <input
+          type="email"
+          required
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="E-mail"
+          className="bg-surface-2 border border-surface-border rounded-sm px-3 py-2 text-sm text-app-text outline-none focus:border-primary transition-colors"
+        />
+        <input
+          type="password"
+          required
+          minLength={6}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Senha"
+          className="bg-surface-2 border border-surface-border rounded-sm px-3 py-2 text-sm text-app-text outline-none focus:border-primary transition-colors"
+        />
+        {error && <p className="text-sm text-danger">{error}</p>}
+        {info && <p className="text-sm text-primary">{info}</p>}
+        <button
+          type="submit"
+          disabled={submitting}
+          className="bg-primary text-white rounded-sm py-2.5 font-semibold hover:bg-primary-bright transition-colors disabled:opacity-60"
+        >
+          {isSignup ? 'Criar conta' : 'Entrar'}
+        </button>
         <button
           type="button"
-          className="login-tab"
           onClick={toggleMode}
-          aria-label={isSignup ? 'Alternar para entrar' : 'Alternar para criar conta'}
+          className="text-xs text-app-muted-2 hover:text-primary-bright transition-colors text-center"
         >
-          {isSignup ? 'Entrar' : 'Criar conta'}
-          <span className="login-tab-arrow">›</span>
+          {isSignup ? 'Já tenho conta — entrar' : 'Não tenho conta — criar'}
         </button>
-
-        <form onSubmit={handleSubmit} className="login-cover" style={{ animationDelay: '0.18s' }}>
-          <div className="login-logo-row">
-            <NockMark size={30} />
-            <NockWordmark size={19} />
-          </div>
-          <div className="login-tear" />
-
-          <h1 className="font-display text-2xl font-semibold text-app-text">
-            {isSignup ? 'Criar conta' : 'Entrar'}
-          </h1>
-          <p className="text-sm text-app-muted -mt-2">Suas notas, tarefas e hábitos, num só lugar.</p>
-
-          <input
-            type="email"
-            required
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="E-mail"
-            className="login-input"
-          />
-          <input
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Senha"
-            className="login-input"
-          />
-          {error && <p className="text-sm text-danger">{error}</p>}
-          {info && <p className="text-sm text-primary">{info}</p>}
-          <button type="submit" disabled={submitting} className="login-submit">
-            {isSignup ? 'Criar conta' : 'Entrar'}
-          </button>
-        </form>
-      </div>
+      </form>
     </div>
   );
 }
