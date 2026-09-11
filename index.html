@@ -9,6 +9,12 @@
     <link rel="apple-touch-icon" href="/icon-180.png?v=3" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="theme-color" content="#131826" />
+    <script>
+      try {
+        var t = localStorage.getItem('nock:theme');
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t;
+      } catch (e) {}
+    </script>
   </head>
   <body class="bg-app-bg text-app-text">
     <div id="root"></div>

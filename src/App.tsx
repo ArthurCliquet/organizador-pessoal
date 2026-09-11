@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -12,24 +13,26 @@ import { WeeklyReviewPage } from './pages/WeeklyReviewPage';
 
 export default function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route element={<AppLayout />}>
-                <Route path="/" element={<DashboardPage />} />
-                <Route path="/notas" element={<NotesPage />} />
-                <Route path="/calendario" element={<CalendarPage />} />
-                <Route path="/financas" element={<FinancePage />} />
-                <Route path="/revisao-semanal" element={<WeeklyReviewPage />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <ToastProvider>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route element={<ProtectedRoute />}>
+                <Route element={<AppLayout />}>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/notas" element={<NotesPage />} />
+                  <Route path="/calendario" element={<CalendarPage />} />
+                  <Route path="/financas" element={<FinancePage />} />
+                  <Route path="/revisao-semanal" element={<WeeklyReviewPage />} />
+                </Route>
               </Route>
-            </Route>
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </BrowserRouter>
-      </ToastProvider>
-    </AuthProvider>
+              <Route path="*" element={<Navigate to="/" replace />} />
+            </Routes>
+          </BrowserRouter>
+        </ToastProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
