@@ -120,7 +120,7 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
         {habits.map((habit) => (
           <div key={habit.id} className="flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0">
             <label className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer">
-              <TaskCheck tone="success" checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
+              <TaskCheck checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
               <span className="flex-1 text-sm text-app-text truncate">{habit.name}</span>
             </label>
             <span className="habit-week shrink-0">

@@ -95,7 +95,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
         {habits.map((habit) => (
           <div key={habit.id} className="group flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0">
             <label className="flex-1 flex items-center gap-2.5 cursor-pointer min-w-0">
-              <TaskCheck tone="success" checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
+              <TaskCheck checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
               {editingId === habit.id ? (
                 <input
                   autoFocus
@@ -116,7 +116,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
                     setEditingId(habit.id);
                     setEditingName(habit.name);
                   }}
-                  className={`text-sm truncate ${isDone(habit.id) ? 'text-success' : 'text-app-text'}`}
+                  className={`text-sm truncate ${isDone(habit.id) ? 'text-primary' : 'text-app-text'}`}
                 >
                   {habit.name}
                 </span>

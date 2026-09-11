@@ -23,13 +23,13 @@ export function HabitProgressRing({ done, total, size = 46 }: HabitProgressRingP
           strokeWidth="4"
           strokeLinecap="round"
           stroke="currentColor"
-          className="text-success transition-[stroke-dashoffset] duration-500 ease-out"
+          className="text-primary transition-[stroke-dashoffset] duration-500 ease-out"
           strokeDasharray={CIRCUMFERENCE}
           strokeDashoffset={offset}
         />
       </svg>
       <span className="font-mono text-xs text-app-muted whitespace-nowrap">
-        <b className="text-success font-semibold">{done}</b> de {total}
+        <b className="text-primary font-semibold">{done}</b> de {total}
       </span>
     </div>
   );
