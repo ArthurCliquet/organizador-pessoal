@@ -38,6 +38,7 @@ import { FolderList } from '../features/notes/FolderList';
 import { NoteList } from '../features/notes/NoteList';
 import { NoteEditor } from '../features/notes/NoteEditor';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { RevealOnMount } from '../components/common/RevealOnMount';
 import { useToast } from '../contexts/ToastContext';
 
 function readStoredId(key: string): string | null {
@@ -332,17 +333,17 @@ export function NotesPage() {
   }
 
   return (
-    <div className="p-4 md:p-6 flex flex-col h-full min-h-[calc(100vh-57px)]">
-      <div className="mb-4 max-w-xs">
+    <RevealOnMount className="p-4 md:p-6 flex flex-col h-full min-h-[calc(100vh-57px)]">
+      <div className="reveal-in mb-4 max-w-xs">
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Buscar notas e pastas…"
-          className="w-full bg-surface border border-surface-border rounded px-3 py-1.5 text-sm text-app-text outline-none focus:border-primary"
+          className="input"
         />
       </div>
 
-      <div className="flex-1 min-h-0 border border-surface-border rounded overflow-hidden flex flex-col md:flex-row">
+      <div className="reveal-in flex-1 min-h-0 border border-surface-border rounded-card overflow-hidden flex flex-col md:flex-row">
         <DndContext
           sensors={sensors}
           collisionDetection={collisionDetectionStrategy}
@@ -451,6 +452,6 @@ export function NotesPage() {
           }}
         />
       )}
-    </div>
+    </RevealOnMount>
   );
 }

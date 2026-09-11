@@ -122,12 +122,12 @@ export function ImageCropModal({ src, initialCrop, onApply, onCancel }: ImageCro
   }
 
   return (
-    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={onCancel}>
+    <div className="scrim" onClick={onCancel}>
       <div
-        className="bg-surface border border-surface-border rounded p-4 max-w-2xl w-full flex flex-col gap-3"
+        className="bg-surface border border-surface-border rounded-card shadow-pop p-4 max-w-2xl w-full flex flex-col gap-3"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="font-display text-lg text-app-text">Cortar imagem</h3>
+        <h3 className="text-base font-semibold text-app-text">Cortar imagem</h3>
         <div className="relative select-none overflow-hidden">
           <img
             ref={imgRef}
@@ -155,7 +155,7 @@ export function ImageCropModal({ src, initialCrop, onApply, onCancel }: ImageCro
           )}
         </div>
         <div className="flex justify-end gap-2 mt-1">
-          <button type="button" onClick={onCancel} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
+          <button type="button" onClick={onCancel} className="mini-btn">
             Cancelar
           </button>
           <button
@@ -165,7 +165,7 @@ export function ImageCropModal({ src, initialCrop, onApply, onCancel }: ImageCro
               if (!rect || !natural) return;
               onApply({ ...clampRect(rect, natural), naturalWidth: natural.width });
             }}
-            className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold disabled:opacity-50"
+            className="mini-btn accent disabled:opacity-50"
           >
             Aplicar
           </button>
