@@ -1,36 +1,91 @@
 @import "tailwindcss";
-@import "@fontsource-variable/fraunces/full.css";
-@import "@fontsource-variable/fraunces/full-italic.css";
+@import "@fontsource-variable/hanken-grotesk";
+@import "@fontsource-variable/hanken-grotesk/wght-italic.css";
 @import "@fontsource/ibm-plex-mono";
 
 @theme {
-  --color-app-bg: #131826;
-  --color-surface: #1b2233;
-  --color-surface-2: #222a3f;
-  --color-surface-hi: #283153;
-  --color-surface-border: #2f3a54;
-  --color-glow-border: rgba(169, 211, 242, 0.2);
-  --color-primary: #a9d3f2;
-  --color-primary-bright: #c9e4f8;
-  --color-primary-dim: rgba(169, 211, 242, 0.14);
-  --color-success: #7fbfae;
-  --color-success-dim: rgba(127, 191, 174, 0.16);
-  --color-danger: #d98a86;
-  --color-special: #b79ef0;
-  --color-app-text: #eef2f9;
-  --color-app-muted: #8f9cba;
-  --color-app-muted-2: #66738f;
-  --font-display: 'Fraunces Variable', Georgia, serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --radius-card: 18px;
-  --radius-hero: 24px;
-  --shadow-card: 0 1px 1px rgba(0, 0, 0, 0.35), 0 14px 30px -14px rgba(0, 0, 0, 0.55);
-  --shadow-card-hover: 0 1px 1px rgba(0, 0, 0, 0.4), 0 20px 40px -14px rgba(0, 0, 0, 0.65);
-  --shadow-hero: 0 2px 3px rgba(0, 0, 0, 0.4), 0 28px 56px -20px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--color-glow-border);
+  /* Paleta ESCURA — é o default (bare :root) */
+  --color-app-bg: #0f0f11;
+  --color-surface: #161619;
+  --color-surface-2: #1c1c20;
+  --color-surface-3: #232328;
+  --color-surface-hi: #232328;        /* alias legado — mesmos que surface-3 durante a migração */
+  --color-surface-border: #2a2a31;
+  --color-border-2: #202024;
+  --color-glow-border: #2a2a31;        /* alias legado */
+  --color-primary: #8b84f5;
+  --color-primary-bright: #a29bf8;
+  --color-primary-dim: rgba(139, 132, 245, 0.14);
+  --color-success: #46a97f;
+  --color-success-dim: rgba(70, 169, 127, 0.16);
+  --color-warn: #dfa43b;
+  --color-danger: #e2665b;
+  --color-special: #a493d6;
+  --color-app-text: #ededef;
+  --color-app-muted: #9fa0a8;
+  --color-app-muted-2: #6c6d76;
+  --font-display: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Hanken Grotesk Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --radius-card: 9px;
+  --radius-sm: 6px;
+  --radius-hero: 12px;                 /* alias legado */
+  --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -8px rgba(0, 0, 0, 0.55);
+  --shadow-card: none;                 /* alias legado — cards sem sombra */
+  --shadow-card-hover: none;           /* alias legado */
+  --shadow-hero: none;                 /* alias legado */
 }
 
-body {
-  min-height: 100vh;
+:root { color-scheme: dark; }
+body { background: var(--color-app-bg); color: var(--color-app-text); font-family: var(--font-sans); min-height: 100vh; }
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-app-bg: #fbfbfc;
+    --color-surface: #ffffff;
+    --color-surface-2: #f5f5f7;
+    --color-surface-3: #eeeef1;
+    --color-surface-hi: #eeeef1;
+    --color-surface-border: #e6e6ea;
+    --color-border-2: #eeeef1;
+    --color-glow-border: #e6e6ea;
+    --color-primary: #5a52d6;
+    --color-primary-bright: #4b43c6;
+    --color-primary-dim: rgba(90, 82, 214, 0.08);
+    --color-success: #2f8f63;
+    --color-success-dim: rgba(47, 143, 99, 0.14);
+    --color-warn: #b47c1d;
+    --color-danger: #cf514a;
+    --color-special: #7a68ac;
+    --color-app-text: #191920;
+    --color-app-muted: #5e5f68;
+    --color-app-muted-2: #8d8e98;
+    --shadow-pop: 0 1px 2px rgba(20, 20, 30, 0.06), 0 12px 32px -10px rgba(20, 20, 30, 0.18);
+    color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --color-app-bg: #fbfbfc;
+  --color-surface: #ffffff;
+  --color-surface-2: #f5f5f7;
+  --color-surface-3: #eeeef1;
+  --color-surface-hi: #eeeef1;
+  --color-surface-border: #e6e6ea;
+  --color-border-2: #eeeef1;
+  --color-glow-border: #e6e6ea;
+  --color-primary: #5a52d6;
+  --color-primary-bright: #4b43c6;
+  --color-primary-dim: rgba(90, 82, 214, 0.08);
+  --color-success: #2f8f63;
+  --color-success-dim: rgba(47, 143, 99, 0.14);
+  --color-warn: #b47c1d;
+  --color-danger: #cf514a;
+  --color-special: #7a68ac;
+  --color-app-text: #191920;
+  --color-app-muted: #5e5f68;
+  --color-app-muted-2: #8d8e98;
+  --shadow-pop: 0 1px 2px rgba(20, 20, 30, 0.06), 0 12px 32px -10px rgba(20, 20, 30, 0.18);
+  color-scheme: light;
 }
 
 /* ---- Thin themed scrollbar for scrollable card contents ---- */
@@ -315,7 +370,7 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 
 @media (max-width: 767px) {
   html {
-    font-size: 19px;
+    font-size: 16px;
   }
 }
 
