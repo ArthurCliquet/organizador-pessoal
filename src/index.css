@@ -261,6 +261,47 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
 .strike.is-done::after { width: 100%; }
 @media (prefers-reduced-motion: reduce) { .strike::after { transition: none; } .check-control svg path { transition: none; } }
 
+/* ---- Botões ---- */
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 500; border: 1px solid var(--color-surface-border); color: var(--color-app-text);
+  background: var(--color-surface); cursor: pointer; transition: background-color .15s ease;
+}
+.btn:hover { background: var(--color-surface-2); }
+.btn.primary { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.btn.primary:hover { background: var(--color-primary-bright); }
+.btn.ghost { border-color: transparent; color: var(--color-app-muted); }
+.btn.ghost:hover { background: var(--color-surface-2); color: var(--color-app-text); }
+
+.mini-btn {
+  padding: 5px 9px; font-size: 11.5px; font-weight: 600; border-radius: 4px; border: 1px solid var(--color-surface-border);
+  background: var(--color-surface); color: var(--color-app-muted); flex: none; cursor: pointer; transition: background-color .15s ease;
+}
+.mini-btn:hover { background: var(--color-surface-2); }
+.mini-btn.accent { border-color: var(--color-primary); color: var(--color-primary-bright); }
+.mini-btn.danger { border-color: var(--color-danger); color: var(--color-danger); }
+
+/* ---- Modal (casca única — Modal.tsx) ---- */
+
+.scrim {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 22px;
+  background: color-mix(in srgb, #05060a 55%, transparent);
+}
+:root[data-theme="light"] .scrim,
+:root:not([data-theme="dark"]) .scrim { background: color-mix(in srgb, #1b1b2b 30%, transparent); }
+.modal {
+  width: 100%; max-height: calc(100% - 8px); overflow-y: auto; background: var(--color-surface);
+  border: 1px solid var(--color-surface-border); border-radius: 12px; box-shadow: var(--shadow-pop);
+}
+.modal-h { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--color-surface-border); }
+.modal-h h3 { font-size: 15px; font-weight: 600; }
+.modal-h .sub { font-size: 11.5px; color: var(--color-app-muted-2); margin-top: 3px; max-width: 40ch; }
+.modal-h .x { color: var(--color-app-muted-2); font-size: 17px; line-height: 1; background: none; border: 0; padding: 0 2px; cursor: pointer; }
+.modal-h .x:hover { color: var(--color-app-text); }
+.modal-body { padding: 16px 18px; }
+.modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--color-surface-border); }
+
 /* ---- Native time input: match dark theme ---- */
 
 input[type='time'] {
