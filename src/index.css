@@ -12,9 +12,9 @@
   --color-surface-hi: #232328;        /* alias legado — mesmos que surface-3 durante a migração */
   --color-surface-border: #2a2a31;
   --color-border-2: #202024;
-  --color-primary: #8b84f5;
-  --color-primary-bright: #a29bf8;
-  --color-primary-dim: rgba(139, 132, 245, 0.14);
+  --color-primary: #a9d3f2;
+  --color-primary-bright: #c9e4f8;
+  --color-primary-dim: rgba(169, 211, 242, 0.14);
   --color-success: #46a97f;
   --color-success-dim: rgba(70, 169, 127, 0.16);
   --color-warn: #dfa43b;
@@ -43,9 +43,9 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
     --color-surface-hi: #eeeef1;
     --color-surface-border: #e6e6ea;
     --color-border-2: #eeeef1;
-    --color-primary: #5a52d6;
-    --color-primary-bright: #4b43c6;
-    --color-primary-dim: rgba(90, 82, 214, 0.08);
+    --color-primary: #2563eb;
+    --color-primary-bright: #1d4ed8;
+    --color-primary-dim: rgba(37, 99, 235, 0.08);
     --color-success: #2f8f63;
     --color-success-dim: rgba(47, 143, 99, 0.14);
     --color-warn: #b47c1d;
