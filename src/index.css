@@ -12,7 +12,6 @@
   --color-surface-hi: #232328;        /* alias legado — mesmos que surface-3 durante a migração */
   --color-surface-border: #2a2a31;
   --color-border-2: #202024;
-  --color-glow-border: #2a2a31;        /* alias legado */
   --color-primary: #8b84f5;
   --color-primary-bright: #a29bf8;
   --color-primary-dim: rgba(139, 132, 245, 0.14);
@@ -29,11 +28,8 @@
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
   --radius-card: 9px;
   --radius-sm: 6px;
-  --radius-hero: 12px;                 /* alias legado */
   --shadow-pop: 0 1px 2px rgba(0, 0, 0, 0.3), 0 12px 32px -8px rgba(0, 0, 0, 0.55);
-  --shadow-card: none;                 /* alias legado — cards sem sombra */
-  --shadow-card-hover: none;           /* alias legado */
-  --shadow-hero: none;                 /* alias legado */
+  --shadow-card: none;                 /* alias legado — cards sem sombra (usado só por HabitManageModal) */
 }
 
 :root { color-scheme: dark; }
@@ -48,7 +44,6 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
     --color-surface-hi: #eeeef1;
     --color-surface-border: #e6e6ea;
     --color-border-2: #eeeef1;
-    --color-glow-border: #e6e6ea;
     --color-primary: #5a52d6;
     --color-primary-bright: #4b43c6;
     --color-primary-dim: rgba(90, 82, 214, 0.08);
@@ -72,7 +67,6 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
   --color-surface-hi: #eeeef1;
   --color-surface-border: #e6e6ea;
   --color-border-2: #eeeef1;
-  --color-glow-border: #e6e6ea;
   --color-primary: #5a52d6;
   --color-primary-bright: #4b43c6;
   --color-primary-dim: rgba(90, 82, 214, 0.08);
@@ -135,7 +129,10 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
 @media (prefers-reduced-motion: reduce) {
   .revealing .reveal-in,
   .revealing .bar-fill,
-  .revealing .mark-pop { animation: none !important; opacity: 1 !important; transform: none !important; box-shadow: none !important; }
+  .revealing .mark-pop,
+  .revealing .cc,
+  .revealing .cc.today .d,
+  .revealing .mk.done { animation: none !important; opacity: 1 !important; transform: none !important; box-shadow: none !important; }
 }
 
 /* ---- Custom animated checkbox (tasks and habits) ---- */
