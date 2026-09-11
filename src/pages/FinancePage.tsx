@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Spinner } from '../components/common/Spinner';
+import { RevealOnMount } from '../components/common/RevealOnMount';
 import { useToast } from '../contexts/ToastContext';
 import type { Account, Category, CategoryLimit, Transaction } from '../types';
 import {
@@ -261,55 +262,36 @@ export function FinancePage() {
   const monthTag = `${now.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')} ${now.getFullYear()}`;
 
   return (
-    <div className="p-4 md:p-6 max-w-7xl mx-auto flex flex-col gap-5">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-2">
+    <RevealOnMount className="p-4 md:p-6 max-w-7xl mx-auto flex flex-col gap-4">
+      <div className="reveal-in flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-2">
         <div className="flex items-baseline gap-2.5">
-          <h1
-            className="font-display text-2xl md:text-[1.65rem] leading-none font-semibold -tracking-[0.01em] text-app-text w-fit pb-2 border-b border-primary/35"
-            style={{ fontOpticalSizing: 'none', fontVariationSettings: "'opsz' 120" }}
-          >
-            Finanças
-          </h1>
-          <span className="font-mono text-[0.68rem] tracking-widest text-app-muted-2 uppercase">
-            {monthTag}
-          </span>
+          <h1 className="text-xl font-semibold text-app-text">Finanças</h1>
+          <span className="font-mono text-xs text-app-muted-2">{monthTag}</span>
         </div>
         <div className="flex flex-col-reverse gap-2 md:flex-row md:items-center">
           <div className="flex gap-2 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:flex-wrap md:overflow-visible">
-            <button
-              onClick={() => setNewAccountOpen(true)}
-              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text hover:text-primary-bright transition-colors"
-            >
-              + Nova conta
+            <button onClick={() => setNewAccountOpen(true)} className="btn shrink-0 whitespace-nowrap">
+              Nova conta
             </button>
-            <button
-              onClick={() => setManageAccountsOpen(true)}
-              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text hover:text-primary-bright transition-colors"
-            >
+            <button onClick={() => setManageAccountsOpen(true)} className="btn shrink-0 whitespace-nowrap">
               Editar contas
             </button>
             {accounts.length >= 2 && (
-              <button
-                onClick={() => setTransferOpen(true)}
-                className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-surface-2 text-app-text hover:text-primary-bright transition-colors"
-              >
+              <button onClick={() => setTransferOpen(true)} className="btn shrink-0 whitespace-nowrap">
                 Transferir
               </button>
             )}
           </div>
           {accounts.some((a) => !a.is_investment) && (
-            <button
-              onClick={() => setAddOpen(true)}
-              className="shrink-0 whitespace-nowrap font-mono text-xs px-4 py-2.5 rounded-full bg-primary text-app-bg hover:bg-primary-bright transition-colors md:ml-2"
-            >
+            <button onClick={() => setAddOpen(true)} className="btn primary shrink-0 whitespace-nowrap md:ml-2">
               + Adicionar movimentação
             </button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
-        <Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-stretch">
+        <Card className="reveal-in">
           <Balance
             accounts={accounts}
             transactions={transactions}
@@ -317,7 +299,7 @@ export function FinancePage() {
             onUpdateInvestmentValue={handleUpdateInvestmentValue}
           />
         </Card>
-        <Card>
+        <Card className="reveal-in">
           <MonthlyLimits
             categoryLimits={categoryLimits}
             categories={categories}
@@ -329,11 +311,11 @@ export function FinancePage() {
         </Card>
       </div>
 
-      <Card>
+      <Card className="reveal-in">
         <MonthSummary transactions={transactions} accounts={accounts} />
       </Card>
 
-      <Card>
+      <Card className="reveal-in">
         <RecentTransactions
           transactions={transactions}
           categories={categories}
@@ -387,6 +369,6 @@ export function FinancePage() {
           onCancel={() => setManageAccountsOpen(false)}
         />
       )}
-    </div>
+    </RevealOnMount>
   );
 }

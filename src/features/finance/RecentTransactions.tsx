@@ -28,53 +28,64 @@ export function RecentTransactions({ transactions, categories, accounts, onEdit 
 
   return (
     <div className="flex flex-col flex-1">
-      <h2 className="font-display text-lg font-semibold mb-4">Últimas movimentações</h2>
+      <h2 className="text-base font-semibold mb-3">Últimas movimentações</h2>
       {recent.length === 0 && <p className="text-sm text-app-muted">Nenhuma movimentação ainda</p>}
-      <div className={`flex flex-col ${recent.length > 5 ? 'max-h-[300px] overflow-y-auto overflow-x-hidden scrollbar-thin pr-1' : ''}`}>
-        {recent.map((t) => {
-          const editable = !!onEdit;
-          return (
-          <div
-            key={t.id}
-            onClick={editable ? () => onEdit!(t) : undefined}
-            role={editable ? 'button' : undefined}
-            tabIndex={editable ? 0 : undefined}
-            onKeyDown={
-              editable
-                ? (e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      onEdit!(t);
+      {recent.length > 0 && (
+        <div className={`overflow-x-auto ${recent.length > 8 ? 'max-h-[340px] overflow-y-auto scrollbar-thin' : ''}`}>
+          <table className="txt">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Descrição</th>
+                <th className="hidden sm:table-cell">Categoria</th>
+                <th className="hidden sm:table-cell">Conta</th>
+                <th className="text-right">Valor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recent.map((t) => {
+                const editable = !!onEdit;
+                return (
+                  <tr
+                    key={t.id}
+                    onClick={editable ? () => onEdit!(t) : undefined}
+                    role={editable ? 'button' : undefined}
+                    tabIndex={editable ? 0 : undefined}
+                    onKeyDown={
+                      editable
+                        ? (e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                              e.preventDefault();
+                              onEdit!(t);
+                            }
+                          }
+                        : undefined
                     }
-                  }
-                : undefined
-            }
-            className={`flex items-center justify-between gap-3 py-2.5 px-1.5 -mx-1.5 border-b border-surface-2 last:border-none ${
-              editable ? 'cursor-pointer hover:bg-surface-2 rounded outline-none focus-visible:bg-surface-2' : ''
-            }`}
-          >
-            <div className="min-w-0">
-              <p className="text-sm text-app-text truncate">
-                {t.description || (t.type === 'transfer' ? 'Transferência' : 'Sem descrição')}
-              </p>
-              <p className="font-mono text-[0.65rem] text-app-muted-2">
-                {t.type === 'transfer'
-                  ? `${accountName(t.account_id)} → ${accountName(t.to_account_id ?? '')} · ${formatRelativeDate(t.date)}`
-                  : `${categoryName(t.category_id)} · ${accountName(t.account_id)} · ${formatRelativeDate(t.date)}`}
-              </p>
-            </div>
-            <span
-              className={`font-mono text-sm whitespace-nowrap ${
-                t.type === 'income' ? 'text-success' : t.type === 'expense' ? 'text-danger' : 'text-primary'
-              }`}
-            >
-              {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}
-              {formatCurrency(t.amount)}
-            </span>
-          </div>
-          );
-        })}
-      </div>
+                    className={editable ? 'editable' : ''}
+                  >
+                    <td className="dt">{formatRelativeDate(t.date)}</td>
+                    <td className="truncate max-w-[180px]">{t.description || (t.type === 'transfer' ? 'Transferência' : 'Sem descrição')}</td>
+                    <td className="hidden sm:table-cell">
+                      {t.type === 'transfer' ? (
+                        <span className="ac">
+                          {accountName(t.account_id)} → {accountName(t.to_account_id ?? '')}
+                        </span>
+                      ) : (
+                        <span className="cat">{categoryName(t.category_id)}</span>
+                      )}
+                    </td>
+                    <td className="hidden sm:table-cell ac">{t.type === 'transfer' ? '—' : accountName(t.account_id)}</td>
+                    <td className={`a ${t.type === 'income' ? 'pos' : t.type === 'expense' ? 'neg' : ''}`}>
+                      {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}
+                      {formatCurrency(t.amount)}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

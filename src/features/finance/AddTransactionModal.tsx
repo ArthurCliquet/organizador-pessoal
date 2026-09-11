@@ -3,6 +3,7 @@ import type { Account, Category, Transaction } from '../../types';
 import { toISODate } from '../calendar/dateUtils';
 import { parseCurrencyInput, formatAmountForInput } from '../../lib/currency';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { Modal } from '../../components/common/Modal';
 
 interface AddTransactionModalProps {
   categories: Category[];
@@ -58,108 +59,77 @@ export function AddTransactionModal({
 
   return (
     <>
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4" onClick={onCancel}>
-      <div
-        className="bg-surface border border-surface-border rounded p-6 max-w-sm w-full flex flex-col gap-4"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="font-display text-lg">{isEditing ? 'Editar movimentação' : 'Nova movimentação'}</h3>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => {
-              setType('expense');
-              setCategoryId('');
-            }}
-            className={`flex-1 font-mono text-xs px-3 py-2 rounded ${type === 'expense' ? 'bg-danger text-app-bg font-semibold' : 'bg-surface-2 text-app-muted'}`}
-          >
-            Saída
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              setType('income');
-              setCategoryId('');
-            }}
-            className={`flex-1 font-mono text-xs px-3 py-2 rounded ${type === 'income' ? 'bg-success text-app-bg font-semibold' : 'bg-surface-2 text-app-muted'}`}
-          >
-            Entrada
-          </button>
-        </div>
-
-        <input
-          autoFocus
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          placeholder="Descrição"
-          className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
-        />
-
-        <input
-          inputMode="decimal"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          placeholder="Valor"
-          className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
-        />
-        {amountError && <p className="text-xs text-danger">{amountError}</p>}
-
-        <input
-          type="date"
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
-          className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
-        />
-
-        <select
-          value={categoryId}
-          onChange={(e) => setCategoryId(e.target.value)}
-          className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
-        >
-          <option value="">Sem categoria</option>
-          {filteredCategories.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={accountId}
-          onChange={(e) => setAccountId(e.target.value)}
-          className="bg-app-bg border border-surface-border rounded px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
-        >
-          {accounts
-            .filter((a) => !a.is_investment)
-            .map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-        </select>
-
-        <div className="flex items-center gap-2 mt-1">
-          {isEditing && onDelete && (
-            <button
-              type="button"
-              onClick={() => setConfirmDelete(true)}
-              className="font-mono text-xs px-3 py-2 rounded text-danger hover:bg-danger/10"
-            >
-              Excluir
-            </button>
-          )}
-          <div className="flex justify-end gap-2 ml-auto">
-            <button type="button" onClick={onCancel} className="font-mono text-xs px-3 py-2 rounded text-app-muted hover:text-app-text">
+      <Modal
+        onClose={onCancel}
+        title={isEditing ? 'Editar movimentação' : 'Nova movimentação'}
+        size="md"
+        footer={
+          <>
+            {isEditing && onDelete && (
+              <button type="button" onClick={() => setConfirmDelete(true)} className="mini-btn danger mr-auto">
+                Excluir
+              </button>
+            )}
+            <button type="button" onClick={onCancel} className="mini-btn">
               Cancelar
             </button>
-            <button type="button" onClick={handleSubmit} className="font-mono text-xs px-3 py-2 rounded bg-primary text-app-bg font-semibold">
+            <button type="button" onClick={handleSubmit} className="mini-btn accent">
               Salvar
             </button>
+          </>
+        }
+      >
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setType('expense');
+                setCategoryId('');
+              }}
+              className={`btn flex-1 justify-center ${type === 'expense' ? 'border-danger text-danger' : ''}`}
+            >
+              Saída
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setType('income');
+                setCategoryId('');
+              }}
+              className={`btn flex-1 justify-center ${type === 'income' ? 'border-success text-success' : ''}`}
+            >
+              Entrada
+            </button>
           </div>
+
+          <input autoFocus value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Descrição" className="input" />
+
+          <input inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="Valor" className="input" />
+          {amountError && <p className="text-xs text-danger">{amountError}</p>}
+
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="input" />
+
+          <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="input">
+            <option value="">Sem categoria</option>
+            {filteredCategories.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+
+          <select value={accountId} onChange={(e) => setAccountId(e.target.value)} className="input">
+            {accounts
+              .filter((a) => !a.is_investment)
+              .map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))}
+          </select>
         </div>
-      </div>
-    </div>
+      </Modal>
 
       {confirmDelete && onDelete && (
         <ConfirmDialog

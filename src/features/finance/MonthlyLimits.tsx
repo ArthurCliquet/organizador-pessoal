@@ -14,10 +14,11 @@ interface MonthlyLimitsProps {
   onDelete: (id: string) => void;
 }
 
-function barColor(percent: number): string {
-  if (percent >= 100) return 'bg-danger';
-  if (percent >= 70) return 'bg-yellow-500';
-  return 'bg-success';
+// Mesma escala de cor das barras de orçamento do Dashboard (BudgetSnapshot).
+function barTone(percent: number): 'hot' | 'warn' | 'ok' {
+  if (percent >= 85) return 'hot';
+  if (percent >= 60) return 'warn';
+  return 'ok';
 }
 
 export function MonthlyLimits({ categoryLimits, categories, transactions, onCreate, onUpdate, onDelete }: MonthlyLimitsProps) {
@@ -72,31 +73,32 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
 
   return (
     <div className="flex flex-col flex-1">
-      <h2 className="font-display text-lg font-semibold mb-4">Limites mensais</h2>
+      <h2 className="text-base font-semibold mb-3">Limites mensais</h2>
 
       {categoryLimits.length === 0 && <p className="text-sm text-app-muted mb-3">Nenhum limite definido ainda</p>}
 
-      <div
-        className={`flex flex-col gap-3 mb-3 ${categoryLimits.length > 2 ? 'max-h-[210px] overflow-y-auto overflow-x-hidden scrollbar-thin pr-1' : ''}`}
-      >
+      <div className={categoryLimits.length > 2 ? 'max-h-[210px] overflow-y-auto overflow-x-hidden scrollbar-thin pr-1' : ''}>
         {categoryLimits.map((limit) => {
           const spent = calculateCategorySpending(limit.category_id, transactions, monthStart, monthEnd);
           const percent = Math.min((spent / Number(limit.monthly_limit)) * 100, 100);
           return (
-            <div key={limit.id} className="flex flex-col gap-1.5">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm truncate">{categoryName(limit.category_id)}</span>
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <button onClick={() => startEditing(limit)} className="font-mono text-[0.65rem] text-app-muted-2 hover:text-app-text">
+            <div key={limit.id} className="limit">
+              <div className="lt">
+                <span className="truncate">{categoryName(limit.category_id)}</span>
+                <span className="flex items-center gap-2 shrink-0">
+                  <span className="v text-app-muted-2">
+                    {formatCurrency(spent)} / {formatCurrency(Number(limit.monthly_limit))}
+                  </span>
+                  <button onClick={() => startEditing(limit)} className="text-xs text-app-muted-2 hover:text-app-text">
                     editar
                   </button>
                   <button onClick={() => onDelete(limit.id)} className="text-app-muted hover:text-danger text-xs">
                     ✕
                   </button>
-                </div>
+                </span>
               </div>
 
-              {editingId === limit.id ? (
+              {editingId === limit.id && (
                 <div className="flex flex-col gap-1">
                   <div className="flex items-center gap-2">
                     <input
@@ -108,12 +110,9 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
                         if (e.key === 'Enter') handleSaveEdit(limit.id);
                         if (e.key === 'Escape') setEditingId(null);
                       }}
-                      className="flex-1 bg-app-bg border border-primary rounded px-2 py-1 text-sm text-app-text outline-none"
+                      className="input flex-1"
                     />
-                    <button
-                      onClick={() => handleSaveEdit(limit.id)}
-                      className="font-mono text-xs px-3 py-1.5 rounded bg-primary text-app-bg font-semibold"
-                    >
+                    <button onClick={() => handleSaveEdit(limit.id)} className="mini-btn accent">
                       Salvar
                     </button>
                     <button
@@ -121,35 +120,26 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
                         setEditError('');
                         setEditingId(null);
                       }}
-                      className="font-mono text-xs px-3 py-1.5 rounded text-app-muted hover:text-app-text"
+                      className="mini-btn"
                     >
                       Cancelar
                     </button>
                   </div>
                   {editError && <p className="text-xs text-danger">{editError}</p>}
                 </div>
-              ) : (
-                <>
-                  <div className="w-full h-2 rounded-full bg-surface-2 overflow-hidden">
-                    <div className={`h-full rounded-full transition-all ${barColor(percent)}`} style={{ width: `${percent}%` }} />
-                  </div>
-                  <p className="font-mono text-[0.65rem] text-app-muted-2">
-                    {formatCurrency(spent)} / {formatCurrency(Number(limit.monthly_limit))}
-                  </p>
-                </>
               )}
+
+              <div className="track">
+                <i className={`bar-fill ${barTone(percent)}`} style={{ width: `${percent}%` }} />
+              </div>
             </div>
           );
         })}
       </div>
 
       {availableCategories.length > 0 && (
-        <div className="flex flex-col gap-2 mt-1 pt-3 border-t border-dashed border-surface-border">
-          <select
-            value={newCategoryId}
-            onChange={(e) => setNewCategoryId(e.target.value)}
-            className="bg-app-bg border border-surface-border rounded-lg px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
-          >
+        <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-dashed border-surface-border">
+          <select value={newCategoryId} onChange={(e) => setNewCategoryId(e.target.value)} className="input">
             <option value="">Escolha uma categoria</option>
             {availableCategories.map((c) => (
               <option key={c.id} value={c.id}>
@@ -163,12 +153,9 @@ export function MonthlyLimits({ categoryLimits, categories, transactions, onCrea
               value={newLimit}
               onChange={(e) => setNewLimit(e.target.value)}
               placeholder="Limite mensal"
-              className="flex-1 min-w-0 bg-app-bg border border-surface-border rounded-lg px-3 py-2 text-sm text-app-text outline-none focus:border-primary"
+              className="input flex-1 min-w-0"
             />
-            <button
-              onClick={handleCreate}
-              className="font-mono text-xs px-4 py-2 rounded-lg bg-primary text-app-bg shrink-0 transition-colors hover:bg-primary-bright"
-            >
+            <button onClick={handleCreate} className="btn primary shrink-0">
               Definir limite
             </button>
           </div>
