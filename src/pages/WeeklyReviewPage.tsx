@@ -178,7 +178,7 @@ export function WeeklyReviewPage() {
       ) : (
         <div className={loading ? 'flex flex-col gap-4 opacity-50 transition-opacity' : 'flex flex-col gap-4'}>
           <div className="grid grid-cols-1 md:grid-cols-[0.78fr_1fr] gap-4">
-            <Card delay="0.02s">
+            <Card>
               <div className="flex items-baseline justify-between gap-3 mb-[1.15rem]">
                 <h2>
                   <Link to="/calendario" className="block-title-link accent-primary font-display text-[1.2rem] font-semibold">
@@ -222,7 +222,7 @@ export function WeeklyReviewPage() {
               </div>
             </Card>
 
-            <Card delay="0.09s">
+            <Card>
               <div className="flex items-baseline justify-between gap-3 mb-[1.15rem]">
                 <h2>
                   <Link to="/financas" className="block-title-link accent-success font-display text-[1.2rem] font-semibold">
@@ -284,7 +284,7 @@ export function WeeklyReviewPage() {
             </Card>
           </div>
 
-          <Card delay="0.16s">
+          <Card>
             <div className="flex items-baseline justify-between gap-3 mb-[1.15rem]">
               <h2>
                 <Link to="/calendario" className="block-title-link accent-special font-display text-[1.2rem] font-semibold">

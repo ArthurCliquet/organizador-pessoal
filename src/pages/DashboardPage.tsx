@@ -37,18 +37,17 @@ export function DashboardPage() {
 
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch">
-            <Card delay="80ms">
+            <Card>
               <TodayAgenda onCountsChange={handleAgendaCounts} rail={<AgendaRail />} />
             </Card>
 
-            <Card delay="120ms">
+            <Card>
               <BalanceSnapshot />
             </Card>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
             <Card
-              delay="150ms"
               padding="p-0"
               className="md:col-span-2 overflow-hidden flex-col md:flex-row divide-y divide-surface-border md:divide-y-0 md:divide-x"
             >
@@ -60,7 +59,7 @@ export function DashboardPage() {
               </div>
             </Card>
 
-            <Card delay="280ms">
+            <Card>
               <BudgetSnapshot />
             </Card>
           </div>

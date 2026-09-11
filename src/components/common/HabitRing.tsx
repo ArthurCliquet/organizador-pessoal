@@ -5,12 +5,11 @@ interface HabitRingProps {
 
 export function HabitRing({ checked, onChange }: HabitRingProps) {
   return (
-    <span className="ring-control shrink-0">
+    <span className="check-control tone-success shrink-0">
       <input type="checkbox" checked={checked} onChange={onChange} />
-      <span className="ring-circle" />
-      <span className="stamp-ring" />
-      <svg viewBox="0 0 20 20">
-        <path d="M5 10l3 3 7-7" />
+      <span className="check-box" />
+      <svg viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M4 8l2.5 2.5L12 5" />
       </svg>
     </span>
   );
