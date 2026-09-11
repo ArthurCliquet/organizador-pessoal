@@ -75,7 +75,7 @@ export function RecentTransactions({ transactions, categories, accounts, onEdit 
                       )}
                     </td>
                     <td className="hidden sm:table-cell ac">{t.type === 'transfer' ? '—' : accountName(t.account_id)}</td>
-                    <td className={`a ${t.type === 'income' ? 'pos' : t.type === 'expense' ? 'neg' : ''}`}>
+                    <td className={`a ${t.type === 'income' ? 'pos' : t.type === 'expense' ? 'neg' : 'transfer'}`}>
                       {t.type === 'income' ? '+' : t.type === 'expense' ? '-' : ''}
                       {formatCurrency(t.amount)}
                     </td>
