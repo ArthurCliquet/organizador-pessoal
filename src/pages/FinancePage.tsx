@@ -246,7 +246,7 @@ export function FinancePage() {
         <p className="text-sm text-app-muted">Não foi possível carregar seus dados financeiros.</p>
         <button
           onClick={() => load()}
-          className="font-mono text-xs px-4 py-2 rounded bg-primary text-app-bg font-semibold"
+          className="font-mono text-xs px-4 py-2 rounded bg-primary text-on-primary font-semibold"
         >
           Tentar de novo
         </button>
