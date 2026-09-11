@@ -6,13 +6,14 @@ import {
   renameHabit,
   deleteHabit,
   reorderHabits,
-  getHabitLogsForDate,
+  getHabitLogsForRange,
   toggleHabitLog,
 } from '../habits/habitsApi';
 import { useToast } from '../../contexts/ToastContext';
 import { HabitProgressRing } from './HabitProgressRing';
 import { HabitManageModal } from './HabitManageModal';
-import { HabitRing } from '../../components/common/HabitRing';
+import { TaskCheck } from '../../components/common/TaskCheck';
+import { getWeekRange, getSevenDaysFrom, toISODate } from '../calendar/dateUtils';
 
 interface HabitStripProps {
   date: string;
@@ -25,22 +26,26 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
   const [logs, setLogs] = useState<HabitLog[]>([]);
   const [managing, setManaging] = useState(false);
 
+  const { start: weekStart } = getWeekRange(new Date());
+  const weekDays = getSevenDaysFrom(weekStart);
+
   const load = useCallback(async () => {
     try {
-      const [h, l] = await Promise.all([getHabits(), getHabitLogsForDate(date)]);
+      const [h, l] = await Promise.all([getHabits(), getHabitLogsForRange(weekDays[0], weekDays[6])]);
       setHabits(h);
       setLogs(l);
     } catch {
       showError('Não foi possível carregar os hábitos.');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [date, showError]);
 
   useEffect(() => {
     load();
   }, [load]);
 
-  function isDone(habitId: string) {
-    return logs.find((l) => l.habit_id === habitId)?.done ?? false;
+  function isDone(habitId: string, forDate = date) {
+    return logs.find((l) => l.habit_id === habitId && l.date === forDate)?.done ?? false;
   }
 
   const done = habits.filter((h) => isDone(h.id)).length;
@@ -52,8 +57,8 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
   async function handleToggle(habitId: string) {
     const nextDone = !isDone(habitId);
     setLogs((prev) => {
-      const existing = prev.find((l) => l.habit_id === habitId);
-      if (existing) return prev.map((l) => (l.habit_id === habitId ? { ...l, done: nextDone } : l));
+      const existing = prev.find((l) => l.habit_id === habitId && l.date === date);
+      if (existing) return prev.map((l) => (l.habit_id === habitId && l.date === date ? { ...l, done: nextDone } : l));
       return [...prev, { id: `${habitId}-${date}`, habit_id: habitId, date, done: nextDone }];
     });
     try {
@@ -102,28 +107,34 @@ export function HabitStrip({ date, onCountsChange }: HabitStripProps) {
     }
   }
 
+  const todayIso = toISODate(new Date());
+
   return (
-    <div className="flex flex-col flex-1">
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 className="font-display text-lg font-semibold">Hábitos</h2>
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex items-baseline justify-between mb-3 shrink-0">
+        <h2 className="text-base font-semibold">Hábitos</h2>
         {habits.length > 0 && <HabitProgressRing done={done} total={habits.length} size={30} />}
       </div>
 
-      <div className="flex flex-col gap-0.5 mb-3">
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain scrollbar-thin">
         {habits.map((habit) => (
-          <label
-            key={habit.id}
-            className="flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
-          >
-            <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
-            <span className={`flex-1 text-sm ${isDone(habit.id) ? 'text-success' : 'text-app-text'}`}>{habit.name}</span>
-          </label>
+          <div key={habit.id} className="flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0">
+            <label className="flex items-center gap-2.5 flex-1 min-w-0 cursor-pointer">
+              <TaskCheck tone="success" checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
+              <span className="flex-1 text-sm text-app-text truncate">{habit.name}</span>
+            </label>
+            <span className="habit-week shrink-0">
+              {weekDays.map((d) => (
+                <i key={d} className={isDone(habit.id, d) ? 'hit' : ''} title={d === todayIso ? 'hoje' : d} />
+              ))}
+            </span>
+          </div>
         ))}
         {habits.length === 0 && <p className="text-sm text-app-muted">Nenhum hábito ainda</p>}
       </div>
 
-      <button type="button" onClick={() => setManaging(true)} className="card-foot-action">
-        gerenciar hábitos
+      <button type="button" onClick={() => setManaging(true)} className="foot-link text-left">
+        + hábito
       </button>
 
       {managing && (

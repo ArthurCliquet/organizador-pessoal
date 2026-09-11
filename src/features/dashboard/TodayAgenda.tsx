@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, type CSSProperties, type ReactNode } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, toggleTask } from '../tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
@@ -12,10 +12,9 @@ type DayItem =
 
 interface TodayAgendaProps {
   onCountsChange?: (taskCount: number, eventCount: number, dayTotal: number, dayDone: number) => void;
-  rail?: ReactNode;
 }
 
-export function TodayAgenda({ onCountsChange, rail }: TodayAgendaProps) {
+export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
   const { showError } = useToast();
   const today = toISODate(new Date());
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -103,50 +102,36 @@ export function TodayAgenda({ onCountsChange, rail }: TodayAgendaProps) {
   }
 
   return (
-    <div className="flex flex-col flex-1">
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 className="font-display text-lg font-semibold">Agenda de hoje</h2>
-        <span className="font-mono text-xs text-app-muted-2">
-          {dayItems.length} {dayItems.length === 1 ? 'tarefa' : 'tarefas'}
-        </span>
-      </div>
-      <div className="flex flex-col gap-0.5">
-        {dayItems.map((item, i) => (
-          <label
-            key={`${item.kind}-${item.id}`}
-            style={{ '--stagger': i * 40 } as CSSProperties}
-            className="list-row-in group grid grid-cols-[18px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] cursor-pointer transition-colors hover:bg-white/[0.025]"
-          >
-            <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
-            <span className={`text-sm strike justify-self-start ${item.done ? 'text-app-muted is-done' : 'text-app-text'}`}>
-              {item.time && <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span>}
-              {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
-              {item.kind === 'task' && item.isSpecialEvent && (
-                <span className="day-pad-event-mark inline-block align-middle mr-1.5" title="Evento especial" />
-              )}
-              {item.title}
-            </span>
-            {item.kind === 'recurring' ? (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  handleSkipRecurring(item.id);
-                }}
-                title="Pular só hoje, sem mexer nos outros dias"
-                className="opacity-100 md:opacity-0 md:group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
-              >
-                pular hoje
-              </button>
-            ) : (
-              <span />
-            )}
-          </label>
-        ))}
-        {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa hoje</p>}
-      </div>
-      {rail}
+    <div className="max-h-[220px] overflow-y-auto overscroll-contain scrollbar-thin flex flex-col">
+      {dayItems.map((item) => (
+        <label
+          key={`${item.kind}-${item.id}`}
+          className="group flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0 cursor-pointer"
+        >
+          <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
+          {item.kind === 'task' && item.isSpecialEvent && <span className="diamond" />}
+          <span className={`flex-1 text-sm strike min-w-0 truncate ${item.done ? 'text-app-muted-2 is-done' : 'text-app-text'}`}>
+            {item.time && <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span>}
+            {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
+            {item.title}
+          </span>
+          {item.kind === 'recurring' && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSkipRecurring(item.id);
+              }}
+              title="Pular só hoje, sem mexer nos outros dias"
+              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 font-mono text-app-muted hover:text-primary text-[0.65rem] shrink-0"
+            >
+              pular hoje
+            </button>
+          )}
+        </label>
+      ))}
+      {dayItems.length === 0 && <p className="text-sm text-app-muted">Nenhuma tarefa hoje</p>}
     </div>
   );
 }

@@ -7,17 +7,18 @@ import { toISODate } from '../calendar/dateUtils';
 import { formatCurrency } from '../../lib/currency';
 import { useToast } from '../../contexts/ToastContext';
 
-function valueTone(percent: number): string {
-  if (percent >= 90) return 'text-danger';
-  if (percent >= 70) return 'text-app-text';
-  return 'text-success';
+// Mesma escala de cor das barras de limite em Finanças (MonthlyLimits).
+function barTone(percent: number): 'hot' | 'warn' | 'ok' {
+  if (percent >= 85) return 'hot';
+  if (percent >= 60) return 'warn';
+  return 'ok';
 }
 
-// Mesma escala de cor das barras de limite em Finanças (MonthlyLimits).
-function barColor(percent: number): string {
-  if (percent >= 100) return 'bg-danger';
-  if (percent >= 70) return 'bg-yellow-500';
-  return 'bg-success';
+function valueTone(percent: number): string {
+  const tone = barTone(percent);
+  if (tone === 'hot') return 'text-danger';
+  if (tone === 'warn') return 'text-warn';
+  return 'text-success';
 }
 
 export function BudgetSnapshot() {
@@ -69,10 +70,11 @@ export function BudgetSnapshot() {
   const totalPercent = totalLimit > 0 ? Math.round((totalSpent / totalLimit) * 100) : 0;
 
   return (
-    <div className="flex flex-col flex-1">
-      <div className="flex items-baseline justify-between mb-4">
-        <Link to="/financas" className="block-title-link accent-success font-display text-lg font-semibold">
-          Orçamento <span className="go-arrow">→ finanças</span>
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex items-baseline justify-between mb-3 shrink-0">
+        <h2 className="text-base font-semibold">Orçamento do mês</h2>
+        <Link to="/financas" className="text-xs text-app-muted-2 hover:text-primary-bright transition-colors">
+          Finanças
         </Link>
       </div>
 
@@ -87,39 +89,33 @@ export function BudgetSnapshot() {
           </p>
         </div>
       ) : (
-        <>
-          <div className="flex flex-col gap-3.5">
+        <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain scrollbar-thin">
+          <div className="flex flex-col gap-3">
             {rows.map(({ limit, percent, name }) => (
               <div key={limit.id} className="flex flex-col gap-1.5">
                 <div className="flex items-baseline justify-between gap-2 text-[0.8rem]">
                   <span className="text-app-muted truncate">{name}</span>
-                  <span className={`tabular-nums font-medium whitespace-nowrap ${valueTone(percent)}`}>{percent}%</span>
+                  <span className={`tabular-nums font-medium whitespace-nowrap font-mono text-[11.5px] ${valueTone(percent)}`}>{percent}%</span>
                 </div>
-                <div className="h-2 rounded-full bg-surface-2 overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-[width] duration-500 ease-out ${barColor(percent)}`}
-                    style={{ width: `${Math.min(percent, 100)}%` }}
-                  />
+                <div className="track">
+                  <i className={`bar-fill ${barTone(percent)}`} style={{ width: `${Math.min(percent, 100)}%` }} />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-auto pt-4 border-t border-surface-border/60">
+          <div className="mt-4 pt-3 border-t border-border-2">
             <div className="flex items-baseline justify-between gap-2 mb-1.5">
-              <span className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-app-muted-2">Total do mês</span>
+              <span className="text-[11px] uppercase tracking-[0.04em] text-app-muted-2">Total do mês</span>
               <span className="font-mono text-[0.72rem] text-app-muted-2">
                 <b className={`font-semibold ${valueTone(totalPercent)}`}>{formatCurrency(totalSpent)}</b> / {formatCurrency(totalLimit)}
               </span>
             </div>
-            <div className="h-2 rounded-full bg-surface-2 overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-[width] duration-500 ease-out ${barColor(totalPercent)}`}
-                style={{ width: `${Math.min(totalPercent, 100)}%` }}
-              />
+            <div className="track">
+              <i className={`bar-fill ${barTone(totalPercent)}`} style={{ width: `${Math.min(totalPercent, 100)}%` }} />
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

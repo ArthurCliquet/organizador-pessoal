@@ -120,101 +120,6 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
   display: none;
 }
 
-/* ---- Dashboard: ambient glow, hero "Cartão do Dia", staggered entrance ---- */
-
-.dash-glow {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(640px 420px at 92% -8%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 65%),
-    radial-gradient(560px 420px at 4% 96%, color-mix(in srgb, var(--color-success) 9%, transparent), transparent 65%);
-}
-
-.hero-texture {
-  position: absolute;
-  inset: 0;
-  background-image: repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.02) 0px, rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 5px);
-  opacity: 0.5;
-  mix-blend-mode: overlay;
-  pointer-events: none;
-}
-
-/* Day header as one page of a desk-calendar pad: two page edges peek out
-   behind the current page, and a filing tab (weekly review) is clipped into
-   its top edge. */
-
-.day-pad-sliver {
-  position: absolute;
-  left: 14px;
-  right: 14px;
-  bottom: -7px;
-  height: 20px;
-  background: var(--color-surface-2);
-  border-radius: 0 0 14px 14px;
-  box-shadow: 0 6px 10px -6px rgba(0, 0, 0, 0.5);
-  z-index: 0;
-}
-
-.day-pad-sliver-2 {
-  left: 26px;
-  right: 26px;
-  bottom: -13px;
-  height: 16px;
-  background: var(--color-surface);
-}
-
-.day-pad-tab {
-  position: absolute;
-  top: 0;
-  right: 26px;
-  z-index: 2;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  height: 30px;
-  padding: 0 0.85rem;
-  font-family: var(--font-mono);
-  font-size: 0.65rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--color-app-muted);
-  background: var(--color-surface-hi);
-  border: 1px solid var(--color-surface-border);
-  border-bottom: none;
-  border-radius: 10px 10px 0 0;
-  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.25);
-  transition: color 0.15s ease, background-color 0.15s ease;
-}
-
-.day-pad-tab:hover,
-.day-pad-tab:focus-visible {
-  color: var(--color-primary-bright);
-  background: color-mix(in srgb, var(--color-surface-hi) 80%, var(--color-primary) 8%);
-}
-
-.day-pad-tab .go-arrow {
-  transition: transform 0.15s ease;
-}
-
-.day-pad-tab:hover .go-arrow {
-  transform: translateX(2px);
-}
-
-/* Special-event mark for the day header stat line — a diamond instead of a
-   round dot, so an event reads as a distinct kind of thing, not just another
-   task bumping the same counter. */
-
-.day-pad-event-mark {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  background: var(--color-special);
-  transform: rotate(45deg);
-  box-shadow: 0 0 4px color-mix(in srgb, var(--color-special) 60%, transparent);
-}
-
 @keyframes nock-reveal { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes nock-bar-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes nock-mark-pop { from { opacity: 0; transform: scale(.4); } to { opacity: 1; transform: scale(1); } }
@@ -301,6 +206,32 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
 .modal-h .x:hover { color: var(--color-app-text); }
 .modal-body { padding: 16px 18px; }
 .modal-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 18px; border-top: 1px solid var(--color-surface-border); }
+
+/* ---- Dashboard: chips de resumo, agenda, barras de orçamento, tira de hábitos ---- */
+
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--color-surface-2); color: var(--color-app-muted); }
+.chip .num { font-size: 11.5px; }
+.chip b { color: var(--color-app-text); font-weight: 600; }
+
+.diamond { width: 9px; height: 9px; flex: none; background: var(--color-special); clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+
+.dot { width: 6px; height: 6px; border-radius: 999px; background: var(--color-primary); flex: none; }
+.dot.muted { background: var(--color-app-muted-2); }
+
+.track { height: 4px; border-radius: 999px; background: var(--color-surface-3); overflow: hidden; }
+.track i { display: block; height: 100%; background: var(--color-primary); transform-origin: left center; }
+.track i.hot { background: var(--color-danger); }
+.track i.warn { background: var(--color-warn); }
+.track i.ok { background: var(--color-success); }
+.revealing .bar-fill { animation: nock-bar-fill .55s cubic-bezier(.16, 1, .3, 1) both; }
+
+.habit-week { display: flex; gap: 3px; }
+.habit-week i { width: 6px; height: 6px; border-radius: 999px; background: var(--color-surface-3); display: block; }
+.habit-week i.hit { background: var(--color-success); }
+
+/* Ação discreta no rodapé de um card (ex.: "+ hábito", "+ nova pendência") */
+.foot-link { margin-top: auto; align-self: flex-start; padding-top: 10px; font-size: 12px; color: var(--color-app-muted-2); font-weight: 500; }
+.foot-link:hover { color: var(--color-primary-bright); }
 
 /* ---- Native time input: match dark theme ---- */
 
@@ -483,36 +414,6 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   gap: 0.45rem;
 }
 
-.block-title-link {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 0.4rem;
-  color: var(--color-app-text);
-  text-decoration: none;
-}
-.block-title-link .go-arrow {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 500;
-  opacity: 0;
-  transform: translateX(-3px);
-  transition: opacity 0.15s ease, transform 0.15s ease, color 0.15s ease;
-}
-.block-title-link:hover .go-arrow,
-.block-title-link:focus-visible .go-arrow {
-  opacity: 1;
-  transform: translateX(0);
-}
-.block-title-link.accent-primary:hover,
-.block-title-link.accent-primary:focus-visible { color: var(--color-primary-bright); }
-.block-title-link.accent-primary .go-arrow { color: var(--color-primary); }
-.block-title-link.accent-success:hover,
-.block-title-link.accent-success:focus-visible { color: var(--color-success); }
-.block-title-link.accent-success .go-arrow { color: var(--color-success); }
-.block-title-link.accent-special:hover,
-.block-title-link.accent-special:focus-visible { color: var(--color-special); }
-.block-title-link.accent-special .go-arrow { color: var(--color-special); }
-
 .trend-chip {
   font-family: var(--font-mono);
   font-size: 0.64rem;
@@ -589,156 +490,6 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 
 @media (prefers-reduced-motion: reduce) {
   .tally-mark { animation: none; opacity: 1; transform: none; }
-}
-
-/* ---- Dashboard lists: slim day-ahead ribbon (composição migra na Task 8) ---- */
-
-.day-ribbon-wrap {
-  margin-top: 0.9rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--color-surface-border);
-}
-
-.day-ribbon {
-  display: flex;
-  align-items: stretch;
-}
-.day-ribbon-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.4rem 0.25rem 0.55rem;
-  border-radius: 10px;
-  transition: background-color 0.15s ease;
-}
-.day-ribbon-item:hover {
-  background: rgba(255, 255, 255, 0.025);
-}
-.day-ribbon-rule {
-  flex: 1;
-  align-self: center;
-  height: 1px;
-  margin-top: -0.55rem;
-  background: repeating-linear-gradient(90deg, var(--color-surface-border) 0 4px, transparent 4px 8px);
-}
-.day-ribbon-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 9999px;
-  display: inline-block;
-}
-
-/* ---- Dashboard: habit strip chips ---- */
-
-.habit-chip {
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  padding: 0.3rem 0.65rem;
-  border-radius: 9999px;
-  border: 1px solid var(--color-surface-border);
-  background: transparent;
-  color: var(--color-app-muted);
-  white-space: nowrap;
-  flex-shrink: 0;
-  cursor: pointer;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-.habit-chip:hover {
-  border-color: color-mix(in srgb, var(--color-success) 40%, var(--color-surface-border));
-  color: var(--color-app-text);
-}
-.habit-chip.on {
-  background: color-mix(in srgb, var(--color-success) 16%, transparent);
-  border-color: color-mix(in srgb, var(--color-success) 40%, var(--color-surface-border));
-  color: var(--color-success);
-}
-.habit-chip.on:hover {
-  color: var(--color-success);
-}
-
-.habit-chip-row {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  flex-wrap: nowrap;
-  overflow: hidden;
-  flex: 1;
-  min-width: 0;
-  mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
-  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
-}
-
-/* Ação discreta no rodapé de um card (ex.: "nova pendência", "gerenciar hábitos") */
-.card-foot-action {
-  align-self: flex-start;
-  margin-top: auto;
-  padding: 0.35rem 0.15rem 0.1rem;
-  font-family: var(--font-mono);
-  font-size: 0.78rem;
-  letter-spacing: 0.01em;
-  color: var(--color-app-muted);
-  white-space: nowrap;
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 3px;
-  transition: color 0.15s ease, text-decoration-color 0.15s ease;
-}
-.card-foot-action:hover,
-.card-foot-action:focus-visible {
-  color: var(--color-primary-bright);
-  text-decoration-color: var(--color-primary-bright);
-}
-
-/* ---- Dashboard: day rail no rodapé do card Agenda ---- */
-
-.agenda-rail {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid color-mix(in srgb, var(--color-surface-border) 55%, transparent);
-}
-
-.agenda-rail-item {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 0.3rem;
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid var(--color-surface-border);
-  border-radius: 10px;
-  padding: 0.5rem 0.7rem;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
-}
-.agenda-rail-item:hover {
-  background: rgba(255, 255, 255, 0.025);
-  border-color: color-mix(in srgb, var(--color-primary) 30%, var(--color-surface-border));
-}
-
-.agenda-rail-label {
-  font-family: var(--font-mono);
-  font-size: 0.6rem;
-  letter-spacing: 0.07em;
-  text-transform: uppercase;
-  color: var(--color-app-muted-2);
-  display: flex;
-  align-items: center;
-  gap: 0.32rem;
-  white-space: nowrap;
-}
-
-.agenda-rail-dot-empty {
-  width: 6px;
-  height: 6px;
-  border-radius: 9999px;
-  border: 1.3px solid var(--color-surface-border);
-  display: inline-block;
-  flex-shrink: 0;
 }
 
 /* ---- Notes: editor header — title as the document's own field, with a

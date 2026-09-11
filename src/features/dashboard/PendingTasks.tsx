@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, type CSSProperties } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { Task } from '../../types';
 import { getPendingTasks, createPendingTask, toggleTask, deleteTask } from '../tasks/tasksApi';
 import { useToast } from '../../contexts/ToastContext';
@@ -54,22 +54,18 @@ export function PendingTasks() {
   }
 
   return (
-    <div className="flex flex-col flex-1">
-      <div className="flex items-baseline justify-between mb-4">
-        <h2 className="font-display text-lg font-semibold">Pendências</h2>
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex items-baseline justify-between mb-3 shrink-0">
+        <h2 className="text-base font-semibold">Pendências</h2>
         <span className="font-mono text-xs text-app-muted-2">
           {tasks.length} {tasks.length === 1 ? 'tarefa' : 'tarefas'}
         </span>
       </div>
-      <div className="flex-1 flex flex-col gap-0.5 mb-3 max-h-[180px] overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin">
-        {tasks.map((task, i) => (
-          <div
-            key={task.id}
-            style={{ '--stagger': i * 40 } as CSSProperties}
-            className="list-row-in group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
-          >
+      <div className="flex-1 min-h-0 flex flex-col overflow-y-auto overscroll-contain scrollbar-thin">
+        {tasks.map((task) => (
+          <div key={task.id} className="group flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0">
             <TaskCheck checked={task.done} onChange={() => handleToggle(task)} />
-            <span className={`flex-1 text-sm strike ${task.done ? 'text-app-muted is-done' : 'text-app-text'}`}>{task.title}</span>
+            <span className={`flex-1 text-sm strike min-w-0 truncate ${task.done ? 'text-app-muted-2 is-done' : 'text-app-text'}`}>{task.title}</span>
             <button
               onClick={() => handleDelete(task.id)}
               className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1"
@@ -115,7 +111,7 @@ export function PendingTasks() {
           </button>
         </form>
       ) : (
-        <button type="button" onClick={() => setIsAdding(true)} className="card-foot-action">
+        <button type="button" onClick={() => setIsAdding(true)} className="foot-link text-left">
           + nova pendência
         </button>
       )}
