@@ -500,7 +500,7 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 .mx td.ct { font-family: var(--font-mono); font-size: 10.5px; color: var(--color-app-muted-2); }
 .mx tr + tr td { border-top: 1px solid var(--color-border-2); }
 .mk { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid var(--color-surface-border); display: inline-block; }
-.mk.done { background: var(--color-success); border-color: var(--color-success); }
+.mk.done { background: var(--color-primary); border-color: var(--color-primary); }
 .revealing .mk.done { animation: nock-mark-pop .28s cubic-bezier(.34, 1.4, .64, 1) both; }
 
 /* ---- Notes: editor header — title as the document's own field, with a
