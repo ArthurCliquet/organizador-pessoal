@@ -1,8 +1,8 @@
-import { useEffect, useState, useCallback, type CSSProperties } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { Habit, HabitLog } from '../../types';
 import { getHabits, createHabit, renameHabit, deleteHabit, getHabitLogsForDate, toggleHabitLog } from './habitsApi';
 import { useToast } from '../../contexts/ToastContext';
-import { HabitRing } from '../../components/common/HabitRing';
+import { TaskCheck } from '../../components/common/TaskCheck';
 
 interface HabitChecklistProps {
   date: string;
@@ -91,15 +91,11 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
 
   return (
     <div className="flex flex-col flex-1">
-      <div className="flex-1 flex flex-col gap-0.5">
-        {habits.map((habit, i) => (
-          <div
-            key={habit.id}
-            style={{ '--stagger': i * 40 } as CSSProperties}
-            className="list-row-in group flex items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
-          >
-            <label className="flex-1 flex items-center gap-2.5 cursor-pointer">
-              <HabitRing checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
+      <div className="flex-1 flex flex-col">
+        {habits.map((habit) => (
+          <div key={habit.id} className="group flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0">
+            <label className="flex-1 flex items-center gap-2.5 cursor-pointer min-w-0">
+              <TaskCheck tone="success" checked={isDone(habit.id)} onChange={() => handleToggle(habit.id)} />
               {editingId === habit.id ? (
                 <input
                   autoFocus
@@ -112,7 +108,7 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') e.currentTarget.blur();
                   }}
-                  className="bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
+                  className="bg-app-bg border border-primary rounded-sm px-1 text-sm text-app-text outline-none"
                 />
               ) : (
                 <span
@@ -120,13 +116,13 @@ export function HabitChecklist({ date, allowCreate = false, onCountsChange }: Ha
                     setEditingId(habit.id);
                     setEditingName(habit.name);
                   }}
-                  className={`text-sm strike ${isDone(habit.id) ? 'text-app-muted is-done' : 'text-app-text'}`}
+                  className={`text-sm truncate ${isDone(habit.id) ? 'text-success' : 'text-app-text'}`}
                 >
                   {habit.name}
                 </span>
               )}
             </label>
-            <button onClick={() => handleDelete(habit.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">
+            <button onClick={() => handleDelete(habit.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1 shrink-0">
               ✕
             </button>
           </div>

@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, type CSSProperties } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
 import { getTasksForDate, createTask, updateTask, toggleTask, deleteTask } from '../tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
@@ -155,42 +155,29 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
   }
 
   return (
-    <div className="md:h-full md:flex md:flex-col md:min-h-0">
-      <div className="tear-rule shrink-0"><span /><i /><span /></div>
-      <div className="relative overflow-hidden bg-surface border border-surface-border rounded-card shadow-card p-5 md:flex-1 md:flex md:flex-col md:min-h-0">
-        <div className="hero-texture" />
+    <div className="reveal-in bg-surface border border-surface-border rounded-card p-5 md:h-full md:flex md:flex-col md:min-h-0">
+      <div className="shrink-0">
+        <h3 className="text-lg font-semibold capitalize">{weekdayName}</h3>
+        <p className="text-xs text-app-muted-2 mb-4">{fullDate}</p>
+      </div>
 
-        <div className="relative flex items-baseline gap-3 pb-4 mb-4 border-b border-surface-border shrink-0">
-          <span className="font-display text-5xl text-primary-bright font-semibold leading-none">
-            {new Date(`${date}T12:00:00`).getDate()}
-          </span>
-          <div className="flex flex-col gap-0.5">
-            <span className="font-display text-lg capitalize">{weekdayName}</span>
-            <span className="font-mono text-[0.6rem] uppercase tracking-widest text-app-muted-2">{fullDate}</span>
-          </div>
-        </div>
-
-        <div className="relative md:min-h-0 md:overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin">
+      <div className="md:min-h-0 md:overflow-y-auto overflow-x-hidden overscroll-contain scrollbar-thin">
         {/* --- Tarefas --- */}
-        <div className="relative">
+        <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-mono text-[0.64rem] uppercase tracking-widest text-app-muted-2 font-semibold">Tarefas</h3>
-            <span className="font-mono text-[0.62rem] font-semibold text-primary bg-primary-dim rounded-full px-2 py-0.5">
-              {doneCount}/{dayItems.length}
+            <h3 className="text-sm font-semibold">Tarefas</h3>
+            <span className="chip">
+              <b className="num">{doneCount}</b>/<span className="num">{dayItems.length}</span>
             </span>
           </div>
 
-          <div className="flex flex-col gap-0.5">
-            {dayItems.map((item, i) => (
-              <div
-                key={`${item.kind}-${item.id}`}
-                style={{ '--stagger': i * 40 } as CSSProperties}
-                className="list-row-in group grid grid-cols-[18px_1fr_auto] items-center gap-2.5 py-2 px-1.5 -mx-1.5 rounded-[10px] transition-colors hover:bg-white/[0.025]"
-              >
+          <div className="flex flex-col">
+            {dayItems.map((item) => (
+              <div key={`${item.kind}-${item.id}`} className="group flex items-center gap-2.5 py-2 border-t border-border-2 first:border-t-0">
                 <TaskCheck checked={item.done} onChange={() => handleToggle(item)} />
                 {item.kind === 'task' && editingId === item.id ? (
                   <div
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 flex-1"
                     onBlur={(e) => {
                       if (!e.currentTarget.contains(e.relatedTarget as Node)) commitEdit();
                     }}
@@ -202,13 +189,13 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                       onKeyDown={(e) => {
                         if (e.key === 'Enter') e.currentTarget.blur();
                       }}
-                      className="flex-1 bg-app-bg border border-primary rounded px-1 text-sm text-app-text outline-none"
+                      className="flex-1 bg-app-bg border border-primary rounded-sm px-1 text-sm text-app-text outline-none"
                     />
                     <input
                       type="time"
                       value={editingTime}
                       onChange={(e) => setEditingTime(e.target.value)}
-                      className="bg-app-bg border border-primary rounded px-1 text-xs text-app-text outline-none"
+                      className="bg-app-bg border border-primary rounded-sm px-1 text-xs text-app-text outline-none"
                     />
                     <input
                       type="checkbox"
@@ -220,20 +207,20 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                     />
                   </div>
                 ) : (
-                  <span
-                    onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
-                    className={`text-sm strike justify-self-start ${item.done ? 'text-app-muted is-done' : 'text-app-text'}`}
-                  >
-                    {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
-                    {item.kind === 'task' && item.task.is_special_event && (
-                      <span className="day-pad-event-mark inline-block align-middle mr-1.5" title="Evento especial" />
-                    )}
-                    {item.time ? <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span> : null}
-                    {item.title}
-                  </span>
+                  <>
+                    {item.kind === 'task' && item.task.is_special_event && <span className="diamond" />}
+                    <span
+                      onDoubleClick={() => item.kind === 'task' && startEditing(item.task)}
+                      className={`flex-1 text-sm strike min-w-0 truncate ${item.done ? 'text-app-muted-2 is-done' : 'text-app-text'}`}
+                    >
+                      {item.time && <span className="font-mono text-xs text-app-muted-2 mr-2">{item.time.slice(0, 5)}</span>}
+                      {item.kind === 'recurring' && <span className="text-app-muted-2 mr-0.5" title="Tarefa recorrente">↻</span>}
+                      {item.title}
+                    </span>
+                  </>
                 )}
                 {item.kind === 'task' ? (
-                  <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1">✕</button>
+                  <button onClick={() => handleDelete(item.id)} className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-app-muted hover:text-danger text-xs px-1 shrink-0">✕</button>
                 ) : (
                   <button
                     onClick={() => handleSkipRecurring(item.id)}
@@ -245,11 +232,11 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                 )}
               </div>
             ))}
-            {dayItems.length === 0 && <p className="text-sm text-app-muted-2">Nenhuma tarefa nesse dia</p>}
+            {dayItems.length === 0 && <p className="text-sm text-app-muted-2 py-2">Nenhuma tarefa nesse dia</p>}
           </div>
 
-          <div className="flex flex-col gap-2 mt-3 pt-3 border-t border-dashed border-surface-border">
-            <div className="flex gap-1.5">
+          <div className="day-add">
+            <div className="day-add-row">
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -257,39 +244,31 @@ export function DayPanel({ date, onTasksChanged, refreshToken }: DayPanelProps) 
                   if (e.key === 'Enter') handleCreate();
                 }}
                 placeholder="Nova tarefa"
-                className="flex-1 bg-app-bg border border-surface-border rounded-lg px-2.5 py-1.5 text-xs text-app-text outline-none focus:border-primary"
+                className="input"
               />
-              <input
-                type="time"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                className="bg-app-bg border border-surface-border rounded-lg px-2.5 py-1.5 text-xs text-app-text outline-none focus:border-primary"
-              />
+              <input type="time" value={time} onChange={(e) => setTime(e.target.value)} className="input t-in" />
             </div>
             <button
               type="button"
               onClick={() => setIsSpecialEvent((v) => !v)}
               aria-pressed={isSpecialEvent}
-              className={`self-start inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[0.68rem] transition-colors ${
-                isSpecialEvent ? 'border-special text-special bg-special/10' : 'border-surface-border text-app-muted'
-              }`}
+              className={`evt-toggle${isSpecialEvent ? ' on' : ''}`}
             >
-              <span className={`w-1.5 h-1.5 rounded-full border ${isSpecialEvent ? 'bg-special border-special' : 'border-app-muted-2'}`} />
+              <span className="d2" />
               Evento especial
             </button>
           </div>
         </div>
 
         {/* --- Hábitos --- */}
-        <div className="relative mt-5 pt-5 border-t border-surface-border">
+        <div className="day-habits">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-mono text-[0.64rem] uppercase tracking-widest text-app-muted-2 font-semibold">Hábitos</h3>
-            <span className="font-mono text-[0.62rem] font-semibold text-success bg-success-dim rounded-full px-2 py-0.5">
-              {habitDone}/{habitTotal}
+            <h3 className="text-sm font-semibold">Hábitos</h3>
+            <span className="chip">
+              <b className="num">{habitDone}</b>/<span className="num">{habitTotal}</span>
             </span>
           </div>
           <HabitChecklist date={date} onCountsChange={(done, total) => { setHabitDone(done); setHabitTotal(total); }} />
-        </div>
         </div>
       </div>
     </div>

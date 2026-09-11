@@ -7,6 +7,7 @@ import { MonthHeader } from '../features/calendar/MonthHeader';
 import { MonthGrid } from '../features/calendar/MonthGrid';
 import { DayPanel } from '../features/calendar/DayPanel';
 import { RecurringTasksModal } from '../features/tasks/RecurringTasksModal';
+import { RevealOnMount } from '../components/common/RevealOnMount';
 import { useToast } from '../contexts/ToastContext';
 
 export function CalendarPage() {
@@ -72,31 +73,28 @@ export function CalendarPage() {
   }, [tasksByDate, month]);
 
   return (
-    <div className="relative overflow-hidden md:h-full md:flex md:flex-col">
-      <div className="dash-glow" />
-      <div className="relative p-4 md:p-6 max-w-7xl w-full mx-auto md:flex-1 md:flex md:flex-col md:min-h-0">
-        <MonthHeader
+    <RevealOnMount className="p-4 md:p-6 max-w-7xl w-full mx-auto md:h-full md:flex md:flex-col md:min-h-0">
+      <MonthHeader
+        year={year}
+        month={month}
+        monthTaskCount={monthTaskCount}
+        monthEventCount={monthEventCount}
+        onPrev={prevMonth}
+        onNext={nextMonth}
+        onToday={goToToday}
+        onOpenRecurring={() => setRecurringOpen(true)}
+      />
+
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 md:items-stretch md:flex-1 md:min-h-0 md:[grid-template-rows:minmax(0,1fr)]">
+        <MonthGrid
           year={year}
           month={month}
-          monthTaskCount={monthTaskCount}
-          monthEventCount={monthEventCount}
-          onPrev={prevMonth}
-          onNext={nextMonth}
-          onToday={goToToday}
-          onOpenRecurring={() => setRecurringOpen(true)}
+          tasksByDate={tasksByDate}
+          selectedDate={selectedDate}
+          onSelectDay={setSelectedDate}
         />
-
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_340px] gap-5 md:items-stretch md:flex-1 md:min-h-0 md:[grid-template-rows:minmax(0,1fr)]">
-          <MonthGrid
-            year={year}
-            month={month}
-            tasksByDate={tasksByDate}
-            selectedDate={selectedDate}
-            onSelectDay={setSelectedDate}
-          />
-          <div className="md:min-h-0">
-            {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
-          </div>
+        <div className="md:min-h-0">
+          {selectedDate && <DayPanel date={selectedDate} onTasksChanged={loadTasks} refreshToken={recurringVersion} />}
         </div>
       </div>
 
@@ -109,6 +107,6 @@ export function CalendarPage() {
           }}
         />
       )}
-    </div>
+    </RevealOnMount>
   );
 }
