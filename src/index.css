@@ -15,6 +15,7 @@
   --color-primary: #a9d3f2;
   --color-primary-bright: #c9e4f8;
   --color-primary-dim: rgba(169, 211, 242, 0.14);
+  --color-on-primary: #0f0f11;          /* texto/ícone sobre fundo primary — primary é claro no escuro, precisa de conteúdo escuro */
   --color-success: #46a97f;
   --color-success-dim: rgba(70, 169, 127, 0.16);
   --color-warn: #dfa43b;
@@ -46,6 +47,7 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
     --color-primary: #2563eb;
     --color-primary-bright: #1d4ed8;
     --color-primary-dim: rgba(37, 99, 235, 0.08);
+    --color-on-primary: #ffffff;
     --color-success: #2f8f63;
     --color-success-dim: rgba(47, 143, 99, 0.14);
     --color-warn: #b47c1d;
@@ -69,6 +71,7 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
   --color-primary: #2563eb;
   --color-primary-bright: #1d4ed8;
   --color-primary-dim: rgba(37, 99, 235, 0.08);
+  --color-on-primary: #ffffff;
   --color-success: #2f8f63;
   --color-success-dim: rgba(47, 143, 99, 0.14);
   --color-warn: #b47c1d;
@@ -145,7 +148,7 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
 }
 .check-control svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .check-control svg path {
-  fill: none; stroke: #fff; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
+  fill: none; stroke: var(--color-on-primary); stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round;
   stroke-dasharray: 16; stroke-dashoffset: 16; transition: stroke-dashoffset .2s ease .02s;
 }
 .check-control input:checked ~ .check-box { background: var(--color-primary); border-color: var(--color-primary); }
@@ -169,7 +172,7 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
   background: var(--color-surface); cursor: pointer; transition: background-color .15s ease;
 }
 .btn:hover { background: var(--color-surface-2); }
-.btn.primary { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.btn.primary { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
 .btn.primary:hover { background: var(--color-primary-bright); }
 .btn.ghost { border-color: transparent; color: var(--color-app-muted); }
 .btn.ghost:hover { background: var(--color-surface-2); color: var(--color-app-text); }
@@ -243,7 +246,7 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
 .cc .d { font-family: var(--font-mono); font-size: 11.5px; color: var(--color-app-muted); width: 20px; height: 20px; display: grid; place-items: center; }
 .cc.dim { background: var(--color-app-bg); }
 .cc.dim .d { color: var(--color-app-muted-2); opacity: .55; }
-.cc.today .d { background: var(--color-primary); color: #fff; border-radius: 999px; font-weight: 600; }
+.cc.today .d { background: var(--color-primary); color: var(--color-on-primary); border-radius: 999px; font-weight: 600; }
 .cc.selected { outline: 2px solid var(--color-primary); outline-offset: -2px; }
 .cc .e { font-size: 10.5px; color: var(--color-app-muted); display: flex; align-items: center; gap: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; }
 .cc .e::before { content: ""; width: 5px; height: 5px; border-radius: 999px; background: var(--color-app-muted-2); flex: none; }
@@ -276,7 +279,7 @@ body { background: var(--color-app-bg); color: var(--color-app-text); font-famil
 .rec-add { margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--color-surface-border); display: flex; flex-direction: column; gap: 9px; }
 .wk-pick { display: flex; gap: 5px; }
 .wk-pick button { width: 30px; height: 30px; border-radius: 6px; border: 1px solid var(--color-surface-border); background: var(--color-surface); font-size: 11px; font-weight: 600; color: var(--color-app-muted); cursor: pointer; transition: background-color .15s ease, color .15s ease; }
-.wk-pick button.on { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.wk-pick button.on { background: var(--color-primary); border-color: var(--color-primary); color: var(--color-on-primary); }
 .rec-add-row { display: flex; gap: 6px; }
 .rec-add-row .t-in { width: 86px; flex: none; }
 
@@ -570,7 +573,7 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
 .key.is-on {
   background: var(--color-primary);
   border-color: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
 }
 
 .key-wide { width: auto; padding: 0 7px; font-size: 0.62rem; }
@@ -769,7 +772,7 @@ input[type='time']::-webkit-calendar-picker-indicator:hover {
   display: block;
   width: 100%;
   background: var(--color-primary);
-  color: #fff;
+  color: var(--color-on-primary);
   border: none;
   border-radius: var(--radius-sm);
   padding: 7px 0;

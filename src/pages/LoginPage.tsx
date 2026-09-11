@@ -87,7 +87,7 @@ export function LoginPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-primary text-white rounded-sm py-2.5 font-semibold hover:bg-primary-bright transition-colors disabled:opacity-60"
+          className="bg-primary text-on-primary rounded-sm py-2.5 font-semibold hover:bg-primary-bright transition-colors disabled:opacity-60"
         >
           {isSignup ? 'Criar conta' : 'Entrar'}
         </button>
