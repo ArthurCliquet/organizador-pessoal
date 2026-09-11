@@ -87,7 +87,7 @@ export function AddTransactionModal({
                 setType('expense');
                 setCategoryId('');
               }}
-              className={`btn flex-1 justify-center ${type === 'expense' ? 'border-danger text-danger' : ''}`}
+              className={`btn flex-1 justify-center ${type === 'expense' ? 'danger' : ''}`}
             >
               Saída
             </button>
@@ -97,7 +97,7 @@ export function AddTransactionModal({
                 setType('income');
                 setCategoryId('');
               }}
-              className={`btn flex-1 justify-center ${type === 'income' ? 'border-success text-success' : ''}`}
+              className={`btn flex-1 justify-center ${type === 'income' ? 'success' : ''}`}
             >
               Entrada
             </button>
