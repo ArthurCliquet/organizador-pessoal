@@ -6,14 +6,15 @@ import { Card } from '../components/common/Card';
 import { Spinner } from '../components/common/Spinner';
 import { RevealOnMount } from '../components/common/RevealOnMount';
 import { useToast } from '../contexts/ToastContext';
-import type { Account, Habit, HabitLog, RecurringTask, RecurringTaskLog, Task, Transaction } from '../types';
+import type { Habit, HabitLog, RecurringTask, RecurringTaskLog, Task } from '../types';
 import { getWeekRange, getSevenDaysFrom, toISODate, WEEKDAY_LABELS } from '../features/calendar/dateUtils';
 import { getTasksForRange } from '../features/tasks/tasksApi';
 import { getRecurringTasks, getRecurringLogsForRange } from '../features/tasks/recurringTasksApi';
 import { getHabits, getHabitLogsForRange } from '../features/habits/habitsApi';
-import { getAccounts, getTransactionsForRange, calculateMonthSummary } from '../features/finance/financeApi';
+import { calculateMonthSummary } from '../features/finance/financeApi';
 import { calculateTaskStats, calculateHabitStats } from '../features/weeklyReview/weeklyReviewStats';
 import { formatCurrency } from '../lib/currency';
+import { useFinanceData } from '../contexts/FinanceDataContext';
 
 const WEEKDAY_FULL = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
 
@@ -24,6 +25,7 @@ function formatWeekLabel(start: Date, end: Date): string {
 
 export function WeeklyReviewPage() {
   const { showError } = useToast();
+  const { accounts, transactions } = useFinanceData();
   const [weekStart, setWeekStart] = useState(() => getWeekRange(new Date()).start);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -35,9 +37,6 @@ export function WeeklyReviewPage() {
   const [recurringLogs, setRecurringLogs] = useState<RecurringTaskLog[]>([]);
   const [habits, setHabits] = useState<Habit[]>([]);
   const [habitLogs, setHabitLogs] = useState<HabitLog[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [prevTransactions, setPrevTransactions] = useState<Transaction[]>([]);
 
   const weekEnd = getWeekRange(weekStart).end;
   const startISO = toISODate(weekStart);
@@ -55,15 +54,12 @@ export function WeeklyReviewPage() {
     setLoading(true);
     setError(false);
     try {
-      const [t, rt, rl, h, hl, tx, accs, prevTx] = await Promise.all([
+      const [t, rt, rl, h, hl] = await Promise.all([
         getTasksForRange(startISO, endISO),
         getRecurringTasks(),
         getRecurringLogsForRange(startISO, endISO),
         getHabits(),
         getHabitLogsForRange(startISO, endISO),
-        getTransactionsForRange(startISO, endISO),
-        getAccounts(),
-        getTransactionsForRange(prevStartISO, prevEndISO),
       ]);
       if (gen !== loadGenRef.current) return;
       setTasks(t);
@@ -71,9 +67,6 @@ export function WeeklyReviewPage() {
       setRecurringLogs(rl);
       setHabits(h);
       setHabitLogs(hl);
-      setTransactions(tx);
-      setAccounts(accs);
-      setPrevTransactions(prevTx);
       setHasLoadedOnce(true);
     } catch {
       if (gen !== loadGenRef.current) return;
@@ -82,7 +75,7 @@ export function WeeklyReviewPage() {
     } finally {
       if (gen === loadGenRef.current) setLoading(false);
     }
-  }, [startISO, endISO, prevStartISO, prevEndISO, showError]);
+  }, [startISO, endISO, showError]);
 
   useEffect(() => {
     load();
@@ -92,7 +85,7 @@ export function WeeklyReviewPage() {
   const habitStats = calculateHabitStats(habits, habitLogs, weekDates);
   const { income, expense } = calculateMonthSummary(transactions, startISO, endISO, accounts);
 
-  const { income: prevIncome, expense: prevExpense } = calculateMonthSummary(prevTransactions, prevStartISO, prevEndISO, accounts);
+  const { income: prevIncome, expense: prevExpense } = calculateMonthSummary(transactions, prevStartISO, prevEndISO, accounts);
   const net = income - expense;
   const prevNet = prevIncome - prevExpense;
   const financeDelta = net - prevNet;

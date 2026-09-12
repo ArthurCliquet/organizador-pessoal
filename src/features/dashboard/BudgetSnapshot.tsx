@@ -1,11 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
 import { startOfMonth, endOfMonth } from 'date-fns';
-import type { Category, CategoryLimit, Transaction } from '../../types';
-import { getCategoryLimits, ensureDefaultCategories, getTransactionsForRange, calculateCategorySpending } from '../finance/financeApi';
+import { Link } from 'react-router-dom';
+import { calculateCategorySpending } from '../finance/financeApi';
 import { toISODate } from '../calendar/dateUtils';
 import { formatCurrency } from '../../lib/currency';
-import { useToast } from '../../contexts/ToastContext';
+import { useFinanceData } from '../../contexts/FinanceDataContext';
 
 // Mesma escala de cor das barras de limite em Finanças (MonthlyLimits).
 function barTone(percent: number): 'hot' | 'warn' | 'ok' {
@@ -22,32 +20,7 @@ function valueTone(percent: number): string {
 }
 
 export function BudgetSnapshot() {
-  const { showError } = useToast();
-  const [limits, setLimits] = useState<CategoryLimit[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-  const load = useCallback(async () => {
-    try {
-      const now = new Date();
-      const monthStart = toISODate(startOfMonth(now));
-      const monthEnd = toISODate(endOfMonth(now));
-      const [l, c, tx] = await Promise.all([
-        getCategoryLimits(),
-        ensureDefaultCategories(),
-        getTransactionsForRange(monthStart, monthEnd),
-      ]);
-      setLimits(l);
-      setCategories(c);
-      setTransactions(tx);
-    } catch {
-      showError('Não foi possível carregar o orçamento do mês.');
-    }
-  }, [showError]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const { categoryLimits: limits, categories, transactions } = useFinanceData();
 
   const now = new Date();
   const monthStart = toISODate(startOfMonth(now));

@@ -1,14 +1,12 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Card } from '../components/common/Card';
 import { Spinner } from '../components/common/Spinner';
 import { RevealOnMount } from '../components/common/RevealOnMount';
 import { useToast } from '../contexts/ToastContext';
-import type { Account, Category, CategoryLimit, Transaction } from '../types';
+import { useFinanceData } from '../contexts/FinanceDataContext';
+import type { Transaction } from '../types';
 import {
-  getAccounts,
   createAccount,
-  ensureDefaultCategories,
-  getTransactions,
   updateAccountInitialBalance,
   updateAccountName,
   deleteAccount,
@@ -19,7 +17,6 @@ import {
   updateTransfer,
   updateInvestmentValue,
   calculateContributedTotal,
-  getCategoryLimits,
   createCategoryLimit,
   updateCategoryLimit,
   deleteCategoryLimit,
@@ -35,12 +32,7 @@ import { ManageAccountsModal } from '../features/finance/ManageAccountsModal';
 
 export function FinancePage() {
   const { showError } = useToast();
-  const [accounts, setAccounts] = useState<Account[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categoryLimits, setCategoryLimits] = useState<CategoryLimit[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const { accounts, categories, transactions, categoryLimits, loading, error, refresh } = useFinanceData();
   const [addOpen, setAddOpen] = useState(false);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
   const [newAccountOpen, setNewAccountOpen] = useState(false);
@@ -48,32 +40,11 @@ export function FinancePage() {
   const [manageAccountsOpen, setManageAccountsOpen] = useState(false);
   const [creatingAccount, setCreatingAccount] = useState(false);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError(false);
-    try {
-      const [accs, cats, limits] = await Promise.all([getAccounts(), ensureDefaultCategories(), getCategoryLimits()]);
-      setAccounts(accs);
-      setCategories(cats);
-      setCategoryLimits(limits);
-      setTransactions(await getTransactions());
-    } catch {
-      showError('Não foi possível carregar seus dados financeiros.');
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, [showError]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
   async function handleCreateAccount(input: { name: string; initialBalance: number; isInvestment: boolean }) {
     setCreatingAccount(true);
     try {
-      const account = await createAccount(input.name, input.initialBalance, input.isInvestment);
-      setAccounts((prev) => [...prev, account]);
+      await createAccount(input.name, input.initialBalance, input.isInvestment);
+      await refresh();
       setNewAccountOpen(false);
     } catch (err) {
       if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
@@ -89,7 +60,7 @@ export function FinancePage() {
   async function handleUpdateInitialBalance(accountId: string, value: number) {
     try {
       await updateAccountInitialBalance(accountId, value);
-      setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, initial_balance: value } : a)));
+      await refresh();
     } catch {
       showError('Não foi possível atualizar o saldo.');
     }
@@ -98,7 +69,7 @@ export function FinancePage() {
   async function handleRenameAccount(accountId: string, name: string) {
     try {
       await updateAccountName(accountId, name);
-      setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, name } : a)));
+      await refresh();
     } catch (err) {
       if (err && typeof err === 'object' && 'code' in err && err.code === '23505') {
         showError('Você já tem uma conta com esse nome.');
@@ -111,7 +82,7 @@ export function FinancePage() {
   async function handleDeleteAccount(accountId: string) {
     try {
       await deleteAccount(accountId);
-      setAccounts((prev) => prev.filter((a) => a.id !== accountId));
+      await refresh();
     } catch {
       showError('Não foi possível excluir a conta.');
     }
@@ -123,7 +94,7 @@ export function FinancePage() {
     const contributed = calculateContributedTotal(account, transactions);
     try {
       await updateInvestmentValue(accountId, currentValue, contributed);
-      setAccounts((prev) => prev.map((a) => (a.id === accountId ? { ...a, value_adjustment: currentValue - contributed } : a)));
+      await refresh();
     } catch {
       showError('Não foi possível atualizar o valor da conta.');
     }
@@ -138,7 +109,7 @@ export function FinancePage() {
   }) {
     try {
       await createTransfer(input);
-      setTransactions(await getTransactions());
+      await refresh();
       setTransferOpen(false);
     } catch {
       showError('Não foi possível salvar a transferência.');
@@ -151,7 +122,7 @@ export function FinancePage() {
   ) {
     try {
       await updateTransfer(id, input);
-      setTransactions(await getTransactions());
+      await refresh();
       setEditingTransaction(null);
     } catch {
       showError('Não foi possível atualizar a transferência.');
@@ -160,8 +131,8 @@ export function FinancePage() {
 
   async function handleCreateCategoryLimit(categoryId: string, monthlyLimit: number) {
     try {
-      const limit = await createCategoryLimit(categoryId, monthlyLimit);
-      setCategoryLimits((prev) => [...prev, limit]);
+      await createCategoryLimit(categoryId, monthlyLimit);
+      await refresh();
     } catch {
       showError('Não foi possível criar o limite.');
     }
@@ -170,7 +141,7 @@ export function FinancePage() {
   async function handleUpdateCategoryLimit(id: string, monthlyLimit: number) {
     try {
       await updateCategoryLimit(id, monthlyLimit);
-      setCategoryLimits((prev) => prev.map((l) => (l.id === id ? { ...l, monthly_limit: monthlyLimit } : l)));
+      await refresh();
     } catch {
       showError('Não foi possível atualizar o limite.');
     }
@@ -179,7 +150,7 @@ export function FinancePage() {
   async function handleDeleteCategoryLimit(id: string) {
     try {
       await deleteCategoryLimit(id);
-      setCategoryLimits((prev) => prev.filter((l) => l.id !== id));
+      await refresh();
     } catch {
       showError('Não foi possível remover o limite.');
     }
@@ -195,7 +166,7 @@ export function FinancePage() {
   }) {
     try {
       await createTransaction(input);
-      setTransactions(await getTransactions());
+      await refresh();
       setAddOpen(false);
     } catch {
       showError('Não foi possível salvar a movimentação.');
@@ -215,7 +186,7 @@ export function FinancePage() {
   ) {
     try {
       await updateTransaction(id, input);
-      setTransactions(await getTransactions());
+      await refresh();
       setEditingTransaction(null);
     } catch {
       showError('Não foi possível atualizar a movimentação.');
@@ -225,7 +196,7 @@ export function FinancePage() {
   async function handleDeleteTransaction(id: string) {
     try {
       await deleteTransaction(id);
-      setTransactions(await getTransactions());
+      await refresh();
       setEditingTransaction(null);
     } catch {
       showError('Não foi possível excluir a movimentação.');
@@ -245,7 +216,7 @@ export function FinancePage() {
       <div className="p-4 md:p-6 flex flex-col items-center justify-center gap-3 min-h-[50vh]">
         <p className="text-sm text-app-muted">Não foi possível carregar seus dados financeiros.</p>
         <button
-          onClick={() => load()}
+          onClick={() => refresh()}
           className="font-mono text-xs px-4 py-2 rounded bg-primary text-on-primary font-semibold"
         >
           Tentar de novo

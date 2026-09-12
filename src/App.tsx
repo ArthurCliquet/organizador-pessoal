@@ -2,6 +2,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider } from './theme/ThemeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { ToastProvider } from './contexts/ToastContext';
+import { FinanceDataProvider } from './contexts/FinanceDataContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
@@ -20,7 +21,13 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route element={<ProtectedRoute />}>
-                <Route element={<AppLayout />}>
+                <Route
+                  element={
+                    <FinanceDataProvider>
+                      <AppLayout />
+                    </FinanceDataProvider>
+                  }
+                >
                   <Route path="/" element={<DashboardPage />} />
                   <Route path="/notas" element={<NotesPage />} />
                   <Route path="/calendario" element={<CalendarPage />} />
