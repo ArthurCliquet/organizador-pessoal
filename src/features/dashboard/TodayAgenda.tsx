@@ -1,9 +1,9 @@
-import { useEffect, useState, useCallback } from 'react';
-import type { RecurringTask, RecurringTaskLog, Task } from '../../types';
-import { getTasksForDate, toggleTask } from '../tasks/tasksApi';
-import { getRecurringTasks, getRecurringLogsForDate, toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
+import { useEffect } from 'react';
+import { toggleTask } from '../tasks/tasksApi';
+import { toggleRecurringLog, skipRecurringOccurrence } from '../tasks/recurringTasksApi';
 import { getWeekday, toISODate } from '../calendar/dateUtils';
 import { useToast } from '../../contexts/ToastContext';
+import { useTodayAgenda } from '../../contexts/TodayAgendaContext';
 import { TaskCheck } from '../../components/common/TaskCheck';
 
 type DayItem =
@@ -17,24 +17,7 @@ interface TodayAgendaProps {
 export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
   const { showError } = useToast();
   const today = toISODate(new Date());
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [recurringTasks, setRecurringTasks] = useState<RecurringTask[]>([]);
-  const [recurringLogs, setRecurringLogs] = useState<RecurringTaskLog[]>([]);
-
-  const load = useCallback(async () => {
-    try {
-      const [t, rt, rl] = await Promise.all([getTasksForDate(today), getRecurringTasks(), getRecurringLogsForDate(today)]);
-      setTasks(t);
-      setRecurringTasks(rt);
-      setRecurringLogs(rl);
-    } catch {
-      showError('Não foi possível carregar as tarefas de hoje.');
-    }
-  }, [today, showError]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const { tasks, setTasks, recurringTasks, recurringLogs, setRecurringLogs, refresh } = useTodayAgenda();
 
   const weekday = getWeekday(today);
   const dayItems: DayItem[] = [
@@ -69,7 +52,7 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
         await toggleTask(item.id, !item.done);
       } catch {
         showError('Não foi possível atualizar a tarefa.');
-        load();
+        refresh();
       }
     } else {
       const done = !item.done;
@@ -82,7 +65,7 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
         await toggleRecurringLog(item.id, today, done);
       } catch {
         showError('Não foi possível atualizar a tarefa recorrente.');
-        load();
+        refresh();
       }
     }
   }
@@ -97,7 +80,7 @@ export function TodayAgenda({ onCountsChange }: TodayAgendaProps) {
       await skipRecurringOccurrence(recurringTaskId, today);
     } catch {
       showError('Não foi possível pular a tarefa recorrente hoje.');
-      load();
+      refresh();
     }
   }
 
