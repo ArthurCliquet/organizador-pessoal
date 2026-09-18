@@ -1,6 +1,6 @@
 # Nock
 
-App pessoal de organização: dashboard, notas com pastas e calendário com tarefas e hábitos diários.
+App pessoal de organização: dashboard, notas com pastas, calendário com tarefas e hábitos diários, finanças (contas, transações, categorias, limites mensais e investimentos) e revisão semanal.
 
 ## Setup
 
@@ -14,7 +14,11 @@ App pessoal de organização: dashboard, notas com pastas e calendário com tare
 
 ## Schema
 
-O schema do banco está em `supabase/migrations/0001_init.sql`. Todas as tabelas têm Row Level Security restringindo cada usuário aos próprios dados.
+O schema do banco está em `supabase/migrations/*.sql` (migrations numeradas e aditivas, `0001` em diante). Todas as tabelas têm Row Level Security restringindo cada usuário aos próprios dados.
+
+## Testes
+
+Sem lint e sem suíte de testes automatizados — decisão de escopo para um app de uso pessoal. Validação é manual (`npm run dev` + checagem visual) antes de cada commit.
 
 ## Pendência conhecida
 
